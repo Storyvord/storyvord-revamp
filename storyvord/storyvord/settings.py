@@ -155,7 +155,7 @@ db_config['OPTIONS'] = {'sslmode': 'require'}
 DATABASES = {
     'default': {
             'ENGINE': 'django.db.backends.postgresql',  #'django.db.backends.mysql',  # or 
-            "NAME": "storyvord",
+            "NAME": "storyvord1",
             "USER": "postgres",
             "PASSWORD": "root",
             "HOST": "127.0.0.1",
@@ -182,6 +182,7 @@ DATABASES = {
        
 }
 
+AUTH_USER_MODEL = "accounts.User"
 
 # Google Cloud Storage settings
 DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'

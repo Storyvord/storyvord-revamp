@@ -1,6 +1,8 @@
 import uuid
 from django.db import models
-from django.contrib.auth.models import User
+
+from accounts.models import User
+
 
 class StatusChoices(models.TextChoices):
     PLANNING = 'PLANNING', 'Planning'
@@ -36,7 +38,7 @@ class Project(models.Model):
     content_type = models.CharField(max_length=256)
     selected_crew = models.TextField()
     equipment = models.TextField()
-    uploaded_document = models.FieldFile(blank=True, null=True)
+    uploaded_document = models.FileField(blank=True, null=True)
     location_details = models.ManyToManyField(LocationDetail, related_name='projects')
     status = models.CharField(
         max_length=30, choices=StatusChoices.choices, default=StatusChoices.PLANNING
@@ -45,7 +47,7 @@ class Project(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     
     class Meta:
-        ordering = ['id']
+        ordering = ['project_id']
     
     def __str__(self):
         return self.name
