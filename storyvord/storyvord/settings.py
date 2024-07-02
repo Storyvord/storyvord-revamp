@@ -158,10 +158,10 @@ DATABASES = {
     'default': {
             'ENGINE': 'django.db.backends.postgresql',  #'django.db.backends.mysql',  # or 
             "HOST": "127.0.0.1",
-            'NAME': 'storyvord_db',
-            'USER': 'storyvord',
-            'PASSWORD': 'storyvord',
-            'PORT': '1234' #5432  
+            'NAME': 'story',
+            'USER': 'postgres',
+            'PASSWORD': 'root',
+            'PORT': '5432' #5432  
         }   
     
 
