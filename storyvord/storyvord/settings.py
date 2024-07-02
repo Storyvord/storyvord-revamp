@@ -104,6 +104,8 @@ MIDDLEWARE = [
     'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
+
+
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 CORS_ALLOW_ALL_ORIGINS = True
@@ -155,11 +157,11 @@ db_config['OPTIONS'] = {'sslmode': 'require'}
 DATABASES = {
     'default': {
             'ENGINE': 'django.db.backends.postgresql',  #'django.db.backends.mysql',  # or 
-            "NAME": "storyvord1",
-            "USER": "postgres",
-            "PASSWORD": "root",
             "HOST": "127.0.0.1",
-            "PORT": 5432,
+            'NAME': 'story',
+            'USER': 'postgres',
+            'PASSWORD': 'root',
+            'PORT': '5432' #5432  
         }   
     
 
@@ -188,7 +190,7 @@ AUTH_USER_MODEL = "accounts.User"
 DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
 GS_BUCKET_NAME = 'storyvord-profile'
 GS_CREDENTIALS = service_account.Credentials.from_service_account_file(
-    os.path.join(BASE_DIR, r'D:\storyvord\storyvord\storyvord\apis-gcp-storyvord.json')
+    os.path.join(BASE_DIR, r'D:\DjangoStoryVordRE-2024\storyvord-revamp\storyvord\apis-gcp-storyvord.json')
 )
 
 # Static files (CSS, JavaScript, Images)
