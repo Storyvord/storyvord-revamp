@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import LocationDetail, Project
+from .models import *
 
 class LocationDetailSerializer(serializers.ModelSerializer):
     class Meta:
@@ -32,3 +32,8 @@ class ProjectSerializer(serializers.ModelSerializer):
                 instance.location_details.add(location_detail)
         
         return instance
+    
+class OnboardRequestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OnboardRequest
+        fields = ['id', 'project', 'crew', 'status', 'created_at', 'updated_at']

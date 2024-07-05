@@ -6,6 +6,7 @@ class CrewProfile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     name = models.CharField(max_length=256, null=True, blank=True)
     phone = models.CharField(max_length=256, null=True, blank=True)
+    image = models.ImageField(upload_to='profile_images/', blank=True, null=True)
     location = models.CharField(max_length=256, null=True, blank=True)
     languages = models.CharField(max_length=256, null=True, blank=True)
     job_title = models.CharField(max_length=256, null=True, blank=True)
@@ -15,6 +16,9 @@ class CrewProfile(models.Model):
     technicalProficiencies = models.CharField(max_length=256, null=True, blank=True)
     specializations = models.CharField(max_length=256, null=True, blank=True)
     drive = models.BooleanField(default=False)
+    
+    def __str__(self):
+        return self.user.email
     
 class CrewCredits(models.Model):
     crew = models.ForeignKey(CrewProfile, on_delete=models.CASCADE)
@@ -26,22 +30,37 @@ class CrewCredits(models.Model):
     type_of_content = models.CharField(max_length=256, null=True, blank=True)
     tags = models.CharField(max_length=256, null=True, blank=True)
     
+    def __str__(self):
+        return self.crew.user.email
+    
 class CrewEducation(models.Model):
     crew = models.ForeignKey(CrewProfile, on_delete=models.CASCADE)
     academicQualifications = models.CharField(max_length=256, null=True, blank=True)
     professionalCourses = models.CharField(max_length=256, null=True, blank=True)
     workshopsAttended = models.CharField(max_length=256, null=True, blank=True)
     
+    def __str__(self):
+        return self.crew.user.email
+    
 class CrewRate(models.Model):
     crew = models.ForeignKey(CrewProfile, on_delete=models.CASCADE)
     standardRate = models.CharField(max_length=256, null=True, blank=True)
     negotiation = models.BooleanField(default=False)
+    
+    def __str__(self):
+        return self.crew.user.email
     
 class EndorsementfromPeers(models.Model):
     crew = models.ForeignKey(CrewProfile, on_delete=models.CASCADE)
     text = models.TextField(null=True, blank=True)
     givenBy = models.CharField(max_length=256, null=True, blank=True)
     
+    def __str__(self):
+        return self.crew.user.email
+    
 class SocialLinks(models.Model):
     crew = models.ForeignKey(CrewProfile, on_delete=models.CASCADE)
     link = models.CharField(max_length=256, null=True, blank=True)
+    
+    def __str__(self):
+        return self.crew.user.email

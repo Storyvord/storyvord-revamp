@@ -190,7 +190,7 @@ AUTH_USER_MODEL = "accounts.User"
 DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
 GS_BUCKET_NAME = 'storyvord-profile'
 GS_CREDENTIALS = service_account.Credentials.from_service_account_file(
-    os.path.join(BASE_DIR, r'D:\DjangoStoryVordRE-2024\storyvord-revamp\storyvord\apis-gcp-storyvord.json')
+    os.path.join(BASE_DIR, r'D:\storyvord_main\storyvord-revamp\storyvord\apis-gcp-storyvord.json')
 )
 
 # Static files (CSS, JavaScript, Images)

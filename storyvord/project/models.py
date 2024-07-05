@@ -51,3 +51,10 @@ class Project(models.Model):
     
     def __str__(self):
         return self.name
+    
+class OnboardRequest(models.Model):
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    crew = models.ForeignKey(User, on_delete=models.CASCADE, limit_choices_to={'user_type': 'crew'})
+    status = models.CharField(max_length=20, choices=[('pending', 'Pending'), ('accepted', 'Accepted'), ('declined', 'Declined')], default='pending')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
