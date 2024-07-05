@@ -1,4 +1,5 @@
 import uuid
+from django.conf import settings
 from django.db import models
 
 from accounts.models import User
@@ -39,12 +40,13 @@ class Project(models.Model):
     selected_crew = models.TextField()
     equipment = models.TextField()
     uploaded_document = models.FileField(blank=True, null=True)
-    location_details = models.ManyToManyField(LocationDetail, related_name='projects')
+    location_details = models.ManyToManyField(LocationDetail, related_name='projects', blank=True)
     status = models.CharField(
         max_length=30, choices=StatusChoices.choices, default=StatusChoices.PLANNING
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    crew_profiles = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='projects', blank=True)
     
     class Meta:
         ordering = ['project_id']
@@ -54,7 +56,7 @@ class Project(models.Model):
     
 class OnboardRequest(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
-    crew = models.ForeignKey(User, on_delete=models.CASCADE, limit_choices_to={'user_type': 'crew'})
+    user = models.ForeignKey(User, on_delete=models.CASCADE, limit_choices_to={'user_type': 'crew'})
     status = models.CharField(max_length=20, choices=[('pending', 'Pending'), ('accepted', 'Accepted'), ('declined', 'Declined')], default='pending')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

@@ -36,4 +36,4 @@ class ProjectSerializer(serializers.ModelSerializer):
 class OnboardRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = OnboardRequest
-        fields = ['id', 'project', 'crew', 'status', 'created_at', 'updated_at']
+        fields = ['id', 'project', 'user', 'status', 'created_at', 'updated_at']
