@@ -62,10 +62,15 @@ INSTALLED_APPS = [
     'storages',
     'rest_framework_swagger',
     #'drf_yasg',                      # Yet Another Swagger generator,
+    
+    
     'crew',
     'client',
     'accounts',
     'project',
+    'storyvord_calendar',
+    
+    
     'corsheaders',
     'djoser',
     'drf_spectacular'
