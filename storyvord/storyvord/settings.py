@@ -191,12 +191,44 @@ DATABASES = {
 
 AUTH_USER_MODEL = "accounts.User"
 
+
+# Set environment variable to point to the service account JSON key file
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = r'D:\DjangoStoryVordRE-2024\storyvord-revamp\storyvord\apis-gcp-storyvord.json'
+
+
+# +++++++++++++++++++++++++++++++++++++++++++++
 # Google Cloud Storage settings
 DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+
 GS_BUCKET_NAME = 'storyvord-profile'
-GS_CREDENTIALS = service_account.Credentials.from_service_account_file(
-    os.path.join(BASE_DIR, r'D:\storyvord_main\storyvord-revamp\storyvord\apis-gcp-storyvord.json')
+
+# New storage (newly-created-bucket-name)
+GS_BUCKET_NAME_NEW = 'newly-created-bucket-name'
+GS_CREDENTIALS_NEW = service_account.Credentials.from_service_account_file(
+    r'D:\DjangoStoryVordRE-2024\storyvord-revamp\storyvord\apis-gcp-storyvord.json'
 )
+
+# Define a new storage backend for the new bucket
+NEW_STORAGE = {
+    'BACKEND': 'storages.backends.gcloud.GoogleCloudStorage',
+    'GS_BUCKET_NAME': GS_BUCKET_NAME_NEW,
+    'GS_CREDENTIALS': GS_CREDENTIALS_NEW,
+} 
+
+# GS_CREDENTIALS = service_account.Credentials.from_service_account_file(
+#     r'D:\DjangoStoryVordRE-2024\storyvord-revamp\storyvord\apis-gcp-storyvord.json'
+# )
+
+# GS_PROJECT_FILES_CREDENTIALS = service_account.Credentials.from_service_account_file(
+#     r'D:\DjangoStoryVordRE-2024\storyvord-revamp\storyvord\apis-gcp-storyvord.json'
+# )
+
+
+# GS_CREDENTIALS = service_account.Credentials.from_service_account_file(
+#     os.path.join(BASE_DIR, r'D:\DjangoStoryVordRE-2024\storyvord-revamp\storyvord\apis-gcp-storyvord.json'))
+# GS_CREDENTIALS = service_account.Credentials.from_service_account_file(GS_CREDENTIALS_PATH)
+
+
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = 'static/'
