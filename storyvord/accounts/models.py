@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.base_user import BaseUserManager
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import AbstractUser
-
+from .utils import send_welcome_email  # Import from utils# from .utils import send_welcome_email  # Import from utils
 
 class CustomUserManager(BaseUserManager):
     """
@@ -23,6 +23,8 @@ class CustomUserManager(BaseUserManager):
 
         user.set_password(password)
         user.save()
+        
+        send_welcome_email(user)  # Send welcome email
         return user
 
     def create_superuser(self, email, password, **extra_fields):

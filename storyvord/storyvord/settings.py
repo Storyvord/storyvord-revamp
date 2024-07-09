@@ -74,6 +74,7 @@ INSTALLED_APPS = [
     
     'corsheaders',
     'djoser',
+    'django.core.mail.backends.smtp',
     'drf_spectacular'
 ]
 
@@ -193,6 +194,7 @@ DATABASES = {
 AUTH_USER_MODEL = "accounts.User"
 
 
+
 # Set environment variable to point to the service account JSON key file
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = r'D:\DjangoStoryVordRE-2024\storyvord-revamp\storyvord\apis-gcp-storyvord.json'
 
@@ -244,6 +246,15 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 
 #AUTH_USER_MODEL = 'core.User'
+
+SENDGRID_API_KEY = env('SENDGRID_API_KEY')
+
+EMAIL_HOST = 'smtp.sendgrid.net'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'apikey'
+EMAIL_HOST_PASSWORD = SENDGRID_API_KEY
+DEFAULT_NO_REPLY_EMAIL = 'getvishalprajapati@gmail.com'
 
 AUTH_PASSWORD_VALIDATORS = [
     {
