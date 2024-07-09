@@ -69,6 +69,7 @@ INSTALLED_APPS = [
     'accounts',
     'project',
     'storyvord_calendar',
+    'files',
     
     
     'corsheaders',
