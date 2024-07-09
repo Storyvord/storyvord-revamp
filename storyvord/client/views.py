@@ -33,28 +33,28 @@ from rest_framework.parsers import MultiPartParser
 from rest_framework.permissions import IsAuthenticated  # Ensure this import is present
 from accounts.models import User  # Adjust the import path as per your User model location
 
-class ProfileAPIView(APIView):
-    permission_classes = [IsAuthenticated]  # Apply IsAuthenticated permission globally
+# class ProfileAPIView(APIView):
+#     permission_classes = [IsAuthenticated]  # Apply IsAuthenticated permission globally
 
-    def post(self, request):
-        # Ensure the logged-in user has an associated account
-        try:
-            user = User.objects.get(id=request.user.id)  # Change: Ensure user exists
-        except User.DoesNotExist:
-            return Response({"detail": "User account does not exist."}, status=status.HTTP_404_NOT_FOUND)  # Comment: Handle if user not found
+#     def put(self, request):
+#         # Ensure the logged-in user has an associated account
+#         try:
+#             user = User.objects.get(id=request.user.id)  # Change: Ensure user exists
+#         except User.DoesNotExist:
+#             return Response({"detail": "User account does not exist."}, status=status.HTTP_404_NOT_FOUND)  # Comment: Handle if user not found
 
-        # Ensure the logged-in user doesn't already have a profile
-        if ClientProfile.objects.filter(user=request.user).exists():  # Change: Check if profile exists for user
-            return Response({"detail": "Profile already exists."}, status=status.HTTP_400_BAD_REQUEST)  # Comment: Handle if profile already exists
+#         # Ensure the logged-in user doesn't already have a profile
+#         if ClientProfile.objects.filter(user=request.user).exists():  # Change: Check if profile exists for user
+#             return Response({"detail": "Profile already exists."}, status=status.HTTP_400_BAD_REQUEST)  # Comment: Handle if profile already exists
 
-        # Create a new profile for the logged-in user
-        serializer = ProfileSerializer(data=request.data)
-        if serializer.is_valid():
-            # serializer.save(user=request.user)
-            serializer.save(user=request.user, user_type=request.user.user_type)  # Change: Ensure user_type is saved
+#         # Create a new profile for the logged-in user
+#         serializer = ProfileSerializer(data=request.data)
+#         if serializer.is_valid():
+#             # serializer.save(user=request.user)
+#             serializer.save(user=request.user, user_type=request.user.user_type)  # Change: Ensure user_type is saved
 
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)  # Comment: Handle serializer errors
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)  # Comment: Handle serializer errors
 
 
 
@@ -98,15 +98,15 @@ class ProfileDetailAPIView(APIView):
         serializer = ProfileSerializer(profile, data=request.data)
         if serializer.is_valid():
             # Handle image upload/update
-            if 'image' in request.data:
-                # Delete previous image if updating
-                if profile.image:
-                    profile.image.delete()
+            # if 'image' in request.data:
+            #     # Delete previous image if updating
+            #     if profile.image:
+            #         profile.image.delete()
 
-                # Save new image and update URL
-                image = request.data.get('image')
-                profile.image = image
-                profile.image = f'https://storage.googleapis.com/storyvord-profile/{profile.image.name}'  # Update the image URL
+            #     # Save new image and update URL
+            #     image = request.data.get('image')
+            #     profile.image = image
+            #     profile.image = f'https://storage.googleapis.com/storyvord-profile/{profile.image.name}'  # Update the image URL
 
             serializer.save()
             return Response(serializer.data)

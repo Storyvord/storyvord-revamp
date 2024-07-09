@@ -8,5 +8,5 @@ class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = ClientProfile
         # fields = ['email', 'phone_number', 'address', 'image']  # Include 'email' in the fields list
-        fields = ['email', 'phone_number', 'address', 'image', 'user_type']  # Change: Added user_type to fields
+        fields = ['email', 'phone_number', 'address', 'image']  # Change: Added user_type to fields
 
