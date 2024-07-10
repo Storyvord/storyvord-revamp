@@ -93,3 +93,31 @@ class TaskCompletionApprovalView(APIView):
 
         serializer = TaskSerializer(task)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+class CrewTaskListView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, format=None):
+        # Ensure the user is a crew member
+        if request.user.user_type != 'crew':
+            return Response({"error": "Only crew members can view their tasks."}, status=status.HTTP_403_FORBIDDEN)
+        
+        tasks = Task.objects.filter(assigned_to=request.user)
+        serializer = TaskSerializer(tasks, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+class CrewTaskDetailView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, pk, format=None):
+        try:
+            task = Task.objects.get(pk=pk)
+        except Task.DoesNotExist:
+            return Response({"error": "Task not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        # Ensure the task is assigned to the requesting user
+        if task.assigned_to != request.user:
+            return Response({"error": "You are not assigned to this task."}, status=status.HTTP_403_FORBIDDEN)
+        
+        serializer = TaskSerializer(task)
+        return Response(serializer.data, status=status.HTTP_200_OK)

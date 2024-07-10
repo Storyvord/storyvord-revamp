@@ -11,7 +11,7 @@ class ProjectSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Project
-        fields = '__all__'
+        exclude = ['user']
 
     def create(self, validated_data):
         location_details_data = validated_data.pop('location_details')

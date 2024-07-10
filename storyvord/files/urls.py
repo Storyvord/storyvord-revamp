@@ -6,4 +6,9 @@ urlpatterns = [
     path('', FileListCreateView.as_view(), name='file-list-create'),
     # Path for deleting a file by its primary key (pk)
     path('<int:pk>/', FileListCreateView.as_view(), name='file-delete'),
+    
+    # crew side list and detail
+    
+    path('crew/files/', AccessibleFileListView.as_view(), name='file-list'),
+    path('crew/files/<int:pk>/', AccessibleFileDetailView.as_view(), name='file-detail'),
 ]

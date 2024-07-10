@@ -10,4 +10,8 @@ urlpatterns = [
     # complete approval apis
     path('tasks/<int:pk>/request-completion/', TaskCompletionRequestView.as_view(), name='task-request-completion'),
     path('tasks/<int:pk>/approve-completion/', TaskCompletionApprovalView.as_view(), name='task-approve-completion'),
+    
+    # Crew side tasks
+    path('crew/tasks/', CrewTaskListView.as_view(), name='crew-task-list'),
+    path('crew/tasks/<int:pk>/', CrewTaskDetailView.as_view(), name='crew-task-detail'),
 ]

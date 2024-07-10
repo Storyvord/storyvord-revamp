@@ -52,3 +52,32 @@ class FileListCreateView(APIView):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    
+
+
+# Crew side file view 
+
+class AccessibleFileListView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, format=None):
+        user = request.user
+        files = File.objects.filter(allowed_users=user)
+        serializer = FileSerializer(files, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+class AccessibleFileDetailView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, pk, format=None):
+        try:
+            file = File.objects.get(pk=pk)
+        except File.DoesNotExist:
+            return Response({"error": "File not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        if not file.allowed_users.filter(id=request.user.id).exists():
+            return Response({"error": "You do not have permission to access this file."}, status=status.HTTP_403_FORBIDDEN)
+
+        serializer = FileSerializer(file)
+        return Response(serializer.data, status=status.HTTP_200_OK)

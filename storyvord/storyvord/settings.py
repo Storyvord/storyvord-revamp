@@ -197,7 +197,7 @@ AUTH_USER_MODEL = "accounts.User"
 
 
 # Set environment variable to point to the service account JSON key file
-os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = r'D:\DjangoStoryVordRE-2024\storyvord-revamp\storyvord\apis-gcp-storyvord.json'
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = r'D:\storyvord_main\storyvord-revamp\storyvord\apis-gcp-storyvord.json'
 
 
 # +++++++++++++++++++++++++++++++++++++++++++++
@@ -209,7 +209,7 @@ GS_BUCKET_NAME = 'storyvord-profile'
 # New storage (newly-created-bucket-name)
 GS_BUCKET_NAME_NEW = 'newly-created-bucket-name'
 GS_CREDENTIALS_NEW = service_account.Credentials.from_service_account_file(
-    r'D:\DjangoStoryVordRE-2024\storyvord-revamp\storyvord\apis-gcp-storyvord.json'
+    r'D:\storyvord_main\storyvord-revamp\storyvord\apis-gcp-storyvord.json'
 )
 
 # Define a new storage backend for the new bucket
@@ -248,14 +248,14 @@ STATIC_URL = 'static/'
 
 #AUTH_USER_MODEL = 'core.User'
 
-SENDGRID_API_KEY = env('SENDGRID_API_KEY')
+# SENDGRID_API_KEY = env('SENDGRID_API_KEY')
 
-EMAIL_HOST = 'smtp.sendgrid.net'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'apikey'
-EMAIL_HOST_PASSWORD = SENDGRID_API_KEY
-DEFAULT_NO_REPLY_EMAIL = 'getvishalprajapati@gmail.com'
+# EMAIL_HOST = 'smtp.sendgrid.net'
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+# EMAIL_HOST_USER = 'apikey'
+# EMAIL_HOST_PASSWORD = SENDGRID_API_KEY
+# DEFAULT_NO_REPLY_EMAIL = 'getvishalprajapati@gmail.com'
 
 AUTH_PASSWORD_VALIDATORS = [
     {
