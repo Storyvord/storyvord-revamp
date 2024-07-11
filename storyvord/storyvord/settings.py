@@ -135,14 +135,24 @@ DATABASES = {
     #     # 'PORT': '1234',  # Default PostgreSQL port
     #     'PORT': '1234',
     # }
-    'default': {
-            'ENGINE': 'django.db.backends.postgresql',  #'django.db.backends.mysql',  # or
+
+    # 'default': {
+    #         'ENGINE': 'django.db.backends.postgresql',  #'django.db.backends.mysql',  # or
+    #         "HOST": "127.0.0.1",
+    #         'NAME': 'story',
+    #         'USER': 'postgres',
+    #         'PASSWORD': 'root',
+    #         'PORT': '5432' #5432
+    #     }
+
+     'default': {
+            'ENGINE': 'django.db.backends.postgresql',  #'django.db.backends.mysql',  # or 
             "HOST": "127.0.0.1",
             'NAME': 'story',
-            'USER': 'postgres',
-            'PASSWORD': 'root',
-            'PORT': '5432' #5432
-        }
+            'USER': 'kaushik',
+            'PASSWORD': '1234',
+            'PORT': '5432' #5432  
+        }   
     # 'default': {
     #     'ENGINE': 'django.db.backends.sqlite3',
     #     'NAME': BASE_DIR + '/db.sqlite3', # This is where you put the name of the db file.
@@ -162,7 +172,8 @@ AUTH_USER_MODEL = "accounts.User"
 if os.getenv('DOCKER'):
     GS_CREDENTIALS_PATH = '/code/apis-gcp-storyvord.json'  # Path within the container
 else:
-    GS_CREDENTIALS_PATH = 'apis-gcp-storyvord.json'  # Path for local development
+    # GS_CREDENTIALS_PATH = 'apis-gcp-storyvord.json'  # Path for local development
+    GS_CREDENTIALS_PATH = os.path.join(BASE_DIR, 'apis-gcp-storyvord.json')
 # Google Cloud Storage settings
 DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
 GS_BUCKET_NAME = 'storyvord-profile'
