@@ -162,8 +162,7 @@ AUTH_USER_MODEL = "accounts.User"
 if os.getenv('DOCKER'):
     GS_CREDENTIALS_PATH = '/code/apis-gcp-storyvord.json'  # Path within the container
 else:
-    # GS_CREDENTIALS_PATH = 'apis-gcp-storyvord.json'  # Path for local development
-    GS_CREDENTIALS_PATH = os.path.join(BASE_DIR, 'apis-gcp-storyvord.json')
+    GS_CREDENTIALS_PATH = 'apis-gcp-storyvord.json'  # Path for local development
 # Google Cloud Storage settings
 DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
 GS_BUCKET_NAME = 'storyvord-profile'
