@@ -40,6 +40,8 @@ urlpatterns = [
     path('api/crew/', include('crew.urls')),
     path('api/accounts/', include('accounts.urls')),
     path('api/project/', include('project.urls')),
+    path('api/calendar/', include('storyvord_calendar.urls')),
+    path('api/tasks/', include('tasks.urls')),
     path('auth/', include('djoser.urls')),
     path('auth/', include('djoser.urls.jwt')),
     
@@ -49,4 +51,5 @@ urlpatterns = [
     path('api/schema/swagger/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
     path('api/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
 
+    path('api/files/', include('files.urls')),
 ]
