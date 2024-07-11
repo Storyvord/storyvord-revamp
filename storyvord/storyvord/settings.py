@@ -135,24 +135,14 @@ DATABASES = {
     #     # 'PORT': '1234',  # Default PostgreSQL port
     #     'PORT': '1234',
     # }
-
-    # 'default': {
-    #         'ENGINE': 'django.db.backends.postgresql',  #'django.db.backends.mysql',  # or
-    #         "HOST": "127.0.0.1",
-    #         'NAME': 'story',
-    #         'USER': 'postgres',
-    #         'PASSWORD': 'root',
-    #         'PORT': '5432' #5432
-    #     }
-
-     'default': {
-            'ENGINE': 'django.db.backends.postgresql',  #'django.db.backends.mysql',  # or 
+    'default': {
+            'ENGINE': 'django.db.backends.postgresql',  #'django.db.backends.mysql',  # or
             "HOST": "127.0.0.1",
             'NAME': 'story',
-            'USER': 'kaushik',
-            'PASSWORD': '1234',
-            'PORT': '5432' #5432  
-        }   
+            'USER': 'postgres',
+            'PASSWORD': 'root',
+            'PORT': '5432' #5432
+        }
     # 'default': {
     #     'ENGINE': 'django.db.backends.sqlite3',
     #     'NAME': BASE_DIR + '/db.sqlite3', # This is where you put the name of the db file.
