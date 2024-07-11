@@ -42,14 +42,8 @@ class Project(models.Model):
     content_type = models.CharField(max_length=256)
     selected_crew = models.TextField()
     equipment = models.TextField()
-    project_folder = models.CharField(max_length=255, blank=True, null=True)
-
     uploaded_document = models.FileField(upload_to='uploaded_documents/', blank=True, null=True)
-  
-    bucket_name = models.CharField(max_length=255, blank=True, null=True)
-
     location_details = models.ManyToManyField(LocationDetail, related_name='projects')
-   
     status = models.CharField(
         max_length=30, choices=StatusChoices.choices, default=StatusChoices.PLANNING
     )
@@ -63,23 +57,25 @@ class Project(models.Model):
     def __str__(self):
         return self.name
     
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        if self.uploaded_document:
-            self.upload_document_to_bucket()
+    # We need to setup the gcp buckets
+    
+    # def save(self, *args, **kwargs):
+    #     super().save(*args, **kwargs)
+    #     if self.uploaded_document:
+    #         self.upload_document_to_bucket()
 
-    def upload_document_to_bucket(self):
-        bucket_name = f"{self.name}-{self.project_id}"
-        client = storage.Client()
-        bucket = client.bucket(bucket_name)
+    # def upload_document_to_bucket(self):
+    #     bucket_name = f"{self.name}-{self.project_id}"
+    #     client = storage.Client()
+    #     bucket = client.bucket(bucket_name)
 
-        if not bucket.exists():
-            bucket.create()
+    #     if not bucket.exists():
+    #         bucket.create()
 
-        blob = bucket.blob(self.uploaded_document.name)
-        document_file = self.uploaded_document.file
+    #     blob = bucket.blob(self.uploaded_document.name)
+    #     document_file = self.uploaded_document.file
 
-        blob.upload_from_file(document_file, rewind=True)
+    #     blob.upload_from_file(document_file, rewind=True)
 
 class OnboardRequest(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
