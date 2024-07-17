@@ -24,7 +24,7 @@ class CustomUserManager(BaseUserManager):
         user.set_password(password)
         user.save()
         
-        send_welcome_email(user)  # Send welcome email
+        # send_welcome_email(user)  # Send welcome email
         return user
 
     def create_superuser(self, email, password, **extra_fields):

@@ -44,6 +44,22 @@ INSTALLED_APPS = [
     'django.core.mail.backends.smtp',
     'drf_spectacular'
 ]
+
+DJOSER = {
+    'PASSWORD_RESET_CONFIRM_URL': 'auth/password/reset/confirm/{uid}/{token}',
+    'PASSWORD_CHANGED_EMAIL_CONFIRMATION': True,
+
+    'USER_CREATE_PASSWORD_RETYPE': True,
+    'SEND_ACTIVATION_EMAIL': True,
+    'ACTIVATION_URL': 'auth/activate/{uid}/{token}',
+    'SERIALIZERS': {},
+    'EMAIL': {
+        #'activation': 'accounts.emails.CustomActivationEmail',
+    },
+}
+
+#EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
 # Add Django REST Framework settings
 REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
@@ -135,34 +151,37 @@ DATABASES = {
     #     # 'PORT': '1234',  # Default PostgreSQL port
     #     'PORT': '1234',
     # }
-    'default': {
-            'ENGINE': 'django.db.backends.postgresql',  #'django.db.backends.mysql',  # or
-            "HOST": "127.0.0.1",
-            'NAME': 'story',
-            'USER': 'postgres',
-            'PASSWORD': 'root',
-            'PORT': '5432' #5432
-        }
+
+    # 'default': {
+    #         'ENGINE': 'django.db.backends.postgresql',  #'django.db.backends.mysql',  # or
+    #         "HOST": "127.0.0.1",
+    #         'NAME': 'story',
+    #         'USER': 'postgres',
+    #         'PASSWORD': 'root',
+    #         'PORT': '5432' #5432
+    #     }
+
     # 'default': {
     #     'ENGINE': 'django.db.backends.sqlite3',
     #     'NAME': BASE_DIR + '/db.sqlite3', # This is where you put the name of the db file.
     #              # If one doesn't exist, it will be created at migration time.
     # },
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.postgresql',  #'django.db.backends.mysql',  # or
-    #     # 'HOST': '/cloudsql/apis-424409:us-central1:storyvord',
-    #     "HOST": "127.0.0.1",
-    #     'NAME': 'storyvord_db',
-    #     'USER': 'storyvord',
-    #     'PASSWORD': 'storyvord',
-    #     'PORT': '1234'
-    # }
+
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',  #'django.db.backends.mysql',  # or
+        # 'HOST': '/cloudsql/apis-424409:us-central1:storyvord',
+        "HOST": "127.0.0.1",
+        'NAME': 'storyvord_db',
+        'USER': 'storyvord',
+        'PASSWORD': 'storyvord',
+        'PORT': '1234'
+    }
 }
 AUTH_USER_MODEL = "accounts.User"
 if os.getenv('DOCKER'):
     GS_CREDENTIALS_PATH = '/code/apis-gcp-storyvord.json'  # Path within the container
 else:
-    GS_CREDENTIALS_PATH = 'apis-gcp-storyvord.json'  # Path for local development
+    GS_CREDENTIALS_PATH = os.path.join(BASE_DIR, 'apis-gcp-storyvord.json')  # Path for local development
 # Google Cloud Storage settings
 DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
 GS_BUCKET_NAME = 'storyvord-profile'
@@ -192,7 +211,10 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'apikey'
 EMAIL_HOST_PASSWORD = SENDGRID_API_KEY
-DEFAULT_NO_REPLY_EMAIL = 'getvishalprajapati@gmail.com'
+# DEFAULT_NO_REPLY_EMAIL = 'getvishalprajapati@gmail.com'
+DEFAULT_FROM_EMAIL = 'getvishalprajapati@gmail.com'  # Update this line
+ACCOUNT_ACTIVATION_DAYS = 7
+
 # Consider adding settings for static and media files for production
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
