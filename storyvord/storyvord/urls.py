@@ -42,6 +42,7 @@ urlpatterns = [
     path('api/project/', include('project.urls')),
     path('api/calendar/', include('storyvord_calendar.urls')),
     path('api/tasks/', include('tasks.urls')),
+    path('api/callsheets/', include('callsheets.urls')),  # Add this line
     path('auth/', include('djoser.urls')),
     path('auth/', include('djoser.urls.jwt')),
     

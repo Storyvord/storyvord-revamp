@@ -39,26 +39,52 @@ INSTALLED_APPS = [
     'storyvord_calendar',
     'files',
     'tasks',
+    'callsheets',
     'corsheaders',
     'djoser',
     'django.core.mail.backends.smtp',
     'drf_spectacular'
 ]
 
-DJOSER = {
-    'PASSWORD_RESET_CONFIRM_URL': 'auth/password/reset/confirm/{uid}/{token}',
-    'PASSWORD_CHANGED_EMAIL_CONFIRMATION': True,
+# DJOSER = {
+#     'PASSWORD_RESET_CONFIRM_URL': 'auth/password/reset/confirm/{uid}/{token}',
+#     'PASSWORD_CHANGED_EMAIL_CONFIRMATION': True,
 
+#     'USER_CREATE_PASSWORD_RETYPE': True,
+#     'SEND_ACTIVATION_EMAIL': True,
+#     'ACTIVATION_URL': 'auth/activate/{uid}/{token}',
+#     'SERIALIZERS': {},
+#     'EMAIL': {
+#         'activation': 'accounts.emails.CustomActivationEmail',
+#     },
+# }
+DJOSER = {
+    # 'USER_CREATE_PASSWORD_RETYPE': True,
+    # 'USERNAME_CHANGED_EMAIL_CONFIRMATION': True,
+    # 'PASSWORD_CHANGED_EMAIL_CONFIRMATION': True,
+
+    # 'SEND_CONFIRMATION_EMAIL': True,
+    # 'ACTIVATION_URL': 'auth/activate/{uid}/{token}',
+    # 'PASSWORD_RESET_CONFIRM_URL': 'auth/password/reset/confirm/{uid}/{token}',
+
+    'LOGIN_FIELD': 'email',
     'USER_CREATE_PASSWORD_RETYPE': True,
-    'SEND_ACTIVATION_EMAIL': True,
+    'USERNAME_CHANGED_EMAIL_CONFIRMATION': True,
+    'PASSWORD_CHANGED_EMAIL_CONFIRMATION': True,
+    'SEND_ACTIVATION_EMAIL': True,  # Ensure activation email is sent
+    'SEND_CONFIRMATION_EMAIL': True,
     'ACTIVATION_URL': 'auth/activate/{uid}/{token}',
-    'SERIALIZERS': {},
+    'PASSWORD_RESET_CONFIRM_URL': 'auth/password/reset/confirm/{uid}/{token}',
+    'SERIALIZERS': {
+        'user_create': 'accounts.serializers.UserCreateSerializer',
+        'user': 'accounts.serializers.UserSerializer',
+    },
     'EMAIL': {
-        #'activation': 'accounts.emails.CustomActivationEmail',
+        'activation': 'accounts.emails.ActivationEmail',
+        'password_reset': 'accounts.emails.PasswordResetEmail',
     },
 }
 
-#EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # Add Django REST Framework settings
 REST_FRAMEWORK = {
@@ -124,6 +150,7 @@ project_id = 'apis-424409'
 #     name = f"projects/{project_id}/secrets/{secret_id}/versions/{version_id}"
 #     response = client.access_secret_version(name=name)
 #     return response.payload.data.decode('UTF-8')
+
 DATABASES = {
     # 'default': {
     #     'ENGINE': 'django.db.backends.postgresql',
@@ -133,6 +160,7 @@ DATABASES = {
     #     'PASSWORD': access_secret_version(project_id, 'db_password', 'latest'),
     #     'PORT': '',  # Leave empty to use the default port for Unix socket
     # }
+
     #  'default': {
     #     'ENGINE': 'django.db.backends.postgresql',
     #     'HOST': '/cloudsql/apis-424409:us-central1:storyvord',  # Unix socket path
