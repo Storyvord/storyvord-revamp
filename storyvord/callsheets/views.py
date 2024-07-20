@@ -8,23 +8,22 @@ from rest_framework.views import APIView
 from.models import CallSheet
 from.serializers import CallSheetSerializer
 from django.shortcuts import render
+from datetime import datetime  
 
 class CallSheetListView(APIView):
-    serializer_class = CallSheetSerializer
     def get(self, request):
         callsheets = CallSheet.objects.all()
         serializer = CallSheetSerializer(callsheets, many=True)
         return Response(serializer.data)
 
     def post(self, request):
-        serializer = CallSheetSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+     serializer = CallSheetSerializer(data=request.data)
+     if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class CallSheetDetailView(APIView):
-    serializer_class = CallSheetSerializer
     def get_object(self, pk):
         try:
             return CallSheet.objects.get(pk=pk)

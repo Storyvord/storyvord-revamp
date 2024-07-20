@@ -4,9 +4,9 @@ from django.utils import timezone
 from project.models import Project
 
 class CallSheet(models.Model):
-    project = models.ForeignKey(Project, on_delete=models.CASCADE, default=1)  # Set a default project ID
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, default=1)
     title = models.CharField(max_length=255)
-    date = models.DateField()
+    date = models.DateField(null=True, blank=True)
     calltime = models.TimeField()
     street = models.CharField(max_length=255)
     city = models.CharField(max_length=255)
@@ -19,10 +19,10 @@ class CallSheet(models.Model):
     director_number = models.CharField(max_length=20)
     production_manager = models.CharField(max_length=255)
     production_manager_number = models.CharField(max_length=20)
-    breakfast = models.CharField(max_length=255, blank=True)
-    lunch = models.CharField(max_length=255, blank=True)
-    sunrise = models.TimeField(blank=True)
-    sunset = models.TimeField(blank=True)
+    breakfast = models.TimeField()
+    lunch = models.TimeField()
+    sunrise = models.TimeField()  # Keep it as TimeField
+    sunset = models.TimeField()
     weather = models.CharField(max_length=255, blank=True)
     nearest_hospital_address = models.CharField(max_length=255, blank=True)
     nearest_police_station = models.CharField(max_length=255, blank=True)

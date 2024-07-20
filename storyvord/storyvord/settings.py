@@ -60,27 +60,27 @@ INSTALLED_APPS = [
 # }
 
 DJOSER = {
-    'LOGIN_FIELD': 'email',
-    'USER_CREATE_PASSWORD_RETYPE':True,
-    'ACTIVATION_URL':'activate/{uid}/{token}',
-    'SEND_ACTIVATION_EMAIL':True,
-    'SEND_CONFIRMATION_EMAIL':True,
-    'PASSWORD_CHANGED_EMAIL_CONFIRMATION':True,
-    'PASSWORD_RESET_CONFIRM_URL': 'password-reset/{uid}/{token}',
-    'SET_PASSWORD_RETYPE': True,
-    'PASSWORD_RESET_SHOW_EMAIL_NOT_FOUND': True,
-    'TOKEN_MODEL': None,       # To Delete User Must Set it to None
-    'SERIALIZERS':{
-        'user_create': 'accounts.serializers.UserCreateSerializer',
-        'user': 'accounts.serializers.UserCreateSerializer',
-        'user_delete': 'djoser.serializers.UserDeleteSerializer',
-    },
-    'EMAIL': {
-        'activation': 'accounts.email.ActivationEmail',
-        'confirmation': 'accounts.email.ConfirmationEmail',
-        'password_reset': 'accounts.email.PasswordResetEmail',
-        'password_changed_confirmation': 'accounts.email.PasswordChangedConfirmationEmail',
-    },
+    # 'LOGIN_FIELD': 'email',
+    # 'USER_CREATE_PASSWORD_RETYPE':True,
+    # 'ACTIVATION_URL':'activate/{uid}/{token}',
+    # 'SEND_ACTIVATION_EMAIL':True,
+    # 'SEND_CONFIRMATION_EMAIL':True,
+    # 'PASSWORD_CHANGED_EMAIL_CONFIRMATION':True,
+    # 'PASSWORD_RESET_CONFIRM_URL': 'password-reset/{uid}/{token}',
+    # 'SET_PASSWORD_RETYPE': True,
+    # 'PASSWORD_RESET_SHOW_EMAIL_NOT_FOUND': True,
+    # 'TOKEN_MODEL': None,       # To Delete User Must Set it to None
+    # 'SERIALIZERS':{
+    #     'user_create': 'accounts.serializers.UserCreateSerializer',
+    #     'user': 'accounts.serializers.UserCreateSerializer',
+    #     'user_delete': 'djoser.serializers.UserDeleteSerializer',
+    # },
+    # 'EMAIL': {
+    #     'activation': 'accounts.email.ActivationEmail',
+    #     'confirmation': 'accounts.email.ConfirmationEmail',
+    #     'password_reset': 'accounts.email.PasswordResetEmail',
+    #     'password_changed_confirmation': 'accounts.email.PasswordChangedConfirmationEmail',
+    # },
 }
 
 
@@ -201,12 +201,13 @@ DATABASES = {
 
     'default': {
         'ENGINE': 'django.db.backends.postgresql',  #'django.db.backends.mysql',  # or
-        # 'HOST': '/cloudsql/apis-424409:us-central1:storyvord',
-        "HOST": "127.0.0.1",
-        'NAME': 'story',
-        'USER': 'postgres',
-        'PASSWORD': 'root',
-        'PORT': '5432'
+        'HOST': '/cloudsql/apis-424409:us-central1:storyvord',
+        # "HOST": "127.0.0.1",
+        'NAME': 'storyvord_db',
+        'USER': 'storyvord',
+        'PASSWORD': 'storyvord',
+        # 'PORT': '1234'
+        'PORT': '',  # Leave empty to use the default port for Unix socket
     }
 }
 AUTH_USER_MODEL = "accounts.User"
