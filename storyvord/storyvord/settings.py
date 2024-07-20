@@ -58,30 +58,28 @@ INSTALLED_APPS = [
 #         'activation': 'accounts.emails.CustomActivationEmail',
 #     },
 # }
+
 DJOSER = {
-    # 'USER_CREATE_PASSWORD_RETYPE': True,
-    # 'USERNAME_CHANGED_EMAIL_CONFIRMATION': True,
-    # 'PASSWORD_CHANGED_EMAIL_CONFIRMATION': True,
-
-    # 'SEND_CONFIRMATION_EMAIL': True,
-    # 'ACTIVATION_URL': 'auth/activate/{uid}/{token}',
-    # 'PASSWORD_RESET_CONFIRM_URL': 'auth/password/reset/confirm/{uid}/{token}',
-
     'LOGIN_FIELD': 'email',
-    'USER_CREATE_PASSWORD_RETYPE': True,
-    'USERNAME_CHANGED_EMAIL_CONFIRMATION': True,
-    'PASSWORD_CHANGED_EMAIL_CONFIRMATION': True,
-    'SEND_ACTIVATION_EMAIL': True,  # Ensure activation email is sent
-    'SEND_CONFIRMATION_EMAIL': True,
-    'ACTIVATION_URL': 'auth/activate/{uid}/{token}',
-    'PASSWORD_RESET_CONFIRM_URL': 'auth/password/reset/confirm/{uid}/{token}',
-    'SERIALIZERS': {
+    'USER_CREATE_PASSWORD_RETYPE':True,
+    'ACTIVATION_URL':'activate/{uid}/{token}',
+    'SEND_ACTIVATION_EMAIL':True,
+    'SEND_CONFIRMATION_EMAIL':True,
+    'PASSWORD_CHANGED_EMAIL_CONFIRMATION':True,
+    'PASSWORD_RESET_CONFIRM_URL': 'password-reset/{uid}/{token}',
+    'SET_PASSWORD_RETYPE': True,
+    'PASSWORD_RESET_SHOW_EMAIL_NOT_FOUND': True,
+    'TOKEN_MODEL': None,       # To Delete User Must Set it to None
+    'SERIALIZERS':{
         'user_create': 'accounts.serializers.UserCreateSerializer',
-        'user': 'accounts.serializers.UserSerializer',
+        'user': 'accounts.serializers.UserCreateSerializer',
+        'user_delete': 'djoser.serializers.UserDeleteSerializer',
     },
     'EMAIL': {
-        'activation': 'accounts.emails.ActivationEmail',
-        'password_reset': 'accounts.emails.PasswordResetEmail',
+        'activation': 'accounts.email.ActivationEmail',
+        'confirmation': 'accounts.email.ConfirmationEmail',
+        'password_reset': 'accounts.email.PasswordResetEmail',
+        'password_changed_confirmation': 'accounts.email.PasswordChangedConfirmationEmail',
     },
 }
 
@@ -100,6 +98,12 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer'),
     'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=2),
+}
+
+JWT_AUTH = {
+    'JWT_AUTH_HEADER_PREFIX': 'Bearer',
+    'JWT_AUTH_COOKIE': None,
+    # Other settings as per your requirements
 }
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -199,10 +203,10 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',  #'django.db.backends.mysql',  # or
         # 'HOST': '/cloudsql/apis-424409:us-central1:storyvord',
         "HOST": "127.0.0.1",
-        'NAME': 'storyvord_db',
-        'USER': 'storyvord',
-        'PASSWORD': 'storyvord',
-        'PORT': '1234'
+        'NAME': 'story',
+        'USER': 'postgres',
+        'PASSWORD': 'root',
+        'PORT': '5432'
     }
 }
 AUTH_USER_MODEL = "accounts.User"

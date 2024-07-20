@@ -10,6 +10,7 @@ from django.shortcuts import get_object_or_404
 
 class FileListCreateView(APIView):
     permission_classes = [permissions.IsAuthenticated]
+    serializer_class = FileSerializer
 
     def get(self, request, format=None):
         files = File.objects.filter(allowed_users=request.user)
@@ -33,6 +34,7 @@ class FileListCreateView(APIView):
 
 class FileDetailView(APIView):
     permission_classes = [permissions.IsAuthenticated]
+    serializer_class = FileSerializer
 
     def get(self, request, pk, format=None):
         file = get_object_or_404(File, pk=pk)

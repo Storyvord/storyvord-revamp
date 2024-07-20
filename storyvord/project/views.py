@@ -7,9 +7,11 @@ from .serializers import *
 from rest_framework.exceptions import NotFound, PermissionDenied
 from rest_framework.permissions import IsAuthenticated
 from accounts.models import User
+from rest_framework.generics import GenericAPIView 
 
-class ProjectListCreateView(APIView):
+class ProjectListCreateView(GenericAPIView):
     permission_classes = [permissions.IsAuthenticated]
+    serializer_class = ProjectSerializer
 
     def get(self, request):
         projects = Project.objects.filter(user=request.user)
@@ -23,8 +25,9 @@ class ProjectListCreateView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class ProjectDetailView(APIView):
+class ProjectDetailView(GenericAPIView):
     permission_classes = [permissions.IsAuthenticated]
+    serializer_class = ProjectSerializer
 
     def get_object(self, pk, user):
         try:
@@ -56,6 +59,7 @@ class ProjectDetailView(APIView):
 
 class SendOnboardRequestView(APIView):
     permission_classes = [IsAuthenticated]
+    serializer_class = OnboardRequestSerializer
     def post(self, request):
         project_id = request.data.get('project_id')
         user_id = request.data.get('user_id')
@@ -76,6 +80,7 @@ class SendOnboardRequestView(APIView):
     
 class UpdateOnboardRequestView(APIView):
     permission_classes = [IsAuthenticated]
+    serializer_class = OnboardRequestSerializer
     def patch(self, request, pk):
         try:
             onboard_request = OnboardRequest.objects.get(pk=pk)

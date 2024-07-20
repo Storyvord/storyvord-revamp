@@ -63,7 +63,7 @@ class ProfileDetailAPIView(APIView):
     permission_classes = [IsAuthenticated]  # Apply IsAuthenticated permission globally
 
     parser_classes = [MultiPartParser]  # Enable MultiPartParser to handle file uploads
-    
+    serializer_class = ProfileSerializer
     def get_object(self):
         # Fetch profile based on logged-in user
         profile = get_object_or_404(ClientProfile, user=self.request.user)  # Modified to fetch profile by user

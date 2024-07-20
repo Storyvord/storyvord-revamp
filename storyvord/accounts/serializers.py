@@ -17,16 +17,11 @@
 #         return user
 
 
-from djoser.serializers import UserCreateSerializer as BaseUserCreateSerializer, UserSerializer as BaseUserSerializer
+from djoser.serializers import UserCreateSerializer
 from .models import User
 
-class UserCreateSerializer(BaseUserCreateSerializer):
-    class Meta(BaseUserCreateSerializer.Meta):
-        model = User
-        fields = ('id', 'email', 'password', 'user_type')
-        extra_kwargs = {'password': {'write_only': True}}
-
-class UserSerializer(BaseUserSerializer):
-    class Meta(BaseUserSerializer.Meta):
-        model = User
-        fields = ('id', 'email', 'user_type')
+class UserCreateSerializer(UserCreateSerializer):
+    class Meta(UserCreateSerializer.Meta):
+        model=User
+        fields=('id', 'email', 'password')
+        

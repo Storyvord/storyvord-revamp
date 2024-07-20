@@ -7,12 +7,12 @@ from django.shortcuts import get_object_or_404
 
 class CrewProfileView(APIView):
     permission_classes = [permissions.IsAuthenticated]
-
+    serializer_class = CrewProfileSerializer
     def get(self, request, format=None):
         profile = get_object_or_404(CrewProfile, user=request.user)
         serializer = CrewProfileSerializer(profile)
         return Response(serializer.data)
-
+     
     def put(self, request, format=None):
         profile = get_object_or_404(CrewProfile, user=request.user)
         serializer = CrewProfileSerializer(profile, data=request.data, partial=True)
@@ -23,7 +23,7 @@ class CrewProfileView(APIView):
 
 class CrewCreditsListCreateView(APIView):
     permission_classes = [permissions.IsAuthenticated]
-
+    serializer_class = CrewCreditsSerializer
     def get(self, request, format=None):
         credits = CrewCredits.objects.filter(crew__user=request.user)
         serializer = CrewCreditsSerializer(credits, many=True)
@@ -38,7 +38,7 @@ class CrewCreditsListCreateView(APIView):
 
 class CrewCreditsDetailView(APIView):
     permission_classes = [permissions.IsAuthenticated]
-
+    serializer_class = CrewCreditsSerializer
     def get_object(self, pk, user):
         return get_object_or_404(CrewCredits, pk=pk, crew__user=user)
 
@@ -62,7 +62,7 @@ class CrewCreditsDetailView(APIView):
     
 class CrewEducationListCreateView(APIView):
     permission_classes = [permissions.IsAuthenticated]
-
+    serializer_class = CrewEducationSerializer
     def get(self, request, format=None):
         educations = CrewEducation.objects.filter(crew__user=request.user)
         serializer = CrewEducationSerializer(educations, many=True)
@@ -77,7 +77,7 @@ class CrewEducationListCreateView(APIView):
 
 class CrewEducationDetailView(APIView):
     permission_classes = [permissions.IsAuthenticated]
-
+    serializer_class = CrewEducationSerializer
     def get_object(self, pk, user):
         return get_object_or_404(CrewEducation, pk=pk, crew__user=user)
 
@@ -101,7 +101,7 @@ class CrewEducationDetailView(APIView):
     
 class CrewRateListCreateView(APIView):
     permission_classes = [permissions.IsAuthenticated]
-
+    serializer_class = CrewRateSerializer
     def get(self, request, format=None):
         rates = CrewRate.objects.filter(crew__user=request.user)
         serializer = CrewRateSerializer(rates, many=True)
@@ -116,7 +116,7 @@ class CrewRateListCreateView(APIView):
 
 class CrewRateDetailView(APIView):
     permission_classes = [permissions.IsAuthenticated]
-
+    serializer_class = CrewRateSerializer
     def get_object(self, pk, user):
         return get_object_or_404(CrewRate, pk=pk, crew__user=user)
 
@@ -141,7 +141,7 @@ class CrewRateDetailView(APIView):
 # EndorsementfromPeers Views
 class EndorsementfromPeersListCreateView(APIView):
     permission_classes = [permissions.IsAuthenticated]
-
+    serializer_class = EndorsementfromPeersSerializer
     def get(self, request, format=None):
         endorsements = EndorsementfromPeers.objects.filter(crew__user=request.user)
         serializer = EndorsementfromPeersSerializer(endorsements, many=True)
@@ -156,7 +156,7 @@ class EndorsementfromPeersListCreateView(APIView):
 
 class EndorsementfromPeersDetailView(APIView):
     permission_classes = [permissions.IsAuthenticated]
-
+    serializer_class = EndorsementfromPeersSerializer
     def get_object(self, pk, user):
         return get_object_or_404(EndorsementfromPeers, pk=pk, crew__user=user)
 
@@ -181,7 +181,7 @@ class EndorsementfromPeersDetailView(APIView):
 # SocialLinks Views
 class SocialLinksListCreateView(APIView):
     permission_classes = [permissions.IsAuthenticated]
-
+    serializer_class = SocialLinksSerializer
     def get(self, request, format=None):
         links = SocialLinks.objects.filter(crew__user=request.user)
         serializer = SocialLinksSerializer(links, many=True)
@@ -196,7 +196,7 @@ class SocialLinksListCreateView(APIView):
 
 class SocialLinksDetailView(APIView):
     permission_classes = [permissions.IsAuthenticated]
-
+    serializer_class = SocialLinksSerializer
     def get_object(self, pk, user):
         return get_object_or_404(SocialLinks, pk=pk, crew__user=user)
 

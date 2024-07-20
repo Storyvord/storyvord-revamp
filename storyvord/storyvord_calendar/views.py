@@ -4,8 +4,11 @@ from rest_framework import status
 from django.shortcuts import get_object_or_404
 from .models import Calendar, Event, Project
 from .serializers import CalendarSerializer, EventSerializer
+from rest_framework.permissions import IsAuthenticated
 
 class CalendarView(APIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = CalendarSerializer
     def get(self, request, pk=None):
         if pk:
             calendar = get_object_or_404(Calendar, pk=pk)
@@ -16,6 +19,8 @@ class CalendarView(APIView):
         return Response(serializer.data)
 
 class EventView(APIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = EventSerializer
     def get(self, request, calendar_id, pk=None):
         calendar = get_object_or_404(Calendar, pk=calendar_id)
         if pk:

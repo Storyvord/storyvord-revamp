@@ -10,6 +10,7 @@ from.serializers import CallSheetSerializer
 from django.shortcuts import render
 
 class CallSheetListView(APIView):
+    serializer_class = CallSheetSerializer
     def get(self, request):
         callsheets = CallSheet.objects.all()
         serializer = CallSheetSerializer(callsheets, many=True)
@@ -23,6 +24,7 @@ class CallSheetListView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class CallSheetDetailView(APIView):
+    serializer_class = CallSheetSerializer
     def get_object(self, pk):
         try:
             return CallSheet.objects.get(pk=pk)

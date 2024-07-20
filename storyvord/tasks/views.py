@@ -9,6 +9,8 @@ from .serializers import *
 from rest_framework.permissions import IsAuthenticated
 
 class TaskListCreateAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = TaskSerializer
     def get(self, request, project_pk):
         tasks = Task.objects.filter(project_id=project_pk)
         serializer = TaskSerializer(tasks, many=True)
@@ -24,6 +26,8 @@ class TaskListCreateAPIView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class TaskDetailAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = TaskSerializer
     def get_object(self, pk):
         try:
             return Task.objects.get(pk=pk)
@@ -51,6 +55,7 @@ class TaskDetailAPIView(APIView):
 
 class TaskCompletionRequestView(APIView):
     permission_classes = [IsAuthenticated]
+    serializer_class = TaskCompletionRequestSerializer
 
     def post(self, request, pk, format=None):
         try:
@@ -73,6 +78,7 @@ class TaskCompletionRequestView(APIView):
 
 class TaskCompletionApprovalView(APIView):
     permission_classes = [IsAuthenticated]
+    serializer_class = TaskSerializer
 
     def post(self, request, pk, format=None):
         try:
@@ -96,6 +102,7 @@ class TaskCompletionApprovalView(APIView):
     
 class CrewTaskListView(APIView):
     permission_classes = [IsAuthenticated]
+    serializer_class = TaskSerializer
 
     def get(self, request, format=None):
         # Ensure the user is a crew member
@@ -108,6 +115,7 @@ class CrewTaskListView(APIView):
 
 class CrewTaskDetailView(APIView):
     permission_classes = [IsAuthenticated]
+    serializer_class = TaskSerializer
 
     def get(self, request, pk, format=None):
         try:
