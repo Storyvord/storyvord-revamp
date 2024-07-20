@@ -19,7 +19,7 @@ class CustomUserManager(BaseUserManager):
             raise ValueError(_("The Email must be set"))
         email = self.normalize_email(email)
 
-        extra_fields.setdefault('is_active', False)
+        extra_fields.setdefault('is_active', True)
 
         # user = self.model(email=email, **extra_fields)
         user = self.model(email=email, user_type=user_type, **extra_fields)  # Change: Pass user_type to user model
