@@ -11,14 +11,25 @@ class Base64FileField(serializers.FileField):
             data = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
         return super().to_internal_value(data)
 
-
 class LocationDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = LocationDetail
         fields = '__all__'
 
+class SelectCrewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SelectCrew
+        fields = '__all__'
+
+class SelectEquipmentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SelectEquipment
+        fields = '__all__'
+
 class ProjectSerializer(serializers.ModelSerializer):
     location_details = LocationDetailSerializer(many=True)
+    selected_crew = SelectCrewSerializer(many=True)
+    equipment = SelectEquipmentSerializer(many=True)
     uploaded_document = Base64FileField(required=False, allow_null=True)
 
     class Meta:
@@ -27,14 +38,30 @@ class ProjectSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         location_details_data = validated_data.pop('location_details')
+        selected_crew_data = validated_data.pop('selected_crew')
+        equipment_data = validated_data.pop('equipment')
+        
         project = Project.objects.create(**validated_data)
+        
         for location_data in location_details_data:
             location_detail, created = LocationDetail.objects.get_or_create(**location_data)
             project.location_details.add(location_detail)
+        
+        for crew_data in selected_crew_data:
+            crew, created = SelectCrew.objects.get_or_create(**crew_data)
+            project.selected_crew.add(crew)
+        
+        for equipment_data in equipment_data:
+            equipment, created = SelectEquipment.objects.get_or_create(**equipment_data)
+            project.equipment.add(equipment)
+        
         return project
 
     def update(self, instance, validated_data):
         location_details_data = validated_data.pop('location_details', None)
+        selected_crew_data = validated_data.pop('selected_crew', None)
+        equipment_data = validated_data.pop('equipment', None)
+        
         instance = super().update(instance, validated_data)
         
         if location_details_data:
@@ -42,6 +69,18 @@ class ProjectSerializer(serializers.ModelSerializer):
             for location_data in location_details_data:
                 location_detail, created = LocationDetail.objects.get_or_create(**location_data)
                 instance.location_details.add(location_detail)
+        
+        if selected_crew_data:
+            instance.selected_crew.clear()
+            for crew_data in selected_crew_data:
+                crew, created = SelectCrew.objects.get_or_create(**crew_data)
+                instance.selected_crew.add(crew)
+        
+        if equipment_data:
+            instance.equipment.clear()
+            for equipment_data in equipment_data:
+                equipment, created = SelectEquipment.objects.get_or_create(**equipment_data)
+                instance.equipment.add(equipment)
         
         return instance
     

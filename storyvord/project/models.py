@@ -29,6 +29,20 @@ class LocationDetail(models.Model):
 
     def __str__(self):
         return f"{self.location} ({self.start_date} - {self.end_date})"
+    
+class SelectCrew(models.Model):
+    title = models.CharField(max_length=256, null=True, blank=True)
+    quantity = models.PositiveIntegerField(null=True, blank=True)
+    
+    def __srt__(self):
+        return self.title
+
+class SelectEquipment(models.Model):
+    title = models.CharField(max_length=256, null=True, blank=True)
+    quantity = models.PositiveIntegerField(null=True, blank=True)
+    
+    def __srt__(self):
+        return self.title
 
 class Project(models.Model):
     
@@ -40,8 +54,8 @@ class Project(models.Model):
     budget_currency = models.CharField(max_length=256, default='$')
     budget_amount = models.DecimalField(max_digits=14, decimal_places=2, null=True)
     content_type = models.CharField(max_length=256)
-    selected_crew = models.TextField()
-    equipment = models.TextField()
+    selected_crew = models.ManyToManyField(SelectCrew, related_name='SelectCrew')
+    equipment = models.ManyToManyField(SelectEquipment, related_name='SelectEquipment')
     uploaded_document = models.FileField(upload_to='uploaded_documents/', blank=True, null=True)
     location_details = models.ManyToManyField(LocationDetail, related_name='projects')
     status = models.CharField(
