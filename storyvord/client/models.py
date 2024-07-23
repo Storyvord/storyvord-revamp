@@ -40,8 +40,16 @@ class ClientProfile(models.Model):
     # ]
 
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    phone_number = models.CharField(max_length=15, blank=True, null=True)
+    firstName = models.CharField(max_length=100, blank=True, null=True)
+    lastName = models.CharField(max_length=100, blank=True, null=True)
+    formalName = models.CharField(max_length=100, blank=True, null=True)
+    role = models.CharField(max_length=100, blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
     address = models.CharField(max_length=255, blank=True, null=True)
+    countryName = models.CharField(max_length=100, blank=True, null=True)
+    locality = models.CharField(max_length=100, blank=True, null=True)
+    personalWebsite = models.CharField(max_length=100, blank=True, null=True)
+    phone_number = models.CharField(max_length=15, blank=True, null=True)
     image = models.ImageField(upload_to='profile_images/', blank=True, null=True)
     # user_type = models.CharField(max_length=10, choices=USER_TYPE_CHOICES)  # Change: Added user_type field
 
