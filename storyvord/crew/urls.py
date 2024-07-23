@@ -21,4 +21,6 @@ urlpatterns = [
     
     path('social-links/', SocialLinksListCreateView.as_view(), name='social-links-list-create'),
     path('social-links/<int:pk>/', SocialLinksDetailView.as_view(), name='social-links-detail'),
+
+    path('crew-list/', CrewListView.as_view(), name='crew-list'),
 ]

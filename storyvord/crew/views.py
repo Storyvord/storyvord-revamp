@@ -217,3 +217,42 @@ class SocialLinksDetailView(APIView):
         link = self.get_object(pk, request.user)
         link.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+        
+
+class CrewListView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, format=None):
+        crew_profiles = CrewProfile.objects.all()
+        response_data = []
+
+        for crew_profile in crew_profiles:
+            crew_credits = CrewCredits.objects.filter(crew=crew_profile)
+            crew_education = CrewEducation.objects.filter(crew=crew_profile)
+            crew_rate = CrewRate.objects.filter(crew=crew_profile)
+            endorsement_from_peers = EndorsementfromPeers.objects.filter(crew=crew_profile)
+            social_links = SocialLinks.objects.filter(crew=crew_profile)
+
+
+            # Serialize the data
+            crew_profile_data = CrewProfileSerializer(crew_profile).data
+            crew_credits_data = CrewCreditsSerializer(crew_credits, many=True).data
+            crew_education_data = CrewEducationSerializer(crew_education, many=True).data
+            crew_rate_data = CrewRateSerializer(crew_rate, many=True).data
+            endorsement_from_peers_data = EndorsementfromPeersSerializer(endorsement_from_peers, many=True).data
+            social_links_data = SocialLinksSerializer(social_links, many=True).data
+
+            # Construct the response data for this crew profile
+            profile_response_data = {
+                'crew_profile': crew_profile_data,
+                'crew_credits': crew_credits_data,
+                'crew_education': crew_education_data,
+                'crew_rate': crew_rate_data,
+                'endorsement_from_peers_data': endorsement_from_peers_data,
+                'social_links': social_links_data,
+            }
+
+            response_data.append(profile_response_data)
+
+        return Response(response_data)
