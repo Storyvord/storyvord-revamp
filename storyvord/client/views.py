@@ -62,7 +62,7 @@ from accounts.models import User  # Adjust the import path as per your User mode
 class ProfileDetailAPIView(APIView):
     permission_classes = [IsAuthenticated]  # Apply IsAuthenticated permission globally
 
-    parser_classes = [MultiPartParser]  # Enable MultiPartParser to handle file uploads
+    # parser_classes = [MultiPartParser]  # Enable MultiPartParser to handle file uploads
     serializer_class = ProfileSerializer
     def get_object(self):
         # Fetch profile based on logged-in user
@@ -84,33 +84,42 @@ class ProfileDetailAPIView(APIView):
     #         return Response(serializer.data)
     #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
+    def put(self, request):
+        # Update profile based on logged-in user
+        profile = self.get_object()
+        serializer = ProfileSerializer(profile, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
 
     
 
     # Other methods (get, delete) remain unchanged
 
-    def put(self, request):
-        try:
-            profile = ClientProfile.objects.get(user=request.user)
-        except ClientProfile.DoesNotExist:
-            return Response({"detail": "Profile not found."}, status=status.HTTP_404_NOT_FOUND)
+    # def put(self, request):
+    #     try:
+    #         profile = ClientProfile.objects.get(user=request.user)
+    #     except ClientProfile.DoesNotExist:
+    #         return Response({"detail": "Profile not found."}, status=status.HTTP_404_NOT_FOUND)
 
-        serializer = ProfileSerializer(profile, data=request.data)
-        if serializer.is_valid():
-            # Handle image upload/update
-            # if 'image' in request.data:
-            #     # Delete previous image if updating
-            #     if profile.image:
-            #         profile.image.delete()
+    #     serializer = ProfileSerializer(profile, data=request.data)
+    #     if serializer.is_valid():
+    #         # Handle image upload/update
+    #         # if 'image' in request.data:
+    #         #     # Delete previous image if updating
+    #         #     if profile.image:
+    #         #         profile.image.delete()
 
-            #     # Save new image and update URL
-            #     image = request.data.get('image')
-            #     profile.image = image
-            #     profile.image = f'https://storage.googleapis.com/storyvord-profile/{profile.image.name}'  # Update the image URL
+    #         #     # Save new image and update URL
+    #         #     image = request.data.get('image')
+    #         #     profile.image = image
+    #         #     profile.image = f'https://storage.googleapis.com/storyvord-profile/{profile.image.name}'  # Update the image URL
 
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    #         serializer.save()
+    #         return Response(serializer.data)
+    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request):
         # Delete profile based on logged-in user
