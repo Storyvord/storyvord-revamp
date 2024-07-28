@@ -43,10 +43,11 @@ from project.models import Project
 class CallSheet(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     title = models.CharField(max_length=255)
-    date = models.DateField()
-    calltime = models.TimeField()
-    breakfast = models.TimeField()
-    lunch = models.TimeField()
+
+    date = models.DateField(null=True, blank=True)
+    calltime = models.TimeField(null=True, blank=True)
+    breakfast = models.TimeField(null=True, blank=True)
+    lunch = models.TimeField(null=True, blank=True)
     # sunrise = models.TimeField()
     # sunset = models.TimeField()
     additional_details = models.TextField(default='No additional details provided')
@@ -70,7 +71,6 @@ class CallSheet(models.Model):
     nearest_hospital_address = models.CharField(max_length=255, blank=True)
     nearest_police_station = models.CharField(max_length=255, blank=True)
     nearest_fire_station = models.CharField(max_length=255, blank=True)
-
 
     def __str__(self):
         return self.title

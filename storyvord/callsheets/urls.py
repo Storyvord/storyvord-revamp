@@ -1,17 +1,9 @@
-# # callsheets/urls.py
-# from django.urls import path
-# from . import views
+# urls.py file ->
 
-# urlpatterns = [
-#     path('', views.CallSheetListView.as_view(), name='callsheet_list'),
-#     path('<int:pk>/', views.CallSheetDetailView.as_view(), name='callsheet_detail'),
-# ]
-
-
-# urls.py
 from django.urls import path
-from .views import CallSheetCreateView
+from .views import CallSheetCreateView, CallSheetRetrieveUpdateDeleteView
 
 urlpatterns = [
     path('callsheets/', CallSheetCreateView.as_view(), name='callsheet-create'),
+    path('callsheets/<int:pk>/', CallSheetRetrieveUpdateDeleteView.as_view(), name='callsheet-detail'),
 ]

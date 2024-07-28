@@ -1,22 +1,4 @@
 
-# # callsheets/serializers.py
-# from rest_framework import serializers
-# from .models import CallSheet
-
-# class CallSheetSerializer(serializers.ModelSerializer):
-#     date = serializers.DateField(input_formats=['%d/%m/%Y'], allow_null=True, required=False)
-
-#     calltime = serializers.TimeField(format='%I:%M %p')  # format: 10:52 AM/PM
-#     breakfast = serializers.TimeField(format='%I:%M %p')
-#     lunch = serializers.TimeField(format='%I:%M %p') 
-#     sunrise = serializers.TimeField(format='%I:%M %p')  # Keep it as TimeField
-#     sunset = serializers.TimeField(format='%I:%M %p') 
-
-#     class Meta:
-#         model = CallSheet
-#         fields = '__all__'
-
-
 
 # callsheets/serializers.py
 from rest_framework import serializers
@@ -25,11 +7,11 @@ from project.models import Project
 from crew.serializers import CrewProfileSerializer 
 
 class CallSheetSerializer(serializers.ModelSerializer):
-    # date = serializers.DateField(input_formats=['%d/%m/%Y'], allow_null=True, required=False)
-    date = serializers.DateField(input_formats=['%d/%m/%Y'], required=True)
-    calltime = serializers.TimeField(format='%I:%M %p')  # format: 10:52 AM/PM
-    breakfast = serializers.TimeField(format='%I:%M %p')
-    lunch = serializers.TimeField(format='%I:%M %p') 
+   
+    date = serializers.DateField(input_formats=['%d/%m/%Y'], required=False)
+    calltime = serializers.TimeField(format='%I:%M %p', required=False)
+    breakfast = serializers.TimeField(format='%I:%M %p', required=False)
+    lunch = serializers.TimeField(format='%I:%M %p', required=False)
     # sunrise = serializers.TimeField(format='%I:%M %p')
     # sunset = serializers.TimeField(format='%I:%M %p') 
 
@@ -51,7 +33,6 @@ class CallSheetSerializer(serializers.ModelSerializer):
         crew_members = project.crew_profiles.all()
         return CrewProfileSerializer(crew_members, many=True).data
 
-
     def create(self, validated_data):
         # Project information is fetched and passed through serializer
         project = validated_data.get('project')
@@ -61,10 +42,13 @@ class CallSheetSerializer(serializers.ModelSerializer):
         call_sheet = CallSheet.objects.create(
             project=project,
             title=validated_data.get('title'),
+
             date=validated_data.get('date'),
             calltime=validated_data.get('calltime'),
             breakfast=validated_data.get('breakfast'),
             lunch=validated_data.get('lunch'),
+
+
             # sunrise=validated_data.get('sunrise'),
             # sunset=validated_data.get('sunset'),
             additional_details=validated_data.get('additional_details', 'No additional details provided'),
