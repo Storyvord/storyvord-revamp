@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'drf_spectacular'
 ]
 
+
 # DJOSER = {
 #     'PASSWORD_RESET_CONFIRM_URL': 'auth/password/reset/confirm/{uid}/{token}',
 #     'PASSWORD_CHANGED_EMAIL_CONFIRMATION': True,
@@ -184,13 +185,14 @@ DATABASES = {
     #     'PORT': '1234',
     # }
 
+    # # storyvord_db LOCAL - POSTGRES...
     # 'default': {
-    #         'ENGINE': 'django.db.backends.postgresql',  #'django.db.backends.mysql',  # or
+    #         'ENGINE': 'django.db.backends.postgresql',
     #         "HOST": "127.0.0.1",
-    #         'NAME': 'story',
+    #         'NAME': 'storyvord_db',
     #         'USER': 'postgres',
     #         'PASSWORD': 'root',
-    #         'PORT': '5432' #5432
+    #         'PORT': '5432' 
     #     }
 
     # 'default': {
@@ -209,6 +211,8 @@ DATABASES = {
         # 'PORT': '1234'
         'PORT': '',  # Leave empty to use the default port for Unix socket
     }
+
+
 }
 AUTH_USER_MODEL = "accounts.User"
 if os.getenv('DOCKER'):
