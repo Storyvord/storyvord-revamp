@@ -185,14 +185,13 @@ DATABASES = {
     #     'PORT': '1234',
     # }
 
-    # # storyvord_db LOCAL - POSTGRES...
     # 'default': {
-    #         'ENGINE': 'django.db.backends.postgresql',
+    #         'ENGINE': 'django.db.backends.postgresql',  #'django.db.backends.mysql',  # or
     #         "HOST": "127.0.0.1",
-    #         'NAME': 'storyvord_db',
+    #         'NAME': 'story',
     #         'USER': 'postgres',
     #         'PASSWORD': 'root',
-    #         'PORT': '5432' 
+    #         'PORT': '5432' #5432
     #     }
 
     # 'default': {

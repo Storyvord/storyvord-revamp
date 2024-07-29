@@ -5,3 +5,5 @@ from .models import *
 admin.site.register(OnboardRequest)
 admin.site.register(Project)
 admin.site.register(LocationDetail)
+admin.site.register(SelectCrew)
+admin.site.register(SelectEquipment)
