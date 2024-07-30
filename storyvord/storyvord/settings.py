@@ -39,6 +39,8 @@ INSTALLED_APPS = [
     'storyvord_calendar',
     'files',
     'tasks',
+    'announcement',
+    'notification',
     'callsheets',
     'corsheaders',
     'djoser',

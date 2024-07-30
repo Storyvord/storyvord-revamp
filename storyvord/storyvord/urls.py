@@ -43,6 +43,8 @@ urlpatterns = [
     path('api/calendar/', include('storyvord_calendar.urls')),
     path('api/tasks/', include('tasks.urls')),
     path('api/callsheets/', include('callsheets.urls')),  # Add this line
+    path('api/announcement/', include('announcement.urls')),
+    path('api/notification/', include('notification.urls')),
     path('auth/', include('djoser.urls')),
     path('auth/', include('djoser.urls.jwt')),
     

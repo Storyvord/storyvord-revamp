@@ -19,7 +19,7 @@ class FolderListView(APIView):
         serializer = FolderSerializer(folders, many=True)
         return Response(serializer.data)
 
-    def post(self, request, format=None):
+    def post(self, request, pk, format=None):
         user = request.user
         if user.user_type != 'crew':
             return Response(status=status.HTTP_403_FORBIDDEN)
@@ -28,7 +28,13 @@ class FolderListView(APIView):
         if folder:
             return Response({"detail": "Folder with the same name already exists."}, status=status.HTTP_400_BAD_REQUEST)
 
-        serializer = FolderSerializer(data=request.data)
+        if 'default' in request.data:
+            request.data.pop('default')
+
+        data = request.data.copy()
+        data['project'] = pk
+            
+        serializer = FolderSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
