@@ -2,20 +2,21 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
-from .serializers import FileSerializer
-from .models import File
+from rest_framework.parsers import MultiPartParser, FormParser
+from .serializers import FileSerializer, FolderSerializer
+from .models import File, Folder
 from django.shortcuts import get_object_or_404
 
 # Create your views here.
 
-class FileListCreateView(APIView):
+class FolderListView(APIView):
     permission_classes = [permissions.IsAuthenticated]
-    serializer_class = FileSerializer
+    serializer_class = FolderSerializer
+    parser_classes = (MultiPartParser, FormParser)
 
-    def get(self, request, format=None):
-        files = File.objects.filter(allowed_users=request.user)
-
-        serializer = FileSerializer(files, many=True)
+    def get(self, request, pk, format=None):
+        folders = Folder.objects.filter(project=pk)
+        serializer = FolderSerializer(folders, many=True)
         return Response(serializer.data)
 
     def post(self, request, format=None):
@@ -23,10 +24,54 @@ class FileListCreateView(APIView):
         if user.user_type != 'crew':
             return Response(status=status.HTTP_403_FORBIDDEN)
 
-        # Make sure the user who is creating the file is in the list of allowed
-        request.data['allowed_users'] += [user.id]
+        folder = Folder.objects.filter(project=request.data.get('project'), name=request.data.get('name'))
+        if folder:
+            return Response({"detail": "Folder with the same name already exists."}, status=status.HTTP_400_BAD_REQUEST)
 
-        serializer = FileSerializer(data=request.data)
+        serializer = FolderSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class FileListCreateView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = FileSerializer
+    parser_classes = (MultiPartParser, FormParser)
+
+    # Get the list of files in a folder
+    def get(self, request, pk, format=None):
+        folder = Folder.objects.filter(id=pk)
+        if not folder:
+            return Response({"detail": "Folder not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = FolderSerializer(folder, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, pk, format=None):
+        user = request.user
+        if user.user_type != 'crew':
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        # Check if the file with same name exists
+        file = File.objects.filter(folder=pk, name=request.data.get('name'))
+        if file:
+            return Response({"detail": "File with the same name already exists."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Make a mutable copy of request.data
+        data = request.data.copy()
+        data['folder'] = pk
+
+        # Make sure the user who is creating the file is in the list of allowed
+        allowed_users = data.getlist('allowed_users')
+        if not allowed_users:
+            allowed_users = [user.id]
+        else:
+            allowed_users.append(user.id)
+
+        data.setlist('allowed_users', allowed_users)
+
+        serializer = FileSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -63,6 +108,11 @@ class FileDetailView(APIView):
         if not file.is_crew_user_allowed(request.user):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
+        # Ensure the folder id doesnot change
+        if 'folder' in request.data:
+            return Response(status=status.HTTP_403_FORBIDDEN, data={'message': 'You cannot change the folder of a file.'})
+        
+        # To ensure complete allowed_user doesnot get edited
         if 'allowed_users' in request.data:
             return Response(status=status.HTTP_403_FORBIDDEN, data={'message': 'You cannot update allowed_users field. Use "add_users" and "remove_users" fields instead.'})
 
