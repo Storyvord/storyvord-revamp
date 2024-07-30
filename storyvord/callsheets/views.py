@@ -2,7 +2,7 @@
 from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, permissions
 from .models import CallSheet
 from .serializers import CallSheetSerializer
 from project.models import Project
@@ -10,6 +10,9 @@ from storyvord_calendar.models import Calendar
 
 
 class CallSheetCreateView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = CallSheetSerializer
+
     def post(self, request, *args, **kwargs):
         data = request.data.copy()  # Copy the request data to modify it
         
@@ -36,7 +39,11 @@ class CallSheetCreateView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+
 class CallSheetRetrieveUpdateDeleteView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = CallSheetSerializer
     def get_object(self, pk):
         return get_object_or_404(CallSheet, pk=pk)
     
