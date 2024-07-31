@@ -19,9 +19,11 @@ class ProjectListCreateView(GenericAPIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
+        crew_profiles_data = request.data.pop('crew_profiles', [])
         serializer = ProjectSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save(user=request.user)
+            project = serializer.save(user=request.user)
+            project.crew_profiles.set(crew_profiles_data)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
