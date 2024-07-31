@@ -14,7 +14,8 @@ class CalendarView(APIView):
             calendar = get_object_or_404(Calendar, pk=pk)
             serializer = CalendarSerializer(calendar)
         else:
-            calendars = Calendar.objects.all()
+            # calendars = Calendar.objects.all()
+            calendars = Calendar.objects.filter(project__crew_profiles=request.user).distinct()
             serializer = CalendarSerializer(calendars, many=True)
         return Response(serializer.data)
 
