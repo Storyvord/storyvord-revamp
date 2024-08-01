@@ -1,25 +1,46 @@
+# # Build steps
+# steps:
+#   - name: "gcr.io/cloud-builders/docker" # Build the Docker image
+#     args: ["build", "-t", "gcr.io/apis-424409/storyvord", "."]
+#     env:
+#       - ENVIRONMENT=testing # or development, or production
+
+#   - name: "gcr.io/cloud-builders/docker" # Push the image to Container Registry
+#     args: ["push", "gcr.io/apis-424409/storyvord"]
+
+#   - name: "gcr.io/cloud-builders/gcloud" # Deploy the image to Cloud Run
+#     args: [
+#         "run",
+#         "deploy",
+#         "storyvord-${ENVIRONMENT}", # Use the environment variable in the deployment name
+#         "--image",
+#         "gcr.io/apis-424409/storyvord",
+#         "--platform",
+#         "managed",
+#         "--region",
+#         "us-central1", # Replace with your desired region
+#       ]
+
+# # Images to be built and pushed (already defined)
+# images:
+#   - "gcr.io/apis-424409/storyvord"
+
 # Build steps
 steps:
   - name: "gcr.io/cloud-builders/docker" # Build the Docker image
     args: ["build", "-t", "gcr.io/apis-424409/storyvord", "."]
     env:
-      - ENVIRONMENT=testing # or development, or production
+      # - ENVIRONMENT=testing # or development, or production
+      - ENVIRONMENT=$ENVIRONMENT # Use substitution variable
 
   - name: "gcr.io/cloud-builders/docker" # Push the image to Container Registry
     args: ["push", "gcr.io/apis-424409/storyvord"]
 
   - name: "gcr.io/cloud-builders/gcloud" # Deploy the image to Cloud Run
-    args: [
-        "run",
-        "deploy",
-        "storyvord-${ENVIRONMENT}", # Use the environment variable in the deployment name
-        "--image",
-        "gcr.io/apis-424409/storyvord",
-        "--platform",
-        "managed",
-        "--region",
-        "us-central1", # Replace with your desired region
-      ]
+    args: ["run", "deploy", "--config", "cloudrun-${ENVIRONMENT}.yaml"]
+    env:
+      # - ENVIRONMENT=testing # or development, or production
+      - ENVIRONMENT=$ENVIRONMENT # Use substitution variable
 
 # Images to be built and pushed (already defined)
 images:

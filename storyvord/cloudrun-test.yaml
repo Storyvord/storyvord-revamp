@@ -1,0 +1,9 @@
+# cloudrun-test.yaml
+service:
+  name: storyvord-test
+  platform: managed
+  region: us-central1
+
+build:
+  docker:
+    imageName: gcr.io/apis-424409/storyvord
