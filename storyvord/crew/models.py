@@ -80,8 +80,8 @@ class CrewEvent(models.Model):
     crew_member = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='crew_events')
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
-    start_time = models.DateTimeField()
-    end_time = models.DateTimeField()
+    start = models.DateTimeField()
+    end = models.DateTimeField()
     location = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
@@ -90,8 +90,8 @@ class CrewEvent(models.Model):
     def clean(self):
         overlapping_events = CrewEvent.objects.filter(
             crew_member=self.crew_member,
-            start_time__lt=self.end_time,
-            end_time__gt=self.start_time
+            start__lt=self.end,
+            end__gt=self.start
         ).exclude(pk=self.pk)
         
         if overlapping_events.exists():
