@@ -187,14 +187,14 @@ DATABASES = {
     #     'PORT': '1234',
     # }
 
-    'default': {
-            'ENGINE': 'django.db.backends.postgresql',  #'django.db.backends.mysql',  # or
-            "HOST": "127.0.0.1",
-            'NAME': 'storyvord_db',
-            'USER': 'postgres',
-            'PASSWORD': 'root',
-            'PORT': '5432'
-        }
+    # 'default': {
+    #         'ENGINE': 'django.db.backends.postgresql',  #'django.db.backends.mysql',  # or
+    #         "HOST": "127.0.0.1",
+    #         'NAME': 'storyvord_db',
+    #         'USER': 'postgres',
+    #         'PASSWORD': 'root',
+    #         'PORT': '5432'
+    #     }
 
     # 'default': {
     #     'ENGINE': 'django.db.backends.sqlite3',
@@ -202,16 +202,16 @@ DATABASES = {
     #              # If one doesn't exist, it will be created at migration time.
     # },
 
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.postgresql',  #'django.db.backends.mysql',  # or
-    #     'HOST': '/cloudsql/apis-424409:us-central1:storyvord',
-    #     # "HOST": "127.0.0.1",
-    #     'NAME': 'storyvord_db',
-    #     'USER': 'storyvord',
-    #     'PASSWORD': 'storyvord',
-    #     # 'PORT': '1234'
-    #     'PORT': '',  # Leave empty to use the default port for Unix socket
-    # }
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',  #'django.db.backends.mysql',  # or
+        'HOST': '/cloudsql/apis-424409:us-central1:storyvord',
+        # "HOST": "127.0.0.1",
+        'NAME': 'storyvord_db',
+        'USER': 'storyvord',
+        'PASSWORD': 'storyvord',
+        # 'PORT': '1234'
+        'PORT': '',  # Leave empty to use the default port for Unix socket
+    }
 
 
 }

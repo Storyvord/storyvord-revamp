@@ -1,0 +1,8 @@
+service:
+  name: storyvord-${ENVIRONMENT}
+  platform: managed
+  region: us-central1
+
+build:
+  docker:
+    imageName: gcr.io/apis-424409/storyvord
