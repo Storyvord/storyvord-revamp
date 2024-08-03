@@ -17,7 +17,7 @@ class Event(models.Model):
     description = models.TextField(blank=True, null=True)
     start = models.DateTimeField()
     end = models.DateTimeField()
-    # document = models.FileField(upload_to='documents/', blank=True, null=True)
+    document = models.FileField(upload_to='documents/', blank=True, null=True)
     location = models.CharField(max_length=255, blank=True, null=True)
     participants = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='events', blank=True)
 
