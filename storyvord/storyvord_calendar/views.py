@@ -24,22 +24,24 @@ class CalendarView(APIView):
 class EventView(APIView):
     permission_classes = [IsAuthenticated]
     serializer_class = EventSerializer
-    def get(self, request, project_id, id=None):
+    def get(self, request, project_id, pk=None):
         calendar = get_object_or_404(Calendar, project=project_id)
         if not calendar.project.crew_profiles.filter(pk=request.user.pk).exists():
             return Response(status=status.HTTP_403_FORBIDDEN, data={"detail": "You do not have permission to access this calendar"})
-        if id:
-            event = get_object_or_404(Event, pk=id, calendar=calendar)
+        if pk:
+            event = get_object_or_404(Event, pk=pk, calendar=calendar)
+            if not event.participants.filter(pk=request.user.pk).exists():
+                return Response(status=status.HTTP_403_FORBIDDEN, data={"detail": "You do not have permission to access this event"})
             serializer = EventSerializer(event)
         else:
-            events = calendar.events.all()
+            events = calendar.events.filter(participants=request.user)
             serializer = EventSerializer(events, many=True)
         return Response(serializer.data)
 
     def post(self, request, project_id):
         calendar = get_object_or_404(Calendar, project=project_id)
-        if not calendar.project.crew_profiles.filter(pk=request.user.pk).exists():
-            return Response(status=status.HTTP_403_FORBIDDEN, data={"detail": "You do not have permission to access this calendar"})
+        if not calendar.project.user == request.user:
+            return Response(status=status.HTTP_403_FORBIDDEN, data={"detail": "Only the project owner can add events to the calendar"})
         data = request.data.copy()
         data['calendar'] = calendar.id 
         serializer = EventSerializer(data=data)
@@ -50,8 +52,8 @@ class EventView(APIView):
 
     def put(self, request, project_id, pk):
         calendar = get_object_or_404(Calendar, project=project_id)
-        if not calendar.project.crew_profiles.filter(pk=request.user.pk).exists():
-            return Response(status=status.HTTP_403_FORBIDDEN, data={"detail": "You do not have permission to access this calendar"})
+        if not calendar.project.user == request.user:
+            return Response(status=status.HTTP_403_FORBIDDEN, data={"detail": "Only the project owner can add events to the calendar"})
         event = get_object_or_404(Event, pk=pk, calendar=calendar)
         data = request.data.copy()
         data['calendar'] = calendar.id 
@@ -63,8 +65,11 @@ class EventView(APIView):
 
     def delete(self, request, project_id, pk):
         calendar = get_object_or_404(Calendar, project=project_id)
-        if not calendar.project.crew_profiles.filter(pk=request.user.pk).exists():
-            return Response(status=status.HTTP_403_FORBIDDEN, data={"detail": "You do not have permission to access this calendar"})
+        if not calendar.project.user == request.user:
+            return Response(status=status.HTTP_403_FORBIDDEN, data={"detail": "Only the project owner can add events to the calendar"})
         event = get_object_or_404(Event, pk=pk, calendar=calendar)
         event.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+    
+    
+    
