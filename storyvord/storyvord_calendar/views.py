@@ -53,7 +53,7 @@ class EventView(APIView):
     def put(self, request, project_id, pk):
         calendar = get_object_or_404(Calendar, project=project_id)
         if not calendar.project.user == request.user:
-            return Response(status=status.HTTP_403_FORBIDDEN, data={"detail": "Only the project owner can add events to the calendar"})
+            return Response(status=status.HTTP_403_FORBIDDEN, data={"detail": "Only the project owner can update events to the calendar"})
         event = get_object_or_404(Event, pk=pk, calendar=calendar)
         data = request.data.copy()
         data['calendar'] = calendar.id 
@@ -66,7 +66,7 @@ class EventView(APIView):
     def delete(self, request, project_id, pk):
         calendar = get_object_or_404(Calendar, project=project_id)
         if not calendar.project.user == request.user:
-            return Response(status=status.HTTP_403_FORBIDDEN, data={"detail": "Only the project owner can add events to the calendar"})
+            return Response(status=status.HTTP_403_FORBIDDEN, data={"detail": "Only the project owner can delete events to the calendar"})
         event = get_object_or_404(Event, pk=pk, calendar=calendar)
         event.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
