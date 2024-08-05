@@ -12,12 +12,17 @@ class CalendarView(APIView):
     def get(self, request, project_id=None):
         if project_id:
             calendar = get_object_or_404(Calendar, project=project_id)
-            if not calendar.project.crew_profiles.filter(pk=request.user.pk).exists():
+            if not (calendar.project.crew_profiles.filter(pk=request.user.pk).exists() or calendar.project.user == request.user):
                 return Response(status=status.HTTP_403_FORBIDDEN, data={"detail": "You do not have permission to access this calendar"})
             serializer = CalendarSerializer(calendar)
         else:
-            # calendars = Calendar.objects.all()
-            calendars = Calendar.objects.filter(project__crew_profiles=request.user).distinct()
+            # Get all calendars that the user is a crew member of or the creator of the project.
+            calendars = Calendar.objects.filter(
+                project__crew_profiles=request.user
+            ).distinct() | Calendar.objects.filter(
+                project__user=request.user
+            ).distinct()
+
             serializer = CalendarSerializer(calendars, many=True)
         return Response(serializer.data)
 
@@ -26,15 +31,23 @@ class EventView(APIView):
     serializer_class = EventSerializer
     def get(self, request, project_id, pk=None):
         calendar = get_object_or_404(Calendar, project=project_id)
-        if not calendar.project.crew_profiles.filter(pk=request.user.pk).exists():
+
+        user_is_crew = calendar.project.crew_profiles.filter(pk=request.user.pk).exists()
+        user_is_creator = calendar.project.user == request.user
+    
+        if not (user_is_crew or user_is_creator):
             return Response(status=status.HTTP_403_FORBIDDEN, data={"detail": "You do not have permission to access this calendar"})
         if pk:
             event = get_object_or_404(Event, pk=pk, calendar=calendar)
-            if not event.participants.filter(pk=request.user.pk).exists():
+            if not (event.participants.filter(pk=request.user.pk).exists() or user_is_creator):
                 return Response(status=status.HTTP_403_FORBIDDEN, data={"detail": "You do not have permission to access this event"})
             serializer = EventSerializer(event)
         else:
             events = calendar.events.filter(participants=request.user)
+
+            # If the user is the creator of the project, they can see all events
+            if (user_is_creator):
+                events = calendar.events.all()
             serializer = EventSerializer(events, many=True)
         return Response(serializer.data)
 
