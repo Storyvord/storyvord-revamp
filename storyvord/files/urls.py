@@ -3,7 +3,7 @@ from .views import *
 
 urlpatterns = [
     # Path for getting the list of files and creating a new file in a folder
-    path('crew/folders/files/<int:pk>/', FileListCreateView.as_view(), name='file-list-create'),
+    path('folders/files/<int:pk>/', FileListCreateView.as_view(), name='file-list-create'),
     # Path for deleting a file by its primary key (pk)
     path('<int:pk>/', FileDetailView.as_view(), name='file-delete'),
     

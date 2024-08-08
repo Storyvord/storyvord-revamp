@@ -22,6 +22,3 @@ class File(models.Model):
 
     def __str__(self):
         return self.file.name
-
-    def is_crew_user_allowed(self, user):
-        return self.allowed_users.filter(id=user.id, user_type='crew').exists()

@@ -5,6 +5,7 @@ from rest_framework import status, permissions
 from rest_framework.parsers import MultiPartParser, FormParser
 from .serializers import FileSerializer, FolderSerializer
 from .models import File, Folder
+from project.models import Project
 from django.shortcuts import get_object_or_404
 
 # Create your views here.
@@ -16,15 +17,18 @@ class FolderListView(APIView):
 
     def get(self, request, pk, format=None):
         folders = Folder.objects.filter(project=pk)
-        serializer = FolderSerializer(folders, many=True)
+        serializer = FolderSerializer(folders, many=True, context={'exclude_files': True})
         return Response(serializer.data)
 
     def post(self, request, pk, format=None):
         user = request.user
-        if user.user_type != 'crew':
+
+        project = get_object_or_404(Project, pk=pk)
+
+        if project.user != user:
             return Response(status=status.HTTP_403_FORBIDDEN)
 
-        folder = Folder.objects.filter(project=request.data.get('project'), name=request.data.get('name'))
+        folder = Folder.objects.filter(project=pk, name=request.data.get('name'))
         if folder:
             return Response({"detail": "Folder with the same name already exists."}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -47,16 +51,19 @@ class FileListCreateView(APIView):
 
     # Get the list of files in a folder
     def get(self, request, pk, format=None):
-        folder = Folder.objects.filter(id=pk)
-        if not folder:
-            return Response({"detail": "Folder not found."}, status=status.HTTP_404_NOT_FOUND)
+        folder = get_object_or_404(Folder, pk=pk)
 
-        serializer = FolderSerializer(folder, many=True)
+        files = folder.files.filter(allowed_users=request.user)
+
+        serializer = FileSerializer(files, many=True)
         return Response(serializer.data)
 
     def post(self, request, pk, format=None):
         user = request.user
-        if user.user_type != 'crew':
+
+        folder = get_object_or_404(Folder, pk=pk)
+        
+        if not folder.project.user == user:
             return Response(status=status.HTTP_403_FORBIDDEN)
 
         # Check if the file with same name exists
@@ -91,7 +98,7 @@ class FileDetailView(APIView):
         file = get_object_or_404(File, pk=pk)
 
         # Who can view a file?
-        if not file.is_crew_user_allowed(request.user):
+        if not file.allowed_users.filter(id=request.user.id).exists():
             return Response(status=status.HTTP_403_FORBIDDEN)
 
         serializer = FileSerializer(file)
@@ -101,7 +108,7 @@ class FileDetailView(APIView):
         file = get_object_or_404(File, pk=pk)
 
         # Who can delete a file?
-        if not file.is_crew_user_allowed(request.user):
+        if not file.folder.project.user == request.user:
             return Response(status=status.HTTP_403_FORBIDDEN)
 
         file.delete()
@@ -111,7 +118,7 @@ class FileDetailView(APIView):
         file = get_object_or_404(File, pk=pk)
 
         # Who can update a file?
-        if not file.is_crew_user_allowed(request.user):
+        if not file.folder.project.user == request.user:
             return Response(status=status.HTTP_403_FORBIDDEN)
 
         # Ensure the folder id doesnot change
