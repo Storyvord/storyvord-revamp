@@ -27,3 +27,9 @@ class FolderSerializer(serializers.ModelSerializer):
         model = Folder 
         fields = ['id', 'description', 'icon', 'name', 'project', 'default', 'files']
         
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        if self.context.get('exclude_files'):
+            representation.pop('files', None)
+        return representation
