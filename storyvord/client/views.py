@@ -3,6 +3,8 @@ from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+
+from crew.models import CrewProfile
 from .models import ClientProfile
 from .serializers import ProfileSerializer
 from rest_framework.permissions import IsAuthenticated  # Ensure this import is present
@@ -126,3 +128,43 @@ class ProfileDetailAPIView(APIView):
         profile = self.get_object()
         profile.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class SwitchProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request):
+        user = request.user
+        data = request.data
+        switch_to_client = data.get('switch_to_client', False)
+        switch_to_crew = data.get('switch_to_crew', False)
+
+        if not (switch_to_client or switch_to_crew):
+            return Response({'detail': 'Specify a role to switch to.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if switch_to_client:
+            # Activate Client profile and deactivate Crew profile
+            client_profile, created = ClientProfile.objects.get_or_create(user=user)
+            client_profile.active = True
+            client_profile.save()
+
+            CrewProfile.objects.filter(user=user).update(active=False)
+
+            user.is_client = True
+            user.is_crew = False
+            user.save()
+
+        if switch_to_crew:
+            # Activate Crew profile and deactivate Client profile
+            crew_profile, created = CrewProfile.objects.get_or_create(user=user)
+            crew_profile.active = True
+            crew_profile.save()
+
+            ClientProfile.objects.filter(user=user).update(active=False)
+
+            user.is_client = False
+            user.is_crew = True
+            user.save()
+
+        return Response({'detail': 'Profile updated successfully.'}, status=status.HTTP_200_OK)
+

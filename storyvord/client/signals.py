@@ -13,9 +13,9 @@ from accounts.models import User
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
-        if instance.user_type == 'client':
+        # if instance.user_type == 'client':
             ClientProfile.objects.create(user=instance)
-        elif instance.user_type == 'crew':
+        # elif instance.user_type == 'crew':
             CrewProfile.objects.create(user=instance)
             CrewCalendar.objects.create(user=instance, name=f"{instance.email} Crew Calendar")
 

@@ -88,3 +88,20 @@ class OnboardRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = OnboardRequest
         fields = ['id', 'project', 'user', 'status', 'created_at', 'updated_at']
+        
+class OnboardRequestsByProjectSerializer(serializers.Serializer):
+    pending_requests = serializers.SerializerMethodField()
+    accepted_requests = serializers.SerializerMethodField()
+    declined_requests = serializers.SerializerMethodField()
+
+    def get_pending_requests(self, obj):
+        onboard_requests = OnboardRequest.objects.filter(project=obj, status='pending')
+        return OnboardRequestSerializer(onboard_requests, many=True).data
+
+    def get_accepted_requests(self, obj):
+        onboard_requests = OnboardRequest.objects.filter(project=obj, status='accepted')
+        return OnboardRequestSerializer(onboard_requests, many=True).data
+
+    def get_declined_requests(self, obj):
+        onboard_requests = OnboardRequest.objects.filter(project=obj, status='declined')
+        return OnboardRequestSerializer(onboard_requests, many=True).data

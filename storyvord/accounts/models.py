@@ -57,7 +57,7 @@ class User(AbstractUser):
 
     username = None
     email = models.EmailField(_("email address"), unique=True)
-    user_type = models.CharField(max_length=10, choices=USER_TYPE_CHOICES)  # Change: Added user_type field
+    user_type = models.CharField(max_length=10, choices=USER_TYPE_CHOICES)
 
 
     USERNAME_FIELD = "email"

@@ -102,45 +102,23 @@ class UpdateOnboardRequestView(APIView):
         serializer = OnboardRequestSerializer(onboard_request)
         return Response(serializer.data)
 
+class PendingOnboardRequestsView(APIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = OnboardRequestSerializer
+    def get(self, request):
+        user = request.user
+        onboard_requests = OnboardRequest.objects.filter(user=user, status='pending')
+        serializer = OnboardRequestSerializer(onboard_requests, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+class OnboardRequestsByProjectView(APIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = OnboardRequestsByProjectSerializer
+    def get(self, request, project_id):
+        try:
+            project = Project.objects.get(project_id=project_id)
+        except Project.DoesNotExist:
+            return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
 
-# class SendOnboardRequestAPIView(APIView):
-#     permission_classes = [IsAuthenticated]
-
-#     def post(self, request, project_id, crew_id, *args, **kwargs):
-#         try:
-#             project = Project.objects.get(pk=project_id, user=request.user)
-#             crew = User.objects.get(pk=crew_id, user_type='crew')
-#             onboard_request = OnboardRequest.objects.create(project=project, crew=crew)
-#             return Response(OnboardRequestSerializer(onboard_request).data, status=status.HTTP_201_CREATED)
-#         except Project.DoesNotExist:
-#             return Response({'error': 'Project not found or you are not authorized to send onboard requests for this project.'}, status=status.HTTP_404_NOT_FOUND)
-#         except User.DoesNotExist:
-#             return Response({'error': 'Crew member not found.'}, status=status.HTTP_404_NOT_FOUND)
-
-# class AcceptOnboardRequestAPIView(APIView):
-#     permission_classes = [IsAuthenticated]
-
-#     def post(self, request, request_id, *args, **kwargs):
-#         try:
-#             onboard_request = OnboardRequest.objects.get(pk=request_id, crew=request.user, status='pending')
-#             onboard_request.status = 'accepted'
-#             onboard_request.save()
-#             onboard_request.project.selected_crew.add(request.user)
-#             return Response(OnboardRequestSerializer(onboard_request).data, status=status.HTTP_200_OK)
-#         except OnboardRequest.DoesNotExist:
-#             return Response({'error': 'Onboard request not found or already processed.'}, status=status.HTTP_404_NOT_FOUND)
-#         except Project.DoesNotExist:
-#             return Response({'error': 'Project not found.'}, status=status.HTTP_404_NOT_FOUND)
-        
-# class ListOnboardRequestsAPIView(APIView):
-#     permission_classes = [IsAuthenticated]
-
-#     def get(self, request, *args, **kwargs):
-#         if request.user.user_type == 'client':
-#             onboard_requests = OnboardRequest.objects.filter(project__user=request.user)
-#         elif request.user.user_type == 'crew':
-#             onboard_requests = OnboardRequest.objects.filter(crew=request.user)
-#         else:
-#             return Response({'error': 'Only clients and crew members can view onboard requests.'}, status=status.HTTP_403_FORBIDDEN)
-#         serializer = OnboardRequestSerializer(onboard_requests, many=True)
-#         return Response(serializer.data, status=status.HTTP_200_OK)
+        serializer = OnboardRequestsByProjectSerializer(project)
+        return Response(serializer.data, status=status.HTTP_200_OK)
