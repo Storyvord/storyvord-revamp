@@ -12,10 +12,6 @@ urlpatterns = [
     path('crew-education/', CrewEducationListCreateView.as_view(), name='crew-education-list-create'),
     path('crew-education/<int:pk>/', CrewEducationDetailView.as_view(), name='crew-education-detail'),
     
-    # Crew rate
-    path('crew-rate/', CrewRateListCreateView.as_view(), name='crew-rate-list-create'),
-    path('crew-rate/<int:pk>/', CrewRateDetailView.as_view(), name='crew-rate-detail'),
-    
     path('endorsement-from-peers/', EndorsementfromPeersListCreateView.as_view(), name='endorsement-from-peers-list-create'),
     path('endorsement-from-peers/<int:pk>/', EndorsementfromPeersDetailView.as_view(), name='endorsement-from-peers-detail'),
     
@@ -23,4 +19,17 @@ urlpatterns = [
     path('social-links/<int:pk>/', SocialLinksDetailView.as_view(), name='social-links-detail'),
 
     path('crew-list/', CrewListView.as_view(), name='crew-list'),
+    
+    # Crew Portfolio and its verification Urls
+    path('portfolios/', CrewPortfolioListCreate.as_view(), name='crew-portfolio-list-create'),
+    path('portfolios/<int:pk>/', CrewPortfolioDetail.as_view(), name='crew-portfolio-detail'),
+    
+    path('verify/client_reference/<int:pk>/', VerifyClientReference.as_view(), name='verify-client-reference'),
+    path('verify/imbd_link/<int:pk>/', VerifyImbdLink.as_view(), name='verify-imbd-link'),
+    path('verify/work_sample/<int:pk>/', VerifyWorkSample.as_view(), name='verify-work-sample'),
+    path('verify/email_agreement/<int:pk>/', VerifyEmailAgreement.as_view(), name='verify-email-agreement'),
+    
+    # All projects
+    path('my-projects/', UserProjectsView.as_view(), name='user_projects'),
+    path('company-projects/', CompanyProjectsView.as_view(), name='company_projects'),
 ]
