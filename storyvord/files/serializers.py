@@ -15,17 +15,18 @@ from accounts.models import User
 
 class FileSerializer(serializers.ModelSerializer):
     # file = Base64FileField(required=False, allow_null=True)
-    allowed_users = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), many=True)
     class Meta:
         model = File
         fields = '__all__'
+        # fields = ['id', 'name', 'file', 'folder']
 
         
 class FolderSerializer(serializers.ModelSerializer):
     files = FileSerializer(many=True, required=False)
+    allowed_users = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), many=True)
     class Meta:
         model = Folder 
-        fields = ['id', 'description', 'icon', 'name', 'project', 'default', 'files']
+        fields = ['id', 'description', 'icon', 'name', 'project', 'default', 'files', 'allowed_users']
         
 
     def to_representation(self, instance):

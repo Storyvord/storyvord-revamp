@@ -9,6 +9,7 @@ class Folder(models.Model):
     description = models.TextField(null=True, blank=True)
     icon = models.TextField()
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='files', null=True, blank=True) 
+    allowed_users = models.ManyToManyField('accounts.User') 
     default = models.BooleanField(default=False)
 
     def __str__(self):
@@ -17,7 +18,6 @@ class Folder(models.Model):
 class File(models.Model):
     name = models.CharField(max_length=255)
     file = models.FileField(upload_to='files/', null=True, blank=True)
-    allowed_users = models.ManyToManyField('accounts.User') 
     folder = models.ForeignKey('Folder', on_delete=models.CASCADE, related_name='files', null=True, blank=True)
 
     def __str__(self):
