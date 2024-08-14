@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import *
+from crew.serializers import CrewProfileSerializer
 import base64
 from django.core.files.base import ContentFile
 
@@ -105,3 +106,9 @@ class OnboardRequestsByProjectSerializer(serializers.Serializer):
     def get_declined_requests(self, obj):
         onboard_requests = OnboardRequest.objects.filter(project=obj, status='declined')
         return OnboardRequestSerializer(onboard_requests, many=True).data
+
+class UserSerializer(serializers.ModelSerializer):
+    profile = CrewProfileSerializer(source='crewprofile', read_only=True)
+    class Meta:
+        model = User
+        fields = ['id', 'email', 'profile']
