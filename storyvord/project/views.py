@@ -122,3 +122,17 @@ class OnboardRequestsByProjectView(APIView):
 
         serializer = OnboardRequestsByProjectSerializer(project)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+        
+class CrewListView(APIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = UserSerializer 
+
+    def get(self, request, project_id):
+        project = Project.objects.get(project_id=project_id)
+        crew_profiles = project.crew_profiles.all()
+        
+        serializer = UserSerializer(crew_profiles, many=True)
+        
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    

@@ -5,6 +5,7 @@ from .models import *
 
 class CrewProfileSerializer(serializers.ModelSerializer):
     class Meta:
+        # Base 64 image
         model = CrewProfile
         fields = '__all__'
         read_only_fields = ('user',)

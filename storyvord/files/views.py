@@ -3,8 +3,10 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
 from rest_framework.parsers import MultiPartParser, FormParser
-from .serializers import FileSerializer, FolderSerializer
+from .serializers import *
+from project.serializers import UserSerializer
 from .models import File, Folder
+from accounts.models import User
 from project.models import Project
 from django.shortcuts import get_object_or_404
 from django.db.models import Q
@@ -24,86 +26,42 @@ class FolderListView(APIView):
         serializer = FolderSerializer(folders, many=True, context={'exclude_files': True})
         return Response(serializer.data)
 
-
     def post(self, request, pk, format=None):
         user = request.user
-
         project = get_object_or_404(Project, pk=pk)
-
-        if project.user != user:
-            return Response(status=status.HTTP_403_FORBIDDEN)
-
-        folder = Folder.objects.filter(project=pk, name=request.data.get('name'))
-        if folder:
-            return Response({"detail": "Folder with the same name already exists."}, status=status.HTTP_400_BAD_REQUEST)
-
-        if 'default' in request.data:
-            request.data.pop('default')
 
         data = request.data.copy()
         data['project'] = pk
+        data['created_by'] = user.id
 
-         # Make sure the user who is creating the file is in the list of allowed
+        # Add the user creating the folder to allowed_users
         allowed_users = data.getlist('allowed_users')
         if not allowed_users:
             allowed_users = [user.id]
         else:
             allowed_users.append(user.id)
-
         data.setlist('allowed_users', allowed_users)
-            
-        serializer = FolderSerializer(data=data)
+
+        serializer = FolderSerializer(data=data, context={'request': request})  # Pass the request context here
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    # add user to allowed users or remove user from allowed users
-    
 class FolderDetailView(APIView):
     permission_classes = [permissions.IsAuthenticated]
-    serializer_class = FolderSerializer
+    serializer_class = FolderUpdateSerializer
     
     def put(self, request, pk, format=None):
-        user = request.user
-        
         folder = get_object_or_404(Folder, pk=pk)
+        serializer = self.serializer_class(folder, data=request.data, context={'request': request}, partial=True)
         
-        if folder.project.user != user:
-            return Response(status=status.HTTP_403_FORBIDDEN)
-        
-        if 'default' in request.data:
-            request.data.pop('default')
-            
-        if 'project' in request.data:
-            return Response(status=status.HTTP_403_FORBIDDEN, data={'message': 'You cannot change the project of a folder.'})
-        
-        # To ensure complete allowed_user doesnot get edited
-        if 'allowed_users' in request.data:
-            return Response(status=status.HTTP_403_FORBIDDEN, data={'message': 'You cannot update allowed_users field. Use "add_users" and "remove_users" fields instead.'})
-
-        # Add additional users if 'add_users' is provided in request
-        if 'add_users' in request.data:
-            add_users_ids = request.data.pop('add_users')
-            for user_id in add_users_ids:
-                folder.allowed_users.add(user_id)
-
-        # Remove users if 'remove_users' is provided in request
-        if 'remove_users' in request.data:
-            remove_users_ids = request.data.pop('remove_users')
-            for user_id in remove_users_ids:
-                folder.allowed_users.remove(user_id)
-        
-        # Make sure the user who is updating the file is in the list of allowed
-        if request.user not in folder.allowed_users.all():
-            folder.allowed_users.add(request.user)
-
-        serializer = FolderSerializer(folder, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
+        
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+
 
 class FileListCreateView(APIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -184,6 +142,18 @@ class FileDetailView(APIView):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
+
+class FolderCrewListView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, pk):
+        folder = get_object_or_404(Folder, pk=pk)
+        if not folder.project.user == request.user:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        crew = folder.project.crew_profiles.all()
+        serializer = UserSerializer(crew, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 # Crew side file view 

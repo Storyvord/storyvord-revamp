@@ -11,6 +11,7 @@ class Folder(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='files', null=True, blank=True) 
     allowed_users = models.ManyToManyField('accounts.User') 
     default = models.BooleanField(default=False)
+    created_by = models.ForeignKey('accounts.User', on_delete=models.CASCADE, related_name='created_folders')
 
     def __str__(self):
         return self.name
