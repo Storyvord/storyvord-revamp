@@ -16,7 +16,7 @@ from django.db.models import Q
 class FolderListView(APIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = FolderSerializer
-    parser_classes = (MultiPartParser, FormParser)
+    # parser_classes = (MultiPartParser, FormParser)
 
     def get(self, request, pk, format=None):
         user = request.user
@@ -66,7 +66,6 @@ class FolderDetailView(APIView):
 class FileListCreateView(APIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = FileSerializer
-    parser_classes = (MultiPartParser, FormParser)
 
     # Get the list of files in a folder
     def get(self, request, pk, format=None):
@@ -84,12 +83,11 @@ class FileListCreateView(APIView):
 
         folder = get_object_or_404(Folder, pk=pk)
         
-        if not folder.project.user == user:
+        if user != folder.project.user and user != folder.created_by:
             return Response(status=status.HTTP_403_FORBIDDEN)
 
         # Check if the file with same name exists
-        file = File.objects.filter(folder=pk, name=request.data.get('name'))
-        if file:
+        if File.objects.filter(folder=pk, name=request.data.get('name')).exists():
             return Response({"detail": "File with the same name already exists."}, status=status.HTTP_400_BAD_REQUEST)
 
         # Make a mutable copy of request.data
