@@ -2,8 +2,10 @@ from rest_framework import serializers
 
 from project.models import Project
 from .models import *
+from storyvord.utils import Base64FileField
 
 class CrewProfileSerializer(serializers.ModelSerializer):
+    image = Base64FileField(required=False, allow_null=True)
     class Meta:
         # Base 64 image
         model = CrewProfile
@@ -49,12 +51,14 @@ class WorkSampleVerificationSerializer(serializers.ModelSerializer):
         fields = ['minutes', 'seconds']
         
 class EmailAgreementSerializer(serializers.ModelSerializer):
+    document = Base64FileField(required=False, allow_null=True)
     class Meta:
         model = EmailAgreement
         fields = ['document']
 
 class CrewPortfolioSerializer(serializers.ModelSerializer):
     verification_details = serializers.SerializerMethodField()
+    image = Base64FileField(required=False, allow_null=True)
 
     class Meta:
         model = CrewPortfolio
@@ -77,6 +81,7 @@ class CrewPortfolioSerializer(serializers.ModelSerializer):
         return serializer.data
     
 class CrewPortfolioCreateSerializer(serializers.ModelSerializer):
+    image = Base64FileField(required=False, allow_null=True)
     class Meta:
         model = CrewPortfolio
         fields = [

@@ -1,15 +1,18 @@
 # client/serializers.py
 from rest_framework import serializers
+
+from storyvord.utils import Base64FileField
 from .models import ClientProfile
 
 class ProfileSerializer(serializers.ModelSerializer):
+    image = Base64FileField(required=False, allow_null=True)
     # email = serializers.EmailField(source='user.email', read_only=True)  # Include user's email field
 
     class Meta:
         model = ClientProfile
         # fields = ['email', 'phone_number', 'address', 'image']  # Include 'email' in the fields list
         # fields = ['email', 'phone_number', 'address', 'image']  # Change: Added user_type to fields
-        fields = ['firstName', 'lastName', 'formalName', 'role', 'description', 'address', 'countryName', 'locality', 'personalWebsite']  # Change: Added user_type to fields
+        fields = ['firstName', 'lastName', 'formalName', 'role', 'description', 'address', 'countryName', 'locality', 'personalWebsite', "image", "phone_number"]  # Change: Added user_type to fields
         # fields = '__all__'
     
     def __init__(self, *args, **kwargs):
