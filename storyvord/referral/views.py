@@ -7,7 +7,7 @@ from rest_framework.permissions import IsAuthenticated
 from accounts.models import User
 
 class AddCrewToProjectView(APIView):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     serializer_class = InvitationRequestSerializer
     def post(self, request, *args, **kwargs):
         serializer = InvitationRequestSerializer(data=request.data, context={'request': request})
