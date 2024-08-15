@@ -45,6 +45,7 @@ urlpatterns = [
     path('api/callsheets/', include('callsheets.urls')),  # Add this line
     path('api/announcement/', include('announcement.urls')),
     path('api/notification/', include('notification.urls')),
+    path('api/referral/', include('referral.urls')),
     path('auth/', include('djoser.urls')),
     path('auth/', include('djoser.urls.jwt')),
     

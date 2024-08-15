@@ -18,6 +18,7 @@ SECRET_KEY = env('SECRET_KEY')
 OPENAI_API_KEY = env('OPENAI_API_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+PROD = True
 ALLOWED_HOSTS = ['*']
 CSRF_TRUSTED_ORIGINS = ['https://story-app.azurewebsites.net']
 INSTALLED_APPS = [
@@ -31,6 +32,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'storages',
     'rest_framework_swagger',
+    'django.contrib.sites',
     #'drf_yasg',                      # Yet Another Swagger generator,
     'crew',
     'client',
@@ -45,7 +47,8 @@ INSTALLED_APPS = [
     'corsheaders',
     'djoser',
     'django.core.mail.backends.smtp',
-    'drf_spectacular'
+    'drf_spectacular',
+    'referral',
 ]
 
 
@@ -61,7 +64,7 @@ INSTALLED_APPS = [
 #         'activation': 'accounts.emails.CustomActivationEmail',
 #     },
 # }
-
+SITE_ID = 1
 DJOSER = {
     # 'LOGIN_FIELD': 'email',
     # 'USER_CREATE_PASSWORD_RETYPE':True,
@@ -74,9 +77,7 @@ DJOSER = {
     # 'PASSWORD_RESET_SHOW_EMAIL_NOT_FOUND': True,
     # 'TOKEN_MODEL': None,       # To Delete User Must Set it to None
     # 'SERIALIZERS':{
-    #     'user_create': 'accounts.serializers.UserCreateSerializer',
-    #     'user': 'accounts.serializers.UserCreateSerializer',
-    #     'user_delete': 'djoser.serializers.UserDeleteSerializer',
+    #     'user_create': 'accounts.serializers.CustomUserSerializer',
     # },
     # 'EMAIL': {
     #     'activation': 'accounts.email.ActivationEmail',
@@ -84,6 +85,7 @@ DJOSER = {
     #     'password_reset': 'accounts.email.PasswordResetEmail',
     #     'password_changed_confirmation': 'accounts.email.PasswordChangedConfirmationEmail',
     # },
+    # 'USER_SERIALIZER': 'accounts.serializers.CustomUserSerializer',
 }
 
 
@@ -187,14 +189,14 @@ DATABASES = {
     #     'PORT': '1234',
     # }
 
-    # 'default': {
-    #         'ENGINE': 'django.db.backends.postgresql',  #'django.db.backends.mysql',  # or
-    #         "HOST": "127.0.0.1",
-    #         'NAME': 'storyvord_db',
-    #         'USER': 'postgres',
-    #         'PASSWORD': 'root',
-    #         'PORT': '5432'
-    #     }
+    'default': {
+            'ENGINE': 'django.db.backends.postgresql',  #'django.db.backends.mysql',  # or
+            "HOST": "127.0.0.1",
+            'NAME': 'story',
+            'USER': 'postgres',
+            'PASSWORD': 'root',
+            'PORT': '5432' #5432
+        }
 
     # 'default': {
     #     'ENGINE': 'django.db.backends.sqlite3',
@@ -202,16 +204,16 @@ DATABASES = {
     #              # If one doesn't exist, it will be created at migration time.
     # },
 
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',  #'django.db.backends.mysql',  # or
-        'HOST': '/cloudsql/apis-424409:us-central1:storyvord',
-        # "HOST": "127.0.0.1",
-        'NAME': 'storyvord_db',
-        'USER': 'storyvord',
-        'PASSWORD': 'storyvord',
-        # 'PORT': '1234'
-        'PORT': '',  # Leave empty to use the default port for Unix socket
-    }
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.postgresql',  #'django.db.backends.mysql',  # or
+    #     'HOST': '/cloudsql/apis-424409:us-central1:storyvord',
+    #     # "HOST": "127.0.0.1",
+    #     'NAME': 'storyvord_db',
+    #     'USER': 'storyvord',
+    #     'PASSWORD': 'storyvord',
+    #     # 'PORT': '1234'
+    #     'PORT': '',  # Leave empty to use the default port for Unix socket
+    # }
 
 
 }
