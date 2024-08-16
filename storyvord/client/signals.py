@@ -5,7 +5,7 @@ from django.conf import settings
 
 from project.models import Project
 from storyvord_calendar.models import Event, Calendar
-from .models import ClientProfile
+from .models import ClientProfile, ClientCompanyProfile
 from crew.models import CrewEvent, CrewProfile, CrewCalendar
 from accounts.models import User
 
@@ -18,6 +18,7 @@ def create_user_profile(sender, instance, created, **kwargs):
         # elif instance.user_type == 'crew':
             CrewProfile.objects.create(user=instance)
             CrewCalendar.objects.create(user=instance, name=f"{instance.email} Crew Calendar")
+            ClientCompanyProfile.objects.create(user=instance)
 
 @receiver(post_save, sender=Project)
 def create_calendar(sender, instance, created, **kwargs):
