@@ -56,6 +56,12 @@ class FolderSerializer(serializers.ModelSerializer):
                 allowed_users.append(user)
 
         folder = Folder.objects.create(**validated_data)
+        
+        # Add the project owner to allowed_users
+        project_owner = folder.project.user
+        if project_owner not in allowed_users:
+            allowed_users.append(project_owner)
+
 
         # Add allowed users to the folder
         folder.allowed_users.set(allowed_users)
