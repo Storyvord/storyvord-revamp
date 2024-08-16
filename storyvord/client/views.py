@@ -3,10 +3,12 @@ from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework import permissions
+
 
 from crew.models import CrewProfile
-from .models import ClientProfile
-from .serializers import ProfileSerializer
+from .models import *
+from .serializers import *
 from rest_framework.permissions import IsAuthenticated  # Ensure this import is present
 from rest_framework.parsers import MultiPartParser
 
@@ -168,3 +170,139 @@ class SwitchProfileView(APIView):
 
         return Response({'detail': 'Profile updated successfully.'}, status=status.HTTP_200_OK)
 
+
+
+class ClientCompanyFolderView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, format=None):
+        user = request.user
+        folders = ClientCompanyFolder.objects.filter(allowed_users=user).distinct()
+        serializer = ClientCompanyFolderSerializer(folders, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, format=None):
+        serializer = ClientCompanyFolderSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            serializer.save(created_by=request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    # Delete folders?
+
+class ClientCompanyFileView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, folder_id, format=None):
+        folder = get_object_or_404(ClientCompanyFolder, pk=folder_id, allowed_users=request.user)
+        files = folder.files.all()
+        serializer = ClientCompanyFileSerializer(files, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, folder_id, format=None):
+        folder = get_object_or_404(ClientCompanyFolder, pk=folder_id, allowed_users=request.user)
+        data = request.data.copy()
+        data['folder'] = folder.id
+        serializer = ClientCompanyFileSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    # Delete files?
+
+class ClientCompanyFileUpdateView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_object(self, pk):
+        try:
+            return ClientCompanyFile.objects.get(pk=pk)
+        except ClientCompanyFile.DoesNotExist:
+            return None
+
+    def get(self, request, pk, format=None):
+        file = self.get_object(pk)
+        if file is None:
+            return Response({'detail': 'File not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = ClientCompanyFileUpdateSerializer(file, context={'request': request})
+        return Response(serializer.data)
+
+    def put(self, request, pk, format=None):
+        file = self.get_object(pk)
+        if file is None:
+            return Response({'detail': 'File not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = ClientCompanyFileUpdateSerializer(file, data=request.data, context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def patch(self, request, pk, format=None):
+        file = self.get_object(pk)
+        if file is None:
+            return Response({'detail': 'File not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = ClientCompanyFileUpdateSerializer(file, data=request.data, partial=True, context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk, format=None):
+        file = self.get_object(pk)
+        if file is None:
+            return Response({'detail': 'File not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        if file.folder.created_by != request.user:
+            return Response({'detail': 'You do not have permission to delete this file.'}, status=status.HTTP_403_FORBIDDEN)
+
+        file.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    
+class ClientCompanyFolderUpdateView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_object(self, pk):
+        try:
+            return ClientCompanyFolder.objects.get(pk=pk)
+        except ClientCompanyFolder.DoesNotExist:
+            return None
+
+    def get(self, request, pk, format=None):
+        folder = self.get_object(pk)
+        if folder is None:
+            return Response({'detail': 'Folder not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = ClientCompanyFolderUpdateSerializer(folder)
+        return Response(serializer.data)
+
+    def put(self, request, pk, format=None):
+        folder = self.get_object(pk)
+        if folder is None:
+            return Response({'detail': 'Folder not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = ClientCompanyFolderUpdateSerializer(folder, data=request.data, context={'request': request})
+        if serializer.is_valid():
+            self.check_object_permissions(request, folder)
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def patch(self, request, pk, format=None):
+        folder = self.get_object(pk)
+        if folder is None:
+            return Response({'detail': 'Folder not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = ClientCompanyFolderUpdateSerializer(folder, data=request.data, partial=True, context={'request': request})
+        if serializer.is_valid():
+            self.check_object_permissions(request, folder)
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def check_object_permissions(self, request, obj):
+        # Custom permission check
+        if obj.created_by != request.user:
+            self.permission_denied(request, message="You do not have permission to edit this folder.")

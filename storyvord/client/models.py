@@ -284,3 +284,23 @@ class ClientCompanyProfile(models.Model):
     
     def __str__(self):
         return f'{self.user.email}'
+
+        
+class ClientCompanyFolder(models.Model):
+    name = models.CharField(max_length=255)
+    description = models.TextField(null=True, blank=True)
+    icon = models.TextField()
+    company = models.ForeignKey(ClientCompanyProfile, on_delete=models.CASCADE, related_name='folders', null=True, blank=True)
+    allowed_users = models.ManyToManyField('accounts.User')
+    created_by = models.ForeignKey('accounts.User', on_delete=models.CASCADE, related_name='client_created_folders')
+
+    def __str__(self):
+        return self.name
+
+class ClientCompanyFile(models.Model):
+    name = models.CharField(max_length=255)
+    file = models.FileField(upload_to='files/', null=True, blank=True)
+    folder = models.ForeignKey('ClientCompanyFolder', on_delete=models.CASCADE, related_name='files', null=True, blank=True)
+
+    def __str__(self):
+        return self.file.name
