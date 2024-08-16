@@ -58,8 +58,8 @@ class ProjectInvitationSerializer(serializers.ModelSerializer):
             accept_url = f'http://127.0.0.1:8000/api/referral/invitations/accept/?referral_code={invitation.referral_code}'
             reject_url = f'http://127.0.0.1:8000/api/referral/invitations/reject/?referral_code={invitation.referral_code}'
         else:
-            accept_url = f'{scheme}://{domain}/api/referral/invitations/accept/?referral_code={invitation.referral_code}'
-            reject_url = f'{scheme}://{domain}/api/referral/invitations/reject/?referral_code={invitation.referral_code}'
+            accept_url = f'https://storyvord-back-end-d432tn3msq-uc.a.run.app/api/referral/invitations/accept/?referral_code={invitation.referral_code}'
+            reject_url = f'https://storyvord-back-end-d432tn3msq-uc.a.run.app/api/referral/invitations/reject/?referral_code={invitation.referral_code}'
         
         print(accept_url)
         
@@ -87,7 +87,7 @@ class ProjectInvitationSerializer(serializers.ModelSerializer):
         if settings.PROD == False:
             registration_url = f'http://127.0.0.1:8000/api/referral/register-with-referral/?project_id={project.project_id}&referral_code={referral_code}'
         else:
-            registration_url = f'{scheme}://{domain}/api/referral/register-with-referral/?project_id={project.project_id}&referral_code={referral_code}'
+            registration_url = f'https://storyvord-back-end-d432tn3msq-uc.a.run.app/api/referral/register-with-referral/?project_id={project.project_id}&referral_code={referral_code}'
         subject = 'Register to Join a Project'
         
         print(registration_url)
