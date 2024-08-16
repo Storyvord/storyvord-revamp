@@ -24,6 +24,7 @@ class FileSerializer(serializers.ModelSerializer):
 class FolderSerializer(serializers.ModelSerializer):
     files = FileSerializer(many=True, required=False)
     allowed_users = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), many=True)
+    created_by = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
         model = Folder 
@@ -44,18 +45,22 @@ class FolderSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         request = self.context.get('request')
-        if request and hasattr(request, 'user'):
-            validated_data['created_by'] = request.user  # Set created_by with the request user
+        user = request.user if request else None
 
+        # Ensure the user creating the folder is in allowed_users
         allowed_users = validated_data.pop('allowed_users', [])
+        if user:
+            validated_data['created_by'] = user 
+            validated_data['default'] = False
+            if user not in allowed_users:
+                allowed_users.append(user)
+
         folder = Folder.objects.create(**validated_data)
 
-        # Add the user creating the folder to allowed_users
-        folder.allowed_users.add(request.user)
-        folder.allowed_users.add(*allowed_users)
+        # Add allowed users to the folder
+        folder.allowed_users.set(allowed_users)
 
         return folder
-
 
 
 
