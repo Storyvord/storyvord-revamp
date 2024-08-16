@@ -161,3 +161,71 @@ class ClientCompanyFolderUpdateSerializer(serializers.ModelSerializer):
             representation.pop('files', None)
         return representation
         
+
+# Calendar
+
+class ClientCompanyEventSerializer(serializers.ModelSerializer):
+    calendar = serializers.PrimaryKeyRelatedField(read_only=True)
+    document = Base64FileField(required=False, allow_null=True)
+
+    class Meta:
+        model = ClientCompanyEvent
+        fields = '__all__'
+
+    def validate(self, data):
+        request = self.context.get('request')
+        user = request.user
+
+        # Ensure that the user has a company profile
+        try:
+            company_profile = ClientCompanyProfile.objects.get(user=user)
+        except ClientCompanyProfile.DoesNotExist:
+            raise serializers.ValidationError("Company profile not found for this user.")
+
+        # Ensure the end time is after the start time
+        if data.get('start') and data.get('end') and data['start'] >= data['end']:
+            raise serializers.ValidationError("The end time must be after the start time.")
+
+        return data
+
+    def create(self, validated_data):
+        request = self.context.get('request')
+        user = request.user
+
+        # Pop participants from validated data to handle them separately
+        participants = validated_data.pop('participants', [])
+
+        # Fetch or create the company calendar
+        company_profile = ClientCompanyProfile.objects.get(user=user)
+        calendar, created = ClientCompanyCalendar.objects.get_or_create(company=company_profile)
+
+        # Associate the calendar with the event
+        validated_data['calendar'] = calendar
+
+        # Create the event
+        event = ClientCompanyEvent.objects.create(**validated_data)
+
+        # Add participants to the event
+        event.participants.set(participants)
+
+        return event
+
+    def update(self, instance, validated_data):
+        request = self.context.get('request')
+        user = request.user
+
+        # Ensure that the event belongs to the user's company
+        company_profile = ClientCompanyProfile.objects.get(user=user)
+        if instance.calendar.company != company_profile:
+            raise serializers.ValidationError("You do not have permission to update this event.")
+
+        # Handle participants separately
+        participants = validated_data.pop('participants', None)
+        if participants is not None:
+            instance.participants.set(participants)
+
+        # Ensure the calendar is not being changed
+        validated_data['calendar'] = instance.calendar
+
+        # Update the event with the validated data
+        return super().update(instance, validated_data)

@@ -306,3 +306,54 @@ class ClientCompanyFolderUpdateView(APIView):
         # Custom permission check
         if obj.created_by != request.user:
             self.permission_denied(request, message="You do not have permission to edit this folder.")
+            
+# Calendar
+
+
+class ClientCompanyEventAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ClientCompanyEventSerializer
+    def get(self, request, event_id=None):
+        if event_id:
+            try:
+                event = ClientCompanyEvent.objects.get(id=event_id, calendar__company__user=request.user)
+                serializer = ClientCompanyEventSerializer(event)
+                return Response(serializer.data)
+            except ClientCompanyEvent.DoesNotExist:
+                return Response({"error": "Event not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+        try:
+            company_profile = ClientCompanyProfile.objects.get(user=request.user)
+            print("Company prodile", company_profile)
+            events = ClientCompanyEvent.objects.filter(calendar__company=company_profile)
+            serializer = ClientCompanyEventSerializer(events, many=True)
+            return Response(serializer.data)
+        except ClientCompanyProfile.DoesNotExist:
+            return Response({"error": "Company profile not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    def post(self, request):
+        serializer = ClientCompanyEventSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def put(self, request, event_id):
+        try:
+            event = ClientCompanyEvent.objects.get(id=event_id, calendar__company__user=request.user)
+        except ClientCompanyEvent.DoesNotExist:
+            return Response({"error": "Event not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = ClientCompanyEventSerializer(event, data=request.data, partial=True, context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, event_id):
+        try:
+            event = ClientCompanyEvent.objects.get(id=event_id, calendar__company__user=request.user)
+            event.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except ClientCompanyEvent.DoesNotExist:
+            return Response({"error": "Event not found"}, status=status.HTTP_404_NOT_FOUND)

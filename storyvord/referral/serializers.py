@@ -184,3 +184,11 @@ class UserCreateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = User.objects.create_user(**validated_data)
         return user
+
+
+class ListProjectInvitationSerializer(serializers.ModelSerializer):
+    project_name = serializers.CharField(source='project.name', read_only=True)
+    
+    class Meta:
+        model = ProjectInvitation
+        fields = ['id', 'project', 'project_name', 'status', 'referral_code', 'created_at']

@@ -1,7 +1,7 @@
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .serializers import InvitationRequestSerializer, RegisterWithReferralSerializer
+from .serializers import InvitationRequestSerializer, ListProjectInvitationSerializer, RegisterWithReferralSerializer
 from .models import ProjectInvitation
 from rest_framework.permissions import IsAuthenticated
 from accounts.models import User
@@ -16,6 +16,7 @@ class AddCrewToProjectView(APIView):
         return Response({'detail': 'Invitation sent.'}, status=status.HTTP_201_CREATED)
 
 class AcceptInvitationView(APIView):
+    permission_classes = [IsAuthenticated]
     def post(self, request, *args, **kwargs):
         referral_code = request.query_params.get('referral_code')
         print(referral_code, "ref")
@@ -37,6 +38,7 @@ class AcceptInvitationView(APIView):
             return Response({'detail': 'User does not exist.'}, status=status.HTTP_404_NOT_FOUND)
 
 class RejectInvitationView(APIView):
+    permission_classes = [IsAuthenticated]
     def post(self, request, *args, **kwargs):
         referral_code = request.query_params.get('referral_code')
         if not referral_code:
@@ -66,3 +68,12 @@ class RegisterWithReferralView(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response({'detail': 'Registration complete and added to project.'}, status=status.HTTP_201_CREATED)
+
+class CrewInvitationsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        user_email = request.user.email
+        invitations = ProjectInvitation.objects.filter(crew_email=user_email)
+        serializer = ListProjectInvitationSerializer(invitations, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)

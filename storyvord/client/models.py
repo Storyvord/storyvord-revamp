@@ -304,3 +304,23 @@ class ClientCompanyFile(models.Model):
 
     def __str__(self):
         return self.file.name
+
+class ClientCompanyCalendar(models.Model):
+    company = models.OneToOneField(ClientCompanyProfile, on_delete=models.CASCADE, related_name='companyCalendar')
+    name = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.name
+    
+class ClientCompanyEvent(models.Model):
+    calendar = models.ForeignKey(ClientCompanyCalendar, on_delete=models.CASCADE, related_name='companyEvents')
+    title = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True)
+    start = models.DateTimeField()
+    end = models.DateTimeField()
+    document = models.FileField(upload_to='documents/', blank=True, null=True)
+    location = models.CharField(max_length=255, blank=True, null=True)
+    participants = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='companyEvents', blank=True)
+
+    def __str__(self):
+        return self.title

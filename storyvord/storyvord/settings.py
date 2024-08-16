@@ -20,7 +20,7 @@ OPENAI_API_KEY = env('OPENAI_API_KEY')
 DEBUG = True
 PROD = True
 ALLOWED_HOSTS = ['*']
-CSRF_TRUSTED_ORIGINS = ['https://story-app.azurewebsites.net']
+CSRF_TRUSTED_ORIGINS = ['https://storyvord-back-end-d432tn3msq-uc.a.run.app']
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'django.core.mail.backends.smtp',
     'drf_spectacular',
     'referral',
+    'company',
 ]
 
 

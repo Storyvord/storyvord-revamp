@@ -6,3 +6,5 @@ from .models import *
 
 admin.site.register(ClientProfile)
 admin.site.register(ClientCompanyProfile)
+admin.site.register(ClientCompanyCalendar)
+admin.site.register(ClientCompanyEvent)
