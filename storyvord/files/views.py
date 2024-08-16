@@ -27,22 +27,10 @@ class FolderListView(APIView):
         return Response(serializer.data)
 
     def post(self, request, pk, format=None):
-        user = request.user
-        project = get_object_or_404(Project, pk=pk)
-
         data = request.data.copy()
         data['project'] = pk
-        data['created_by'] = user.id
 
-        # Add the user creating the folder to allowed_users
-        allowed_users = data.getlist('allowed_users')
-        if not allowed_users:
-            allowed_users = [user.id]
-        else:
-            allowed_users.append(user.id)
-        data.setlist('allowed_users', allowed_users)
-
-        serializer = FolderSerializer(data=data, context={'request': request})  # Pass the request context here
+        serializer = FolderSerializer(data=data, context={'request': request})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
