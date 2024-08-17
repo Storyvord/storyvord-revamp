@@ -12,28 +12,24 @@ from django.core.exceptions import ValidationError
 class TaskListCreateAPIView(APIView):
     permission_classes = [IsAuthenticated]
     serializer_class = TaskSerializer
+
     def get(self, request, project_pk):
         tasks = Task.objects.filter(project_id=project_pk)
         serializer = TaskSerializer(tasks, many=True)
         return Response(serializer.data)
 
     def post(self, request, project_pk):
-        # Check if the project exists
-        if not Project.objects.filter(pk=project_pk).exists():
-            return Response({'detail': 'Project not found.'}, status=status.HTTP_404_NOT_FOUND)
-
         data = request.data.copy()
-        data['project'] = project_pk
-        data['created_by'] = request.user.id  # Assuming request.user is a User instance
         
-        serializer = TaskSerializer(data=data)
+        # Pass the project_pk to the serializer context
+        serializer = TaskSerializer(data=data, context={'request': request, 'project_pk': project_pk})
         if serializer.is_valid():
             try:
-                serializer.save()
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
-            except ValidationError as e:
-                # Handle validation error from the model's clean method
-                custom_errors = self.format_validation_errors(e.message_dict)
+                task = serializer.save()
+                return Response(TaskSerializer(task).data, status=status.HTTP_201_CREATED)
+            except serializers.ValidationError as e:
+                # Handle validation error from the serializer
+                custom_errors = self.format_validation_errors(e.detail)
                 return Response({'errors': custom_errors}, status=status.HTTP_400_BAD_REQUEST)
         return Response({'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -48,6 +44,8 @@ class TaskListCreateAPIView(APIView):
             else:
                 formatted_errors[field] = messages
         return formatted_errors
+
+
 
 class TaskDetailAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -122,6 +120,15 @@ class TaskCompletionApprovalView(APIView):
         task.save()
 
         serializer = TaskSerializer(task)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+        
+class TaskPendingToApprovalView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request, project_pk):
+        tasks = Task.objects.filter(project=project_pk ,created_by=request.user, completion_requested=True)
+        serializer = TaskSerializer(tasks, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
 class CrewTaskListView(APIView):
