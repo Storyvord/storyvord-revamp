@@ -58,7 +58,7 @@ class FileListCreateView(APIView):
     # Get the list of files in a folder
     def get(self, request, pk, format=None):
         folder = get_object_or_404(Folder, pk=pk)
-        if not folder.allowed_users.filter(id=request.user.id).exists():
+        if not folder.allowed_users.filter(id=request.user.id).exists() and folder.default == False:
             return Response(status=status.HTTP_403_FORBIDDEN)
 
         files = folder.files
