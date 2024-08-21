@@ -25,6 +25,7 @@ class AcceptInvitationView(APIView):
 
         try:
             invitation = ProjectInvitation.objects.get(referral_code=referral_code, status='pending')
+            invitation.status = 'accepted'
             invitation.save()
 
             user = User.objects.get(email=invitation.crew_email)
