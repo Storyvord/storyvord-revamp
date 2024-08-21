@@ -1,7 +1,9 @@
 from rest_framework import serializers
 from django.core.mail import send_mail
 from django.conf import settings
-from .models import Project, ProjectInvitation
+
+from client.models import ClientProfile
+from .models import ClientInvitation, Project, ProjectInvitation
 from django.contrib.auth import get_user_model
 from django.contrib.sites.shortcuts import get_current_site
 from django.contrib.sites.models import Site
@@ -192,3 +194,148 @@ class ListProjectInvitationSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProjectInvitation
         fields = ['id', 'project', 'project_name', 'status', 'referral_code', 'created_at']
+
+
+
+class ClientInvitationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ClientInvitation
+        fields = '__all__'
+
+    def create(self, validated_data):
+        client_profile_id = validated_data.get('client_profile')
+        print("CP", client_profile_id)
+        employee_email = validated_data.get('employee_email')
+        referral_code = validated_data.get('referral_code', str(uuid.uuid4()))
+        
+        # Fetch the client profile instance
+        client_profile = ClientProfile.objects.get(user=User.objects.get(email=client_profile_id))
+
+        invitation, created = ClientInvitation.objects.get_or_create(
+            client_profile=client_profile,
+            employee_email=employee_email,
+            defaults={'status': 'pending', 'referral_code': referral_code}
+        )
+        
+        if created:
+            request = self.context.get('request')
+            user_exists = User.objects.filter(email=employee_email).exists()
+            if user_exists:
+                self.send_existing_user_invitation_email(employee_email, client_profile, invitation, request)
+            else:
+                self.send_new_user_registration_email(employee_email, client_profile, referral_code, request)
+        return invitation
+
+    def send_existing_user_invitation_email(self, employee_email, client_profile, invitation, request):
+        formal_name = client_profile.formalName or f"{client_profile.firstName} {client_profile.lastName}" or client_profile.user.email
+
+        current_site = get_current_site(request)
+        domain = current_site.domain
+        scheme = 'https' if request.is_secure() else 'http'
+
+        subject = 'Client Profile Invitation'
+        accept_url = f'{scheme}://{domain}/api/client/invitations/accept/?referral_code={invitation.referral_code}/'
+        reject_url = f'{scheme}://{domain}/api/client/invitations/reject/?referral_code={invitation.referral_code}/'
+
+        message = (
+            f'Hi,\n\n'
+            f'You have been invited to join {formal_name}.\n\n'
+            f'Please choose to approve or reject the invitation by clicking the links below:\n'
+            f'Approve: {accept_url}\n'
+            f'Reject: {reject_url}\n\n'
+            f'Best regards,\nThe Team'
+        )
+
+        send_mail(
+            subject,
+            message,
+            settings.DEFAULT_FROM_EMAIL,
+            [employee_email],
+            fail_silently=False,
+        )
+
+    def send_new_user_registration_email(self, employee_email, client_profile, referral_code, request):
+        formal_name = client_profile.formalName or f"{client_profile.firstName} {client_profile.lastName}" or client_profile.user.email
+
+        current_site = get_current_site(request)
+        domain = current_site.domain
+        scheme = 'https' if request.is_secure() else 'http'
+
+        registration_url = f'{scheme}://{domain}/api/client/register-with-referral/?client_profile_id={client_profile.id}&referral_code={referral_code}'
+        subject = 'Register to Join a Client Profile'
+
+        message = (
+            f'Hi,\n\n'
+            f'You have been invited to register for {formal_name}.\n'
+            f'Please complete your registration using the following link:\n'
+            f'{registration_url}\n\n'
+            f'Best regards,\nThe Team'
+        )
+
+        send_mail(
+            subject,
+            message,
+            settings.DEFAULT_FROM_EMAIL,
+            [employee_email],
+            fail_silently=False,
+        )
+
+
+class EmployeeUserCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('email', 'password', 'user_type')
+        extra_kwargs = {
+            'password': {'write_only': True}
+        }
+
+    def create(self, validated_data):
+        user = User.objects.create_user(**validated_data)
+        return user
+
+
+class EmployeeRegisterWithReferralSerializer(serializers.Serializer):
+    client_profile_id = serializers.CharField()
+    referral_code = serializers.CharField()
+
+    def validate(self, data):
+        client_profile_id = data.get('client_profile_id')
+        referral_code = data.get('referral_code')
+
+        try:
+            client_profile = ClientProfile.objects.get(id=client_profile_id)
+        except ClientProfile.DoesNotExist:
+            raise serializers.ValidationError('Client profile does not exist.')
+
+        try:
+            invitation = ClientInvitation.objects.get(referral_code=referral_code, client_profile=client_profile)
+        except ClientInvitation.DoesNotExist:
+            raise serializers.ValidationError('Invalid referral code.')
+
+        return data
+
+    def create(self, validated_data):
+        client_profile_id = validated_data['client_profile_id']
+        referral_code = validated_data['referral_code']
+
+        # Proceed with user registration
+        user_data = {
+            'email': self.context['request'].data.get('email'),
+            'password': self.context['request'].data.get('password'),
+            'user_type': 'client'
+        }
+        user_serializer = EmployeeUserCreateSerializer(data=user_data)
+        user_serializer.is_valid(raise_exception=True)
+        user = user_serializer.save()
+
+        # Add user to the client profile's employee_profile
+        client_profile = ClientProfile.objects.get(id=client_profile_id)
+        client_profile.employee_profile.add(user)
+
+        # Mark the invitation as accepted
+        invitation = ClientInvitation.objects.get(referral_code=referral_code, client_profile=client_profile)
+        invitation.status = 'accepted'
+        invitation.save()
+
+        return user
+    

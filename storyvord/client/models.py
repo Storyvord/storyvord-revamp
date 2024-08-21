@@ -17,6 +17,7 @@ class ClientProfile(models.Model):
     phone_number = models.CharField(max_length=15, blank=True, null=True)
     image = models.ImageField(upload_to='profile_images/', blank=True, null=True)
     active = models.BooleanField(default=False)
+    employee_profile= models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='companies', blank=True)
 
     def __str__(self):
         return f'{self.user.email}'
