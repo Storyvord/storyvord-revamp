@@ -439,3 +439,18 @@ class CompanyProjectsView(APIView):
         ]
         
         return Response(response_data, status=status.HTTP_200_OK)
+
+        
+class CrewProfileSearchView(APIView):
+    def get(self, request, format=None):
+        location_query = request.query_params.get('location', '')
+        skills_query = request.query_params.get('skills', '')
+
+        # Filter crew profiles based on partial matches to location and skills
+        crews = CrewProfile.objects.filter(
+            location__icontains=location_query, 
+            skills__icontains=skills_query, 
+            active=True
+        )
+        serializer = CrewProfileSerializer(crews, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)

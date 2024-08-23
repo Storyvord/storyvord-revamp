@@ -32,4 +32,8 @@ urlpatterns = [
     # All projects
     path('my-projects/', UserProjectsView.as_view(), name='user_projects'),
     path('company-projects/', CompanyProjectsView.as_view(), name='company_projects'),
+
+    
+    # skills/services and location
+    path('crew-profile/search/', CrewProfileSearchView.as_view(), name='crew-profile-search'),
 ]
