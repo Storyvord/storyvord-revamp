@@ -7,6 +7,7 @@ from .serializers import ClientInvitationSerializer, EmployeeRegisterWithReferra
 from .models import ClientInvitation, ProjectInvitation
 from rest_framework.permissions import IsAuthenticated
 from accounts.models import User
+from project.models import Project
 
 class AddCrewToProjectView(APIView):
     permission_classes = [IsAuthenticated]
@@ -19,6 +20,7 @@ class AddCrewToProjectView(APIView):
 
 class AcceptInvitationView(APIView):
     permission_classes = [IsAuthenticated]
+
     def post(self, request, *args, **kwargs):
         referral_code = request.query_params.get('referral_code')
         print(referral_code, "ref")
@@ -30,9 +32,12 @@ class AcceptInvitationView(APIView):
             invitation.status = 'accepted'
             invitation.save()
 
+            # Add the user to the project 
             user = User.objects.get(email=invitation.crew_email)
             project = invitation.project
+            print(project, "project")
             project.crew_profiles.add(user)
+            project.save()
 
             return Response({'detail': 'Invitation accepted.'}, status=status.HTTP_200_OK)
         except ProjectInvitation.DoesNotExist:

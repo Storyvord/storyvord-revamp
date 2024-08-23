@@ -8,13 +8,16 @@ from rest_framework.exceptions import NotFound, PermissionDenied
 from rest_framework.permissions import IsAuthenticated
 from accounts.models import User
 from rest_framework.generics import GenericAPIView 
+from django.db.models import Q
 
 class ProjectListCreateView(GenericAPIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = ProjectSerializer
 
     def get(self, request):
-        projects = Project.objects.filter(user=request.user)
+        projects = Project.objects.filter(
+            Q(user=request.user) | Q(crew_profiles=request.user)
+        ).distinct()
         serializer = ProjectSerializer(projects, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
