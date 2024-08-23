@@ -12,4 +12,5 @@ urlpatterns = [
     path('company/invitations/accept/', AcceptClientInvitationView.as_view(), name='client-invite-accept'),
     path('company/invitations/reject/', RejectClientInvitationView.as_view(), name='client-invite-reject'),
     path('company/register-with-referral/', RegisterWithReferralView.as_view(), name='client-register-with-referral'),
+    path('company/invitations/', EmployeeInvitationsView.as_view(), name='client-invitations'),
 ]

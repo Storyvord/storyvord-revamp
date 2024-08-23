@@ -1,6 +1,7 @@
 from rest_framework import serializers
-from .models import AddressBook, AddressBookSkills, AddressBookCateringInformation, AddressBookHomeAddress, AddressBookFiles
-from client.models import ClientCompanyProfile
+from .models import *
+from client.models import ClientCompanyProfile, ClientProfile  
+from accounts.models import User
 
 class AddressBookSkillsSerializer(serializers.ModelSerializer):
     class Meta:
@@ -105,3 +106,45 @@ class AddressBookSerializer(serializers.ModelSerializer):
         representation['home_address'] = AddressBookHomeAddressSerializer(instance.addressbookhomeaddress_set.all(), many=True).data
         representation['files'] = AddressBookFilesSerializer(instance.addressbookfiles_set.all(), many=True).data
         return representation
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email', 'first_name', 'last_name']
+
+        
+class CompanyTaskSerializer(serializers.ModelSerializer):
+    created_by = UserSerializer(read_only=True)
+    completed = serializers.BooleanField(read_only=True)
+    completion_requested = serializers.BooleanField(read_only=True)
+
+    class Meta:
+        model = ClientCompanyTask
+        fields = '__all__'
+        read_only_fields = ('created_at', 'updated_at', 'completed', 'completion_requested', 'assigned_to')
+
+    def validate_assigned_to(self, value):
+        user = self.context['request'].user
+
+        try:
+            # Check if the assigned user is an employee of the client’s company
+            clientProfile = ClientProfile.objects.get(user=user)
+        except ClientProfile.DoesNotExist:
+            raise serializers.ValidationError("Client profile does not exist for the current user.")
+
+        if not clientProfile.employee_profile.filter(id=value.id).exists():
+            raise serializers.ValidationError("The user is not an employee of the client’s company.")
+
+        return value
+
+    def create(self, validated_data):
+        user = self.context['request'].user
+        validated_data['created_by'] = user
+        return super().create(validated_data)
+
+
+class TaskCompletionRequestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ClientCompanyTask
+        fields = ('completion_requested', 'requester')
+        read_only_fields = ('requester',)

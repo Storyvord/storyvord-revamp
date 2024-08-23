@@ -1,6 +1,8 @@
 from django.db import models
 from accounts.models import User
 from client.models import ClientCompanyProfile
+from django.core.exceptions import ValidationError
+from django.conf import settings
 
 # Create your models here.
 class AddressBook(models.Model):
@@ -64,3 +66,23 @@ class AddressBookFiles(models.Model):
     
     def __str__(self):
         return self.file.name
+
+        
+class ClientCompanyTask(models.Model):
+    title = models.CharField(max_length=255)
+    description = models.TextField()
+    assigned_to = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='company_tasks', on_delete=models.CASCADE)
+    due_date = models.DateField()
+    completed = models.BooleanField(default=False)
+    completion_requested = models.BooleanField(default=False)
+    requester = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='requested_company_tasks', null=True, blank=True, on_delete=models.SET_NULL)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='created_company_tasks', on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.title
