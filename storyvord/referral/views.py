@@ -32,7 +32,7 @@ class AcceptInvitationView(APIView):
             invitation.status = 'accepted'
             invitation.save()
 
-            # Add the user to the project (Not working)
+            # Add the user to the project 
             user = User.objects.get(email=invitation.crew_email)
             project = invitation.project
             print(project, "project")
