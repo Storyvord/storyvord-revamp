@@ -140,6 +140,16 @@ class CompanyTaskSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = self.context['request'].user
         validated_data['created_by'] = user
+
+        # Extract assigned_to from the initial data
+        assigned_to_id = self.initial_data.get('assigned_to')
+        if assigned_to_id:
+            try:
+                assigned_to_user = User.objects.get(id=assigned_to_id)
+                validated_data['assigned_to'] = assigned_to_user
+            except User.DoesNotExist:
+                raise serializers.ValidationError("Assigned user does not exist.")
+
         return super().create(validated_data)
 
 

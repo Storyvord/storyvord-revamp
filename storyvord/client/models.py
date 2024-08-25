@@ -282,6 +282,10 @@ class ClientCompanyProfile(models.Model):
         choices=COUNTRY_CHOICES,
         default='US',
     )
+    name = models.CharField(max_length=255, blank=True, null=True)
+    email = models.EmailField(max_length=255, blank=True, null=True)
+    phone = models.CharField(max_length=15, blank=True, null=True)
+    fax = models.CharField(max_length=15, blank=True, null=True)
     
     def __str__(self):
         return f'{self.user.email}'
