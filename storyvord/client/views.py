@@ -131,6 +131,30 @@ class ProfileDetailAPIView(APIView):
         profile.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+        
+class ClientCompanyProfileAPIView(APIView):
+    permissions_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            profile = ClientCompanyProfile.objects.get(user=request.user)
+            serializer = ClientCompanyProfileSerializer(profile)
+            return Response(serializer.data)
+        except ClientCompanyProfile.DoesNotExist:
+            return Response({"error": "Company profile not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    def put(self, request):
+        try:
+            profile = ClientCompanyProfile.objects.get(user=request.user)
+        except ClientCompanyProfile.DoesNotExist:
+            return Response({"error": "Company profile not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = ClientCompanyProfileSerializer(profile, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class SwitchProfileView(APIView):
     permission_classes = [IsAuthenticated]

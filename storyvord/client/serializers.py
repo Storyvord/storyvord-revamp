@@ -19,19 +19,11 @@ class ProfileSerializer(serializers.ModelSerializer):
         if self.instance:  # Checks if an instance is being updated
             self.fields.pop('user', None)  # Removes 'user' field from serializer if updating an instance
     
-
-# {
-#     "firstName": "Kaushik",
-#     "lastName": "Shahare",
-#     "formalName": "Kaushik Shahare",
-#     "role": "producer",
-#     "description": "Developer",
-#     "address": "Badlapur, Thane, Maharashtra",
-#     "countryName": "India",
-#     "locality": "Thane",
-#     "personalWebsite": "kaushik-shahare.com"
-# }
-
+class ClientCompanyProfileSerializer(serializers.ModelSerializer):
+    user = serializers.PrimaryKeyRelatedField(read_only=True)
+    class Meta:
+        model = ClientCompanyProfile
+        fields = "__all__"
 
 class ClientCompanyFolderSerializer(serializers.ModelSerializer):
     files = serializers.StringRelatedField(many=True, required=False)
