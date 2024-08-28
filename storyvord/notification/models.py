@@ -7,6 +7,7 @@ from announcement.models import Announcement
 class Notification(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     announcement = models.ForeignKey(Announcement, on_delete=models.CASCADE)
+    details = models.TextField(null=True, blank=True)
     read = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 

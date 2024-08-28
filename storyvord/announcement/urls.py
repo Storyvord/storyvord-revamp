@@ -8,4 +8,6 @@ urlpatterns = [
     
     path('recipients/announcements/', RecipientAnnouncementListAPIView.as_view(), name='recipient-announcement-list'),
     path('recipients/announcements/<int:pk>/', RecipientAnnouncementDetailAPIView.as_view(), name='recipient-announcement-detail'),
+
+    path('users/<str:project_id>/', ProjectUserListAPIView.as_view(), name='user-list-create'),
 ]
