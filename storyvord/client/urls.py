@@ -20,4 +20,7 @@ urlpatterns = [
     # calendars
     path('company-calendar/events/', ClientCompanyEventAPIView.as_view(), name='event-list-create'),
     path('company-calendar/events/<int:event_id>/', ClientCompanyEventAPIView.as_view(), name='event-detail'),
+
+    # List of all companies crew workes for
+    path('employee/company-list/', CompanyListView.as_view(), name='company-list'),
 ]

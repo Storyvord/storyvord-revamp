@@ -36,7 +36,4 @@ urlpatterns = [
     
     # skills/services and location
     path('crew-profile/search/', CrewProfileSearchView.as_view(), name='crew-profile-search'),
-
-    # List of all companies crew workes for
-    path('company-list/', CompanyListView.as_view(), name='company-list'),
 ]

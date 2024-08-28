@@ -7,7 +7,6 @@ from client.models import ClientCompanyProfile
 from .models import *
 from .serializers import *
 from django.shortcuts import get_object_or_404
-from client.serializers import ClientCompanyProfileSerializer, ClientProfile
 
 class CrewProfileView(APIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -454,15 +453,4 @@ class CrewProfileSearchView(APIView):
             active=True
         )
         serializer = CrewProfileSerializer(crews, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-class CompanyListView(APIView):
-    def get(self, request, format=None):
-        # Get the ClientProfile associated with the current user
-        client_profile = ClientProfile.objects.filter(employee_profile=request.user)
-
-        # Get all the companies where the user is listed in the employee profile
-        companies = ClientCompanyProfile.objects.filter(user__in=client_profile.values_list('user', flat=True))
-
-        serializer = ClientCompanyProfileSerializer(companies, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
