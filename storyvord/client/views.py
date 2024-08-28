@@ -381,3 +381,16 @@ class ClientCompanyEventAPIView(APIView):
             return Response(status=status.HTTP_204_NO_CONTENT)
         except ClientCompanyEvent.DoesNotExist:
             return Response({"error": "Event not found"}, status=status.HTTP_404_NOT_FOUND)
+
+            
+
+class CompanyListView(APIView):
+    def get(self, request, format=None):
+        # Get the ClientProfile associated with the current user
+        client_profile = ClientProfile.objects.filter(employee_profile=request.user)
+
+        # Get all the companies where the user is listed in the employee profile
+        companies = ClientCompanyProfile.objects.filter(user__in=client_profile.values_list('user', flat=True))
+
+        serializer = ClientCompanyProfileSerializer(companies, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
