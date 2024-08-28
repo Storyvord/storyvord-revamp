@@ -154,3 +154,34 @@ class EmployeeInvitationsView(APIView):
         invitations = ClientInvitation.objects.filter(employee_email=user_email)
         serializer = ClientInvitationSerializer(invitations, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+class ReferralCodeDetailView(APIView):
+    def get(self, request, *args, **kwargs):
+        referral_code = request.query_params.get('referral_code')
+
+        if not referral_code:
+            return Response({'detail': 'Referral code is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            invitation = ClientInvitation.objects.get(referral_code=referral_code)
+            serializer = ClientInvitationSerializer(invitation)
+            return Response(serializer.data)
+
+        except ClientInvitation.DoesNotExist:
+            return Response({'detail': 'Invitation not found.'}, status=status.HTTP_404_NOT_FOUND)
+        
+        
+class ReferralCodeCrewDetailView(APIView):
+    def get(self, request, *args, **kwargs):
+        referral_code = request.query_params.get('referral_code')
+
+        if not referral_code:
+            return Response({'detail': 'Referral code is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            invitation = ProjectInvitation.objects.get(referral_code=referral_code)
+            serializer = ListProjectInvitationSerializer(invitation)
+            return Response(serializer.data)
+
+        except ProjectInvitation.DoesNotExist:
+            return Response({'detail': 'Invitation not found.'}, status=status.HTTP_404_NOT_FOUND)

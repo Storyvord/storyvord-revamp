@@ -89,7 +89,7 @@ class ProjectInvitationSerializer(serializers.ModelSerializer):
         if settings.PROD == False:
             registration_url = f'http://127.0.0.1:8000/api/referral/register-with-referral/?project_id={project.project_id}&referral_code={referral_code}'
         else:
-            registration_url = f'https://storyvord-back-end-d432tn3msq-uc.a.run.app/api/referral/register-with-referral/?project_id={project.project_id}&referral_code={referral_code}'
+            registration_url = f'https://victorious-ground-006938c00.5.azurestaticapps.net/auth/referral/crew?project_id={project.project_id}&referral_code={referral_code}'
         subject = 'Register to Join a Project'
         
         print(registration_url)
@@ -260,8 +260,9 @@ class ClientInvitationSerializer(serializers.ModelSerializer):
         current_site = get_current_site(request)
         domain = current_site.domain
         scheme = 'https' if request.is_secure() else 'http'
-
-        registration_url = f'{scheme}://{domain}/api/client/register-with-referral/?client_profile_id={client_profile.id}&referral_code={referral_code}'
+        
+        # registration_url = f'{scheme}://{domain}/api/client/register-with-referral/?client_profile_id={client_profile.id}&referral_code={referral_code}'
+        registration_url = f'https://victorious-ground-006938c00.5.azurestaticapps.net/auth/referral/employee?client_profile_id={client_profile.id}&referral_code={referral_code}'
         subject = 'Register to Join a Client Profile'
 
         message = (
@@ -339,3 +340,7 @@ class EmployeeRegisterWithReferralSerializer(serializers.Serializer):
 
         return user
     
+class GetClientInvitationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ClientInvitation
+        fields = ('id', 'client_profile', 'employee_email', 'status', 'referral_code')
