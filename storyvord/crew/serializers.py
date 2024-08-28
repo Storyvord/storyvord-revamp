@@ -3,6 +3,7 @@ from rest_framework import serializers
 from project.models import Project
 from .models import *
 from storyvord.utils import Base64FileField
+from django.contrib.auth.models import User
 
 class CrewProfileSerializer(serializers.ModelSerializer):
     image = Base64FileField(required=False, allow_null=True)
