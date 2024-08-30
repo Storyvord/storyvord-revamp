@@ -189,3 +189,13 @@ class EmployeeListView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         except ClientProfile.DoesNotExist:
             return Response({"detail": "Client profile does not exist for the current user."}, status=status.HTTP_404_NOT_FOUND)
+        
+
+class FileUploadView(APIView):
+    def post(self, request, *args, **kwargs):
+        file_serializer = UploadedFileSerializer(data=request.data)
+        print(file_serializer)
+        if file_serializer.is_valid():
+            file_serializer.save()
+            return Response(file_serializer.data, status=status.HTTP_201_CREATED)
+        return Response(file_serializer.errors, status=status.HTTP_400_BAD_REQUEST)

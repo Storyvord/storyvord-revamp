@@ -158,3 +158,8 @@ class TaskCompletionRequestSerializer(serializers.ModelSerializer):
         model = ClientCompanyTask
         fields = ('completion_requested', 'requester')
         read_only_fields = ('requester',)
+
+class UploadedFileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UploadedFile
+        fields = ['id', 'file', 'uploaded_at']

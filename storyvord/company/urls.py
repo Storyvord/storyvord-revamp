@@ -18,4 +18,5 @@ urlpatterns = [
     path('employee/tasks/', EmployeeTaskListView.as_view(), name='employee-task-list'),
     path('employee/tasks/<int:pk>/', EmployeeTaskDetailView.as_view(), name='employee-task-detail'),
     
+    path('upload/', FileUploadView.as_view(), name='file-upload'),
 ]
