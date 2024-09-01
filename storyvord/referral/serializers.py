@@ -68,9 +68,7 @@ class ProjectInvitationSerializer(serializers.ModelSerializer):
         message = (
             f'Hi,\n\n'
             f'You have been invited to join the project "{project.name}".\n\n'
-            f'Please choose to approve or reject the invitation by clicking the links below:\n'
-            f'Approve: {accept_url}\n'
-            f'Reject: {reject_url}\n\n'
+            f'Please choose to approve or reject the invitation by login in\n'
             f'Best regards,\nThe Team'
         )
         
@@ -98,7 +96,7 @@ class ProjectInvitationSerializer(serializers.ModelSerializer):
             f'Hi,\n\n'
             f'You have been invited to register for the project "{project.name}".\n'
             f'Please complete your registration using the following link:\n'
-            f'{registration_url}\n\n'
+            f'https://dev.storyvord.com/auth/referral/crew?project_id={project.project_id}&referral_code={referral_code}\n\n'
             f'Best regards,\nThe Team'
         )
         
@@ -240,9 +238,7 @@ class ClientInvitationSerializer(serializers.ModelSerializer):
         message = (
             f'Hi,\n\n'
             f'You have been invited to join {formal_name}.\n\n'
-            f'Please choose to approve or reject the invitation by clicking the links below:\n'
-            f'Approve: {accept_url}\n'
-            f'Reject: {reject_url}\n\n'
+            f'Please choose to approve or reject the invitation by login:\n'
             f'Best regards,\nThe Team'
         )
 
@@ -262,14 +258,14 @@ class ClientInvitationSerializer(serializers.ModelSerializer):
         scheme = 'https' if request.is_secure() else 'http'
         
         # registration_url = f'{scheme}://{domain}/api/client/register-with-referral/?client_profile_id={client_profile.id}&referral_code={referral_code}'
-        registration_url = f'https://victorious-ground-006938c00.5.azurestaticapps.net/auth/referral/employee?client_profile_id={client_profile.id}&referral_code={referral_code}'
+        registration_url = f'https://dev.storyvord.com/auth/referral/employee?client_profile_id={client_profile.id}&referral_code={referral_code}'
         subject = 'Register to Join a Client Profile'
 
         message = (
             f'Hi,\n\n'
             f'You have been invited to register for {formal_name}.\n'
             f'Please complete your registration using the following link:\n'
-            f'{registration_url}\n\n'
+            f'https://dev.storyvord.com/auth/referral/employee?client_profile_id={client_profile.id}&referral_code={referral_code}\n\n'
             f'Best regards,\nThe Team'
         )
 

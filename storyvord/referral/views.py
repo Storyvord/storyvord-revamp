@@ -61,7 +61,7 @@ class RejectInvitationView(APIView):
         except ProjectInvitation.DoesNotExist:
             return Response({'detail': 'Invitation not found or already processed.'}, status=status.HTTP_404_NOT_FOUND)
 
-class RegisterWithReferralView(APIView):
+class RegisterWithReferralCrewView(APIView):
     serializer_class = RegisterWithReferralSerializer
 
     def post(self, request, *args, **kwargs):
