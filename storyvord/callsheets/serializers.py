@@ -1,5 +1,8 @@
 from rest_framework import serializers
 from .models import CallSheet, Event, Scenes, Characters, Extras, DepartmentInstructions, Weather
+import requests
+from django.conf import settings
+from datetime import datetime, timedelta
 
 class EventSerializer(serializers.ModelSerializer):
     class Meta:
@@ -65,7 +68,41 @@ class CallSheetSerializer(serializers.ModelSerializer):
         characters_data = validated_data.pop('characters', [])
         extras_data = validated_data.pop('extras', [])
         department_instructions_data = validated_data.pop('department_instructions', [])
-        weather_data = validated_data.pop('weather', [])
+
+        location = validated_data.get('location')
+
+        geoapify_api_key = getattr(settings, 'GEOAPIFY_API_KEY')
+        geoapify_url = f"https://api.geoapify.com/v1/geocode/search?text={location}&apiKey={geoapify_api_key}"
+        geoapify_response = requests.get(geoapify_url)
+        geoapify_data = geoapify_response.json()
+
+        lat = geoapify_data['features'][0]['geometry']['coordinates'][1]
+        lon = geoapify_data['features'][0]['geometry']['coordinates'][0]
+
+        weatherapi_key = getattr(settings, 'WEATHERAPI_API_KEY')
+        date = validated_data.get('date')
+
+        
+        today = datetime.today().date()
+
+        if date <= today + timedelta(days=14):
+            weatherapi_url = f"http://api.weatherapi.com/v1/current.json?key={weatherapi_key}&q={lat},{lon}"
+        elif today + timedelta(days=14) < date <= today + timedelta(days=300):
+            weatherapi_url = f"http://api.weatherapi.com/v1/future.json?key={weatherapi_key}&q={lat},{lon}&dt={date}"
+        else:
+            raise ValueError("Date must be within 14 to 300 days from today.")
+
+        weatherapi_response = requests.get(weatherapi_url)
+        weather_data = weatherapi_response.json()
+        
+
+        if 'forecast' in weather_data and 'forecastday' in weather_data['forecast']:
+            forecast = weather_data['forecast']['forecastday'][0]['day']
+            temperature = forecast.get('avgtemp_c', 0)
+            conditions = forecast['condition']['text']
+        else:
+            temperature = 0
+            conditions = "Weather data unavailable"
 
         call_sheet = CallSheet.objects.create(**validated_data)
 
@@ -79,8 +116,12 @@ class CallSheetSerializer(serializers.ModelSerializer):
             Extras.objects.create(call_sheet=call_sheet, **extra_data)
         for instruction_data in department_instructions_data:
             DepartmentInstructions.objects.create(call_sheet=call_sheet, **instruction_data)
-        for weather_data_item in weather_data:
-            Weather.objects.create(call_sheet=call_sheet, **weather_data_item)
+
+        Weather.objects.create(
+            call_sheet=call_sheet,
+            temperature=temperature,
+            conditions=conditions
+        )
 
         return call_sheet
 

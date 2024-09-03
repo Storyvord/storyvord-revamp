@@ -7,6 +7,7 @@ class CallSheet(models.Model):
     title = models.CharField(max_length=255)
     date = models.DateField(null=True, blank=True)
     calltime = models.TimeField(null=True, blank=True)
+    location = models.CharField(max_length=255, blank=True)
     nearest_hospital_address = models.CharField(max_length=255, blank=True)
     nearest_police_station = models.CharField(max_length=255, blank=True)
     nearest_fire_station = models.CharField(max_length=255, blank=True)

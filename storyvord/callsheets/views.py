@@ -5,6 +5,9 @@ from rest_framework import status, permissions
 from .models import CallSheet
 from .serializers import CallSheetSerializer
 from project.models import Project
+import requests
+from django.http import JsonResponse
+from django.conf import settings
 
 class CallSheetListAPIView(APIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -45,3 +48,92 @@ class CallSheetDetailAPIView(APIView):
         call_sheet = get_object_or_404(CallSheet, pk=pk)
         call_sheet.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+        
+# https://www.geoapify.com/tutorial/geocoding-python/
+class GeoapifyGeocodeView(APIView):
+    def get(self, request):
+        api_key = getattr(settings, 'GEOAPIFY_API_KEY')
+        address = request.GET.get('text')
+
+        url = f"https://api.geoapify.com/v1/geocode/search?text={address}&apiKey={api_key}"
+
+        headers = {
+            "Accept": "application/json"
+        }
+
+        try:
+            response = requests.get(url, headers=headers)
+            response.raise_for_status()  # Raise an error for bad responses (4xx and 5xx)
+            return JsonResponse(response.json())
+        except requests.RequestException as e:
+            return JsonResponse({'error': str(e)}, status=500)
+
+class GeoapifyNearestPlaceView(APIView):
+    def get(self, request):
+        api_key = getattr(settings, 'GEOAPIFY_API_KEY')
+        latitude = request.GET.get('lat')
+        longitude = request.GET.get('lon')
+
+
+        url = f"https://api.geoapify.com/v1/places?categories=city&filter=circle:{longitude},{latitude},1000&limit=1&apiKey={api_key}"
+
+        headers = {
+            "Accept": "application/json"
+        }
+
+        try:
+            response = requests.get(url, headers=headers)
+            response.raise_for_status()  # Raise an error for bad responses (4xx and 5xx)
+            return JsonResponse(response.json())
+        except requests.RequestException as e:
+            return JsonResponse({'error': str(e)}, status=500)
+
+            
+# https://www.weatherapi.com/docs/
+class WeatherCurrentInfoView(APIView):
+    def get(self, request):
+        # Extract the latitude and longitude from the query parameters
+        latitude = request.GET.get('lat')
+        longitude = request.GET.get('lon')
+        
+        if not latitude or not longitude:
+            return JsonResponse({'error': 'Latitude and Longitude are required.'}, status=400)
+        
+        api_key = getattr(settings, 'WEATHERAPI_API_KEY')
+        url = f"http://api.weatherapi.com/v1/current.json?key={api_key}&q={latitude},{longitude}"
+
+        headers = {
+            "Accept": "application/json"
+        }
+
+        try:
+            response = requests.get(url, headers=headers)
+            response.raise_for_status()  # Raise an error for bad responses (4xx and 5xx)
+            return JsonResponse(response.json())
+        except requests.RequestException as e:
+            return JsonResponse({'error': str(e)}, status=500)
+
+class WeatherFutureInfoView(APIView):
+    def get(self, request):
+        # Extract the latitude and longitude from the query parameters
+        latitude = request.GET.get('lat')
+        longitude = request.GET.get('lon')
+        dt = request.GET.get('dt')
+        
+        if not latitude or not longitude:
+            return JsonResponse({'error': 'Latitude and Longitude are required.'}, status=400)
+        
+        api_key = getattr(settings, 'WEATHERAPI_API_KEY')
+        url = f"http://api.weatherapi.com/v1/future.json?key={api_key}&q={latitude},{longitude}&dt={dt}"
+
+        headers = {
+            "Accept": "application/json"
+        }
+
+        try:
+            response = requests.get(url, headers=headers)
+            response.raise_for_status()  # Raise an error for bad responses (4xx and 5xx)
+            return JsonResponse(response.json())
+        except requests.RequestException as e:
+            return JsonResponse({'error': str(e)}, status=500)

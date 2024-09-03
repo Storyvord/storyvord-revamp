@@ -16,6 +16,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 load_dotenv()
 SECRET_KEY = env('SECRET_KEY')
 OPENAI_API_KEY = env('OPENAI_API_KEY')
+GEOAPIFY_API_KEY = env('GEOAPIFY_API_KEY')
+WEATHERAPI_API_KEY = env('WEATHERAPI_API_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 PROD = True
