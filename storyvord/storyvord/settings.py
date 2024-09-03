@@ -14,10 +14,12 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 
 DEBUG = True
-PROD = True
+PROD = False
 ALLOWED_HOSTS = ['*']
 CSRF_TRUSTED_ORIGINS = ['https://storyvord-back-end-d432tn3msq-uc.a.run.app']
 INSTALLED_APPS = [
+    'daphne',
+    'channels',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -46,6 +48,7 @@ INSTALLED_APPS = [
     'drf_spectacular',
     'referral',
     'company',
+    'inbox',
 ]
 
 SITE_ID = 1
@@ -122,6 +125,7 @@ TEMPLATES = [
     },
 ]
 WSGI_APPLICATION = 'storyvord.wsgi.application'
+ASGI_APPLICATION = "storyvord.asgi.application"
 
 if PROD:
     DATABASES = {
@@ -149,6 +153,11 @@ else:
 
 AUTH_USER_MODEL = "accounts.User"
 
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+    },
+}
 
 #AUTH_USER_MODEL = 'core.User'
 AUTH_PASSWORD_VALIDATORS = [

@@ -47,6 +47,7 @@ urlpatterns = [
     path('api/notification/', include('notification.urls')),
     path('api/referral/', include('referral.urls')),
     path('api/company/', include('company.urls')),
+    path('api/inbox/', include('inbox.urls')),
     path('auth/', include('djoser.urls')),
     path('auth/', include('djoser.urls.jwt')),
     
