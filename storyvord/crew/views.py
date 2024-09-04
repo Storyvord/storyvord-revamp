@@ -187,8 +187,11 @@ class SocialLinksDetailView(APIView):
 class CrewListView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
-    def get(self, request, format=None):
-        crew_profiles = CrewProfile.objects.all()
+    def get(self, request, format=None, pk=None):
+        if pk:
+            crew_profiles = CrewProfile.objects.filter(pk=pk)
+        else:
+            crew_profiles = CrewProfile.objects.all()
         response_data = []
 
         for crew_profile in crew_profiles:
