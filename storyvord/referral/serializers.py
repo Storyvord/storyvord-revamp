@@ -29,6 +29,9 @@ class ProjectInvitationSerializer(serializers.ModelSerializer):
         invitation, created = ProjectInvitation.objects.get_or_create(
             project=project,
             crew_email=crew_email,
+            firstName=validated_data.get('firstName'),
+            lastName=validated_data.get('lastName'),
+            message=validated_data.get('message'),
             defaults={'status': 'pending', 'referral_code': referral_code}
         )
 
@@ -115,10 +118,16 @@ class ProjectInvitationSerializer(serializers.ModelSerializer):
 class InvitationRequestSerializer(serializers.Serializer):
     crew_email = serializers.EmailField()
     project_id = serializers.CharField()
+    firstName = serializers.CharField()
+    lastName = serializers.CharField()
+    message = serializers.CharField()
 
     def create(self, validated_data):
         crew_email = validated_data['crew_email']
         project_id = validated_data['project_id']
+        firstName = validated_data['firstName']
+        lastName = validated_data['lastName']
+        message = validated_data['message']
         print(crew_email, project_id)
         try:
             project = Project.objects.get(project_id=project_id)
@@ -126,6 +135,9 @@ class InvitationRequestSerializer(serializers.Serializer):
             invitation_data = {
                 'project': project.project_id,
                 'crew_email': crew_email,
+                'firstName': firstName,
+                'lastName': lastName,
+                'message': message
             }
             print(invitation_data)
             serializer = ProjectInvitationSerializer(data=invitation_data)
@@ -194,7 +206,7 @@ class ListProjectInvitationSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = ProjectInvitation
-        fields = ['id', 'project', 'project_name', 'status', 'referral_code', 'created_at']
+        fields = ['id', 'project', 'project_name', 'status', 'referral_code', 'created_at', 'firstName', 'lastName', 'message']
 
 
 
@@ -205,10 +217,14 @@ class ClientInvitationSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def create(self, validated_data):
-        client_profile_id = validated_data.get('client_profile')
-        print("CP", client_profile_id)
+        # client_profile_id = validated_data.get('client_profile')
+        client_profile_id = self.context['request'].user
+
         employee_email = validated_data.get('employee_email')
         referral_code = validated_data.get('referral_code', str(uuid.uuid4()))
+        firstName = validated_data.get('firstName')
+        lastName = validated_data.get('lastName')
+        message = validated_data.get('message')
         
         # Fetch the client profile instance
         client_profile = ClientProfile.objects.get(user=User.objects.get(email=client_profile_id))
@@ -216,6 +232,9 @@ class ClientInvitationSerializer(serializers.ModelSerializer):
         invitation, created = ClientInvitation.objects.get_or_create(
             client_profile=client_profile,
             employee_email=employee_email,
+            firstName=firstName,
+            lastName=lastName,
+            message=message,
             defaults={'status': 'pending', 'referral_code': referral_code}
         )
         
