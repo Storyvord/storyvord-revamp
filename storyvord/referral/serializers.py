@@ -7,6 +7,7 @@ from .models import ClientInvitation, Project, ProjectInvitation
 from django.contrib.auth import get_user_model
 from django.contrib.sites.shortcuts import get_current_site
 from django.contrib.sites.models import Site
+from client.serializers import ProfileSerializer
 import uuid
 
 User = get_user_model()
@@ -198,6 +199,7 @@ class ListProjectInvitationSerializer(serializers.ModelSerializer):
 
 
 class ClientInvitationSerializer(serializers.ModelSerializer):
+    client_profile = ProfileSerializer(read_only=True)
     class Meta:
         model = ClientInvitation
         fields = '__all__'

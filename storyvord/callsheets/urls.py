@@ -1,9 +1,14 @@
 # urls.py file ->
 
 from django.urls import path
-from .views import CallSheetCreateView, CallSheetRetrieveUpdateDeleteView
+from .views import *
 
 urlpatterns = [
-    path('callsheets/', CallSheetCreateView.as_view(), name='callsheet-create'),
-    path('callsheets/<int:pk>/', CallSheetRetrieveUpdateDeleteView.as_view(), name='callsheet-detail'),
+    path('<str:project_id>/', CallSheetListAPIView.as_view(), name='callsheet-create'),
+    path('details/<int:pk>/', CallSheetDetailAPIView.as_view(), name='callsheet-detail'),
+
+    path('geolocation/address/', GeoapifyGeocodeView.as_view(), name='weather-list'),
+    path('geolocation/nearest-places/', GeoapifyNearestPlaceView.as_view(), name='nearest-list'),
+    path('weather/current/', WeatherCurrentInfoView.as_view(), name='weather-info'),
+    path('weather/future/', WeatherFutureInfoView.as_view(), name='weather-info'),
 ]
