@@ -13,10 +13,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = os.getenv('SECRET_KEY')
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 
-SECRET_KEY = env('SECRET_KEY')
-OPENAI_API_KEY = env('OPENAI_API_KEY')
-GEOAPIFY_API_KEY = env('GEOAPIFY_API_KEY')
-WEATHERAPI_API_KEY = env('WEATHERAPI_API_KEY')
+GEOAPIFY_API_KEY = os.getenv('GEOAPIFY_API_KEY')
+WEATHERAPI_API_KEY = os.getenv('WEATHERAPI_API_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 
 DEBUG = True
@@ -141,7 +139,7 @@ if PROD:
                 'NAME': os.getenv('DATABASE_NAME'),
                 'USER': os.getenv('DATABASE_USER'),
                 'PASSWORD': os.getenv('DATABASE_PASSWORD'),
-                'PORT': '1433'
+                'PORT': 5432
             }
     }
 else:
