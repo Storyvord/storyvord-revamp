@@ -83,8 +83,25 @@ class CrewInvitationsView(APIView):
     def get(self, request, *args, **kwargs):
         user_email = request.user.email
         invitations = ProjectInvitation.objects.filter(crew_email=user_email)
-        serializer = ListProjectInvitationSerializer(invitations, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        
+        # Segregate the invitations by status
+        pending_invitations = invitations.filter(status='pending')
+        accepted_invitations = invitations.filter(status='accepted')
+        rejected_invitations = invitations.filter(status='rejected')
+
+        # Serialize the data
+        pending_serializer = ListProjectInvitationSerializer(pending_invitations, many=True)
+        accepted_serializer = ListProjectInvitationSerializer(accepted_invitations, many=True)
+        rejected_serializer = ListProjectInvitationSerializer(rejected_invitations, many=True)
+
+        # Structure the response data
+        response_data = {
+            'pending': pending_serializer.data,
+            'accepted': accepted_serializer.data,
+            'rejected': rejected_serializer.data,
+        }
+
+        return Response(response_data, status=status.HTTP_200_OK)
     
     
 class AddEmployeeToClientProfileView(APIView):
@@ -101,6 +118,12 @@ class AddEmployeeToClientProfileView(APIView):
         data = request.data.copy()  # Make a copy of the original data
         data['client_profile'] = client_profile.pk
         print(data)
+        
+        
+        # Check if the employee is already working as an employee
+        if ClientInvitation.objects.filter(employee_email=data['employee_email'], status='accepted').exists():
+            return Response({'detail': 'Employee already working as an employee.'}, status=status.HTTP_400_BAD_REQUEST)
+
 
         # Create and validate serializer
         serializer = ClientInvitationSerializer(data=data, context={'request': request})
@@ -152,9 +175,25 @@ class EmployeeInvitationsView(APIView):
     def get(self, request, *args, **kwargs):
         user_email = request.user.email
         invitations = ClientInvitation.objects.filter(employee_email=user_email)
-        serializer = ClientInvitationSerializer(invitations, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-    
+        
+        # Segregate the invitations by status
+        pending_invitations = invitations.filter(status='pending')
+        accepted_invitations = invitations.filter(status='accepted')
+        rejected_invitations = invitations.filter(status='rejected')
+
+        # Serialize the data
+        pending_serializer = ClientInvitationSerializer(pending_invitations, many=True)
+        accepted_serializer = ClientInvitationSerializer(accepted_invitations, many=True)
+        rejected_serializer = ClientInvitationSerializer(rejected_invitations, many=True)
+
+        # Structure the response data
+        response_data = {
+            'pending': pending_serializer.data,
+            'accepted': accepted_serializer.data,
+            'rejected': rejected_serializer.data,
+        }
+
+        return Response(response_data, status=status.HTTP_200_OK)
 class ReferralCodeDetailView(APIView):
     def get(self, request, *args, **kwargs):
         referral_code = request.query_params.get('referral_code')

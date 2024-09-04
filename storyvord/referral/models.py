@@ -13,6 +13,9 @@ class ProjectInvitation(models.Model):
     ]
     
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    firstName = models.CharField(max_length=100, blank=True, null=True)
+    lastName = models.CharField(max_length=100, blank=True, null=True)
+    message = models.TextField(blank=True, null=True)
     crew_email = models.EmailField()
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
     referral_code = models.CharField(max_length=100, blank=True, null=True)
@@ -24,6 +27,9 @@ class ProjectInvitation(models.Model):
     
 class ClientInvitation(models.Model):
     client_profile = models.ForeignKey(ClientProfile, on_delete=models.CASCADE)
+    firstName = models.CharField(max_length=100, blank=True, null=True)
+    lastName = models.CharField(max_length=100, blank=True, null=True)
+    message = models.TextField(blank=True, null=True)
     employee_email = models.EmailField()
     referral_code = models.UUIDField(default=uuid.uuid4, unique=True)
     status = models.CharField(max_length=20, choices=[('pending', 'Pending'), ('accepted', 'Accepted'), ('rejected', 'Rejected')], default='pending')

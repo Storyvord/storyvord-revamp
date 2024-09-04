@@ -19,6 +19,7 @@ urlpatterns = [
     path('social-links/<int:pk>/', SocialLinksDetailView.as_view(), name='social-links-detail'),
 
     path('crew-list/', CrewListView.as_view(), name='crew-list'),
+    path('crew-list/<int:pk>/', CrewListView.as_view(), name='crew-detail'),
     
     # Crew Portfolio and its verification Urls
     path('portfolios/', CrewPortfolioListCreate.as_view(), name='crew-portfolio-list-create'),
