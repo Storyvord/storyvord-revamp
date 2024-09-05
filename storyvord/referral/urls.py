@@ -7,7 +7,7 @@ urlpatterns = [
     path('invitations/reject/', RejectInvitationView.as_view(), name='reject-invitation'),
     path('register-with-referral/', RegisterWithReferralCrewView.as_view(), name='register-with-referral'),
     path('invitations/', CrewInvitationsView.as_view(), name='crew-invitations'),
-    path('client/crew-invitations/', ClientCrewInvitationsView.as_view(), name='client-crew-invitations'),
+    path('client/crew-invitations/<str:project_id>/', ClientCrewInvitationsView.as_view(), name='client-crew-invitations'),
     path('crew/invitation-details/', ReferralCodeCrewDetailView.as_view(), name='invitation-details'),
     
     path('company/invite/', AddEmployeeToClientProfileView.as_view(), name='client-invite'),
