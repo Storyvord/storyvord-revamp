@@ -106,9 +106,9 @@ class CrewInvitationsView(APIView):
 class ClientCrewInvitationsView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request, project_id, *args, **kwargs):
         user = request.user
-        invitations = ProjectInvitation.objects.filter(project__user=user)
+        invitations = ProjectInvitation.objects.filter(project__user=user, project__project_id=project_id)
         
         # Segregate the invitations by status
         pending_invitations = invitations.filter(status='pending')
