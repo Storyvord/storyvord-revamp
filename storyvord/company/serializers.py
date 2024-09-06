@@ -110,7 +110,7 @@ class AddressBookSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'first_name', 'last_name']
+        fields = ['id', 'email']
 
         
 class CompanyTaskSerializer(serializers.ModelSerializer):

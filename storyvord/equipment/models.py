@@ -37,4 +37,4 @@ class EquipmentLog(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.equipment} - {self.action} by {self.user.username}"
+        return f"{self.equipment} - {self.action} by {self.user.email}"

@@ -47,7 +47,6 @@ INSTALLED_APPS = [
     'notification',
     'callsheets',
     'corsheaders',
-    'djoser',
     'django.core.mail.backends.smtp',
     'drf_spectacular',
     'referral',
@@ -56,32 +55,14 @@ INSTALLED_APPS = [
 ]
 
 SITE_ID = 1
-DJOSER = {
-    # 'LOGIN_FIELD': 'email',
-    # 'USER_CREATE_PASSWORD_RETYPE':True,
-    # 'ACTIVATION_URL':'activate/{uid}/{token}',
-    # 'SEND_ACTIVATION_EMAIL':True,
-    # 'SEND_CONFIRMATION_EMAIL':True,
-    # 'PASSWORD_CHANGED_EMAIL_CONFIRMATION':True,
-    # 'PASSWORD_RESET_CONFIRM_URL': 'password-reset/{uid}/{token}',
-    # 'SET_PASSWORD_RETYPE': True,
-    # 'PASSWORD_RESET_SHOW_EMAIL_NOT_FOUND': True,
-    # 'TOKEN_MODEL': None,       # To Delete User Must Set it to None
-    # 'SERIALIZERS':{
-    #     'user_create': 'accounts.serializers.CustomUserSerializer',
-    # },
-    # 'EMAIL': {
-    #     'activation': 'accounts.email.ActivationEmail',
-    #     'confirmation': 'accounts.email.ConfirmationEmail',
-    #     'password_reset': 'accounts.email.PasswordResetEmail',
-    #     'password_changed_confirmation': 'accounts.email.PasswordChangedConfirmationEmail',
-    # },
-    # 'USER_SERIALIZER': 'accounts.serializers.CustomUserSerializer',
-}
 
 
 # Add Django REST Framework settings
 REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        "dj_rest_auth.utils.JWTCookieAuthentication",
+    ),
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 10,
@@ -91,9 +72,21 @@ REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',  # drf-spectacular settings
 }
 SIMPLE_JWT = {
-    'AUTH_HEADER_TYPES': ('Bearer'),
-    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=2),
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=7),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=14),
+
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',
+    'USER_ID_FIELD': 'id',
+    'USER_ID_CLAIM': 'user_id',
+    'USER_AUTHENTICATION_RULE': 'rest_framework_simplejwt.authentication.default_user_authentication_rule',
+
+    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
+    'TOKEN_TYPE_CLAIM': 'token_type',
+    'TOKEN_USER_CLASS': 'rest_framework_simplejwt.models.TokenUser',
+
+    'JTI_CLAIM': 'jti',
+
 }
 
 JWT_AUTH = {

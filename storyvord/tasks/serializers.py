@@ -4,7 +4,7 @@ from .models import User, Project, Task
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'first_name', 'last_name']
+        fields = ['id', 'email']
 
 class ProjectSerializer(serializers.ModelSerializer):
     created_by = UserSerializer(read_only=True)
