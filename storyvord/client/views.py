@@ -61,7 +61,25 @@ from accounts.models import User  # Adjust the import path as per your User mode
 #         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)  # Comment: Handle serializer errors
 
 
+class OnboardAPIView(APIView):
+    permissions_classes = [IsAuthenticated]
 
+    def get_object(self):
+        # Fetch profile based on logged-in user
+        profile = get_object_or_404(ClientProfile, user=self.request.user)  # Modified to fetch profile by user
+        return profile
+
+    def put(self, request):
+        # Update profile based on logged-in user
+        user = request.user
+        if user.steps:
+            return Response({'error': 'User has already completed the onboarding process'}, status=status.HTTP_400_BAD_REQUEST)
+        profile = self.get_object()
+        serializer = ProfileSerializer(profile, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class ProfileDetailAPIView(APIView):
     permission_classes = [IsAuthenticated]  # Apply IsAuthenticated permission globally

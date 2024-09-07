@@ -6,7 +6,7 @@ from django.shortcuts import get_object_or_404
 from django.db.models import Q
 from .models import DialogsModel, MessageModel
 from .serializers import DialogSerializer, MessageSerializer
-from django.contrib.auth.models import User
+from accounts.models import User
 
 class DialogListView(APIView):
     permission_classes = [IsAuthenticated]

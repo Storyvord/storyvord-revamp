@@ -4,6 +4,7 @@ from .views import *
 
 urlpatterns = [
     # Projects
+    path('projects/onboard/', ProjectOnboardView.as_view(), name='project-onboard'),
     path('projects/', ProjectListCreateView.as_view(), name='project-list-create'),
     path('projects/<uuid:pk>/', ProjectDetailView.as_view(), name='project-detail'),
     
