@@ -22,6 +22,8 @@ class RegisterView(APIView):
             tokens = get_tokens_for_user(user)
             user_data = serializer.data
             user = User.objects.get(email=user_data['email'])
+            user.steps = '1'
+            user.save()
             
             absurl = ''
             if settings.PROD:
@@ -306,3 +308,31 @@ class VerifyEmail(APIView):
                 return HttpResponseRedirect(redirect_to="http://dev.storyvord.com/auth/sign-in")
             else:
                 return HttpResponseRedirect(redirect_to="http://dev.storyvord.com/auth/sign-in")
+
+                
+class SelectUserType(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+
+        if user.steps == False: 
+            user_type = request.data.get('user_type')
+            if not user_type:
+                return Response({'message': 'User type is required'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            user.user_type = user_type
+            user.save()
+            # self.create_profile(user)
+        # elif user.steps == '2':
+        #     # CLient profile api PUT /api/client/profile/details 
+        #     user.steps = '3'
+        #     user.save()
+        # elif user.steps == '3':
+        #     # Step 3: Onboard project API or any other logic
+        #     user.steps = 'F'
+        #     user.save()
+        #     self.onboard_project(user)
+        else:
+            return Response({'message': 'User already registered'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'message': 'Success'}, status=status.HTTP_200_OK)

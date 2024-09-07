@@ -10,6 +10,23 @@ from accounts.models import User
 from rest_framework.generics import GenericAPIView 
 from django.db.models import Q
 
+
+class ProjectOnboardView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+        if user.steps:
+            return Response({'error': 'User has already completed the onboarding process'}, status=status.HTTP_400_BAD_REQUEST)
+        serializer = ProjectSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(user=user)
+            user.steps = True
+            user.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 class ProjectListCreateView(GenericAPIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = ProjectSerializer
