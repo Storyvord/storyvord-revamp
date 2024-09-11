@@ -2,7 +2,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
-from .serializers import EmailVerificationSerializer, RegisterSerializer, LoginSerializer, ResetPasswordEmailRequestSerializer, SetNewPasswordSerializer, UserChangePasswordSerializer, UserProfileSerializer
+from .serializers import EmailVerificationSerializer, RegisterNewSerializer, RegisterSerializer, LoginSerializer, ResetPasswordEmailRequestSerializer, SetNewPasswordSerializer, UserChangePasswordSerializer, UserProfileSerializer
 
 def get_tokens_for_user(user):
   refresh = RefreshToken.for_user(user)
@@ -23,6 +23,46 @@ class RegisterView(APIView):
             user_data = serializer.data
             user = User.objects.get(email=user_data['email'])
             user.steps = '1'
+            user.save()
+            
+            absurl = ''
+            if settings.PROD:
+                absurl = f"http://api-story.storyvord.com/api/accounts/email-verify/?token={str(token)}"
+            else:
+                absurl = f"http://127.0.0.1:8000/api/accounts/email-verify/?token={str(token)}"
+                
+            email_body = render_to_string('email/verification.html',{
+                'user': user.email,
+                'absurl': absurl,
+            })
+            email = EmailMessage(
+                subject="Activate your account",
+                body=email_body,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                to=[user.email],
+            )
+            email.content_subtype = "html"
+            EmailThread(email).start()
+            print("Email Sended Successfully")
+            return Response({
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),
+            }, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class RegisterNewView(APIView):
+    serializer_class = RegisterNewSerializer
+    def post(self, request, *args, **kwargs):
+        serializer = RegisterNewSerializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
+            refresh = RefreshToken.for_user(user)
+            token = RefreshToken.for_user(user).access_token
+            tokens = get_tokens_for_user(user)
+            user_data = serializer.data
+            user = User.objects.get(email=user_data['email'])
+            user.steps = '1'
+            user.verified=True
             user.save()
             
             absurl = ''
