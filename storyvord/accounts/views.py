@@ -5,50 +5,54 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from .serializers import EmailVerificationSerializer, RegisterSerializer, LoginSerializer, ResetPasswordEmailRequestSerializer, SetNewPasswordSerializer, UserChangePasswordSerializer, UserProfileSerializer
 
 def get_tokens_for_user(user):
-  refresh = RefreshToken.for_user(user)
+  refresh_token = RefreshToken.for_user(user)
   return {
-      'refresh': str(refresh),
-      'access': str(refresh.access_token),
+      'refresh': str(refresh_token),
+      'access': str(refresh_token.access_token),
   }
 
 class RegisterView(APIView):
     serializer_class = RegisterSerializer
+
     def post(self, request, *args, **kwargs):
-        serializer = RegisterSerializer(data=request.data)
-        if serializer.is_valid():
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        try:
             user = serializer.save()
-            refresh = RefreshToken.for_user(user)
-            token = RefreshToken.for_user(user).access_token
-            tokens = get_tokens_for_user(user)
+            # Generate a JSON Web Token to verify the user
+            token = get_tokens_for_user(user)['access']
             user_data = serializer.data
             user = User.objects.get(email=user_data['email'])
+            # Save the user steps as '1'
             user.steps = '1'
             user.save()
-            
-            absurl = ''
-            if settings.PROD:
-                absurl = f"http://api-story.storyvord.com/api/accounts/email-verify/?token={str(token)}"
-            else:
-                absurl = f"http://127.0.0.1:8000/api/accounts/email-verify/?token={str(token)}"
-                
-            email_body = render_to_string('email/verification.html',{
-                'user': user.email,
-                'absurl': absurl,
-            })
+            # Generate the verification email link
+            absurl = f"{settings.SITE_URL}/api/accounts/email-verify/?token={token}"
+            # Render the verification email template
+            email_body = render_to_string(
+                'email/verification.html', {'user': user.email, 'absurl': absurl}
+            )
+            # Create the verification email
             email = EmailMessage(
                 subject="Activate your account",
                 body=email_body,
                 from_email=settings.DEFAULT_FROM_EMAIL,
                 to=[user.email],
             )
+            # Specify the email content subtype as 'html'
             email.content_subtype = "html"
+            # Use the EmailThread to send the email
             EmailThread(email).start()
-            print("Email Sended Successfully")
-            return Response({
-                'refresh': str(refresh),
-                'access': str(refresh.access_token),
-            }, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            # Return the JSON Web Token
+            return Response(
+                get_tokens_for_user(user), status=status.HTTP_201_CREATED
+            )
+        except Exception as e:
+            print(e)
+            # Return a 500 error if something goes wrong
+            return Response(
+                {"error": "Something went wrong"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 class LoginView(APIView):
     serializer_class = LoginSerializer
@@ -184,7 +188,8 @@ class RequestPasswordResetEmailAPIView(generics.GenericAPIView):
 
             resp_data = {
                 "message": "Success",
-                "data": 'We have sent you a link to reset your password'
+                "data": 'We have sent you a link to reset your password',
+                "link": abs_url
             }
             return Response(resp_data, status=status.HTTP_200_OK)
         else:

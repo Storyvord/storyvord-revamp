@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+SITE_URL = os.getenv('SITE_URL')
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -140,9 +141,9 @@ else:
         'default': {
                 'ENGINE': 'django.db.backends.postgresql',  #'django.db.backends.mysql',  # or
                 "HOST": "127.0.0.1",
-                'NAME': 'story',
-                'USER': 'postgres',
-                'PASSWORD': 'root',
+                'NAME': 'storyvord_db',
+                'USER': 'froztyo0',
+                'PASSWORD': 'password',
                 'PORT': '5432' #5432
             }
     }
