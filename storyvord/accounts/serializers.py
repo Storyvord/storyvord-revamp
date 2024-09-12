@@ -1,5 +1,8 @@
 # # # accounts/serializers.py
 from rest_framework import serializers
+
+from client.models import ClientProfile
+from crew.models import CrewProfile
 from .models import User
 from django.contrib.auth import authenticate
 
@@ -218,3 +221,34 @@ class EmailVerificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ["token"]
+        
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['email', 'user_type']
+
+class ClientProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ClientProfile
+        fields = '__all__'
+
+class CrewProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CrewProfile
+        fields = '__all__'
+
+class UserProfileSerializer(serializers.Serializer):
+    user = UserSerializer()
+    profile = serializers.SerializerMethodField()
+
+    def get_profile(self, obj):
+        user = obj['user']
+        if user.user_type == 'client':
+            profile = ClientProfile.objects.filter(user=user).first()
+            serializer = ClientProfileSerializer(profile)
+        elif user.user_type == 'crew':
+            profile = CrewProfile.objects.filter(user=user).first()
+            serializer = CrewProfileSerializer(profile)
+        else:
+            return None
+        return serializer.data

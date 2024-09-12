@@ -1,8 +1,12 @@
+from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
-from .serializers import EmailVerificationSerializer, RegisterNewSerializer, RegisterSerializer, LoginSerializer, ResetPasswordEmailRequestSerializer, SetNewPasswordSerializer, UserChangePasswordSerializer, UserProfileSerializer
+
+from client.models import ClientProfile
+from crew.models import CrewProfile
+from .serializers import ClientProfileSerializer, CrewProfileSerializer, EmailVerificationSerializer, RegisterNewSerializer, RegisterSerializer, LoginSerializer, ResetPasswordEmailRequestSerializer, SetNewPasswordSerializer, UserChangePasswordSerializer, UserProfileSerializer
 
 def get_tokens_for_user(user):
   refresh = RefreshToken.for_user(user)
@@ -376,3 +380,27 @@ class SelectUserType(APIView):
         else:
             return Response({'message': 'User already registered'}, status=status.HTTP_400_BAD_REQUEST)
         return Response({'message': 'Success'}, status=status.HTTP_200_OK)
+
+
+class UserProfileView(APIView):
+    
+    def get(self, request, format=None):
+        user = request.user
+
+        if not user.is_authenticated:
+            return Response({'detail': 'Authentication credentials were not provided.'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        user_data = {
+            'user': user
+        }
+        user_data['profile'] = self.get_profile(user)
+
+        serializer = UserProfileSerializer(user_data)
+        return Response(serializer.data)
+
+    def get_profile(self, user):
+        if user.user_type == 'client':
+            return ClientProfile.objects.filter(user=user).first()
+        elif user.user_type == 'crew':
+            return CrewProfile.objects.filter(user=user).first()
+        return None
