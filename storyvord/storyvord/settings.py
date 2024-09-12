@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'referral',
     'company',
     'inbox',
+    'ai_assistant',
 ]
 
 SITE_ID = 1

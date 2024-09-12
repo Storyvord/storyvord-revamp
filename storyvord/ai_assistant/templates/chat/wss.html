@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chat</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        #chat-box { border: 1px solid #ccc; padding: 10px; height: 400px; overflow-y: scroll; margin-bottom: 10px; }
+        .user { color: blue; }
+        .ai { color: green; }
+    </style>
+</head>
+<body>
+    <div id="chat-box"></div>
+    <input type="text" id="user-input" placeholder="Type a message..." />
+    <button onclick="sendMessage()">Send</button>
+
+    <script>
+        const chatBox = document.getElementById('chat-box');
+        const socket = new WebSocket('ws://' + window.location.host + '/ws/chat/');
+
+        socket.onmessage = function (e) {
+            const data = JSON.parse(e.data);
+            chatBox.innerHTML += `<div class="user">You: ${data?.user_message || ''}</div>`;
+            chatBox.innerHTML += `<div class="ai">AI: ${data?.ai_response || ''}</div>`;
+            chatBox.scrollTop = chatBox.scrollHeight;
+        };
+
+        function sendMessage() {
+            const message = document.getElementById('user-input').value;
+            if (!message) return;
+
+            socket.send(JSON.stringify({ 'message': message }));
+            document.getElementById('user-input').value = '';
+        }
+    </script>
+</body>
+</html>
