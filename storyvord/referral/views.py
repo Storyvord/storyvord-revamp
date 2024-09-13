@@ -279,3 +279,28 @@ class ReferralCodeCrewDetailView(APIView):
 
         except ProjectInvitation.DoesNotExist:
             return Response({'detail': 'Invitation not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+            
+class EmployeeInvitationsClientView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        user_email = request.query_params.get('email')
+        
+        invitations = ClientInvitation.objects.filter(employee_email=user_email)
+        
+        pending_invitations = invitations.filter(status='pending')
+        accepted_invitations = invitations.filter(status='accepted')
+        rejected_invitations = invitations.filter(status='rejected')
+
+        pending_serializer = ClientInvitationSerializer(pending_invitations, many=True)
+        accepted_serializer = ClientInvitationSerializer(accepted_invitations, many=True)
+        rejected_serializer = ClientInvitationSerializer(rejected_invitations, many=True)
+
+        response_data = {
+            'pending': pending_serializer.data,
+            'accepted': accepted_serializer.data,
+            'rejected': rejected_serializer.data,
+        }
+
+        return Response(response_data, status=status.HTTP_200_OK)
