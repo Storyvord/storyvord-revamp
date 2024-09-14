@@ -224,7 +224,7 @@ class ListProjectInvitationSerializer(serializers.ModelSerializer):
             return None  # Return None if no user exists for this email
     
     def get_inviter_profile(self, obj):
-        client_profile = ClientProfile.objects.filter(user=obj.project.owner).first()  # Get the profile of the project owner
+        client_profile = ClientProfile.objects.filter(user=obj.project.user).first()  # Get the profile of the project owner
         if client_profile:
             return {
                 "firstName": client_profile.firstName,
