@@ -6,7 +6,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from client.models import ClientProfile
 from crew.models import CrewProfile
-from .serializers import ClientProfileSerializer, CrewProfileSerializer, EmailVerificationSerializer, RegisterNewSerializer, RegisterSerializer, LoginSerializer, ResetPasswordEmailRequestSerializer, SetNewPasswordSerializer, UserChangePasswordSerializer, UserProfileSerializer
+from .serializers import ClientProfileSerializer, CrewProfileSerializer, EmailVerificationSerializer, RegisterNewSerializer, RegisterSerializer, LoginSerializer, ResetPasswordEmailRequestSerializer, SetNewPasswordSerializer, UserChangePasswordSerializer, UserProfileSerializer, UserSerializer
 
 def get_tokens_for_user(user):
   refresh = RefreshToken.for_user(user)
@@ -130,10 +130,13 @@ class LoginView(APIView):
                 )
             refresh = RefreshToken.for_user(user)
             user_profile_serializer = UserProfileSerializer(user)
+            user_serializer = UserSerializer(user)
+
             return Response({
                 'refresh': str(refresh),
                 'access': str(refresh.access_token),
-                'user': user_profile_serializer.data
+                'user': user_serializer.data,  # Serialized user data
+                'profile': user_profile_serializer.data['profile']  # Serialized profile data
             }, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

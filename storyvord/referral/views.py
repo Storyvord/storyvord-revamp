@@ -108,14 +108,16 @@ class ClientCrewInvitationsView(APIView):
 
     def get(self, request, project_id, *args, **kwargs):
         user = request.user
-        invitations = ProjectInvitation.objects.filter(project__user=user, project__project_id=project_id)
         
+        # Fetch project invitations related to the current user and project
+        invitations = ProjectInvitation.objects.filter(project__user=user, project__id=project_id)
+
         # Segregate the invitations by status
         pending_invitations = invitations.filter(status='pending')
         accepted_invitations = invitations.filter(status='accepted')
         rejected_invitations = invitations.filter(status='rejected')
 
-        # Serialize the data
+        # Serialize the invitation data, including invited user details if they exist
         pending_serializer = ListProjectInvitationSerializer(pending_invitations, many=True)
         accepted_serializer = ListProjectInvitationSerializer(accepted_invitations, many=True)
         rejected_serializer = ListProjectInvitationSerializer(rejected_invitations, many=True)
@@ -227,6 +229,8 @@ class ClientEmployeeInvitationsView(APIView):
 
     def get(self, request, *args, **kwargs):
         user = request.user
+        
+        # Fetch all invitations related to the current user's client profile
         invitations = ClientInvitation.objects.filter(client_profile__user=user)
         
         # Segregate the invitations by status
@@ -234,7 +238,7 @@ class ClientEmployeeInvitationsView(APIView):
         accepted_invitations = invitations.filter(status='accepted')
         rejected_invitations = invitations.filter(status='rejected')
 
-        # Serialize the data
+        # Serialize the invitation data, including invited user details if they exist
         pending_serializer = ClientInvitationSerializer(pending_invitations, many=True)
         accepted_serializer = ClientInvitationSerializer(accepted_invitations, many=True)
         rejected_serializer = ClientInvitationSerializer(rejected_invitations, many=True)

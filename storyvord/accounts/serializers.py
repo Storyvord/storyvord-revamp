@@ -238,11 +238,10 @@ class CrewProfileSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class UserProfileSerializer(serializers.Serializer):
-    user = UserSerializer()
     profile = serializers.SerializerMethodField()
 
     def get_profile(self, obj):
-        user = obj['user']
+        user = obj  # 'obj' is the User instance
         if user.user_type == 'client':
             profile = ClientProfile.objects.filter(user=user).first()
             serializer = ClientProfileSerializer(profile)
