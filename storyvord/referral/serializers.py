@@ -219,7 +219,9 @@ class ListProjectInvitationSerializer(serializers.ModelSerializer):
         # Look up the user based on the crew_email field
         try:
             user = User.objects.get(email=obj.crew_email)
-            return UserSerializer(user).data  # Return serialized user data if found
+            invited_user = UserSerializer(user).data
+            invited_user['profile_details'] = {}  # Initialize an empty dictionary
+            return invited_user
         except User.DoesNotExist:
             return None  # Return None if no user exists for this email
     

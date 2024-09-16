@@ -141,8 +141,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'storyvord.wsgi.application'
 ASGI_APPLICATION = "storyvord.asgi.application"
 
-if PROD == '1':
-    DATABASES = {
+DATABASES = {
         'default': {
                 'ENGINE': 'django.db.backends.postgresql',
                 "HOST": os.getenv('DATABASE_HOST'),
@@ -152,18 +151,6 @@ if PROD == '1':
                 'PORT': 5432
             }
     }
-else:
-    DATABASES = {
-        'default': {
-                'ENGINE': 'django.db.backends.postgresql',  #'django.db.backends.mysql',  # or
-                "HOST": "127.0.0.1",
-                'NAME': 'storyvord_db',
-                'USER': 'froztyo0',
-                'PASSWORD': 'password',
-                'PORT': '5432' #5432
-            }
-    }
-
 
 AUTH_USER_MODEL = "accounts.User"
 

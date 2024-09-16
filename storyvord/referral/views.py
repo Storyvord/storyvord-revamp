@@ -110,7 +110,7 @@ class ClientCrewInvitationsView(APIView):
         user = request.user
         
         # Fetch project invitations related to the current user and project
-        invitations = ProjectInvitation.objects.filter(project__user=user, project__project_id=project_id)
+        invitations = ProjectInvitation.objects.filter(project__project_id=project_id)
 
         # Segregate the invitations by status
         pending_invitations = invitations.filter(status='pending')
