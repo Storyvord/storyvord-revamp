@@ -20,8 +20,15 @@ GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
 GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
 # SECURITY WARNING: don't run with debug turned on in production!
 
-DEBUG = True
 PROD = os.getenv('PROD')
+
+if PROD == '1':
+    # Production-specific settings
+    DEBUG = False
+else:
+    # Development-specific settings
+    DEBUG = True
+
 ALLOWED_HOSTS = ['*']
 CSRF_TRUSTED_ORIGINS = ['https://storyvord-back-end-d432tn3msq-uc.a.run.app']
 INSTALLED_APPS = [
@@ -134,7 +141,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'storyvord.wsgi.application'
 ASGI_APPLICATION = "storyvord.asgi.application"
 
-if PROD:
+if PROD == '1':
     DATABASES = {
         'default': {
                 'ENGINE': 'django.db.backends.postgresql',
