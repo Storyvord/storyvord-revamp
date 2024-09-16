@@ -1,8 +1,12 @@
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
+from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
+from allauth.socialaccount.providers.oauth2.client import OAuth2Client
+from django.http import JsonResponse
+
 
 from client.models import ClientProfile
 from crew.models import CrewProfile
@@ -407,3 +411,24 @@ class UserProfileView(APIView):
         elif user.user_type == 'crew':
             return CrewProfile.objects.filter(user=user).first()
         return None
+
+
+
+def google_custom_login_redirect(request):
+    if request.user.is_authenticated:
+        if request.user.auth_provider != 'google':
+            user = request.user
+            user.auth_provider = 'google'
+            user.save()
+        refresh = RefreshToken.for_user(request.user)
+        access_token = str(refresh.access_token)
+        refresh_token = str(refresh)
+
+        response_data = {
+            'access_token': access_token,
+            'refresh_token': refresh_token,
+        }
+
+        return JsonResponse(response_data)
+
+    return JsonResponse({'error': 'Authentication failed'}, status=401)

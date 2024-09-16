@@ -16,4 +16,6 @@ urlpatterns = [
     path('email-verify/', VerifyEmail.as_view(), name="email-verify"),
 
     path('register/onboard/', SelectUserType.as_view(), name='user-usertype-onboard'),
+
+    path('google/', google_custom_login_redirect, name='google-login'),
 ]
