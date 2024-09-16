@@ -19,7 +19,7 @@
 
     <script>
         const chatBox = document.getElementById('chat-box');
-        const socket = new WebSocket('ws://' + window.location.host + '/ws/chat/');
+        const socket = new WebSocket('ws://' + window.location.host + '/ws/chat/' + '?token=' + 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzI2NzQ4MDkwLCJpYXQiOjE3MjYxNDMyOTAsImp0aSI6IjkyYWM0NmQxMWRlOTQzNzhhM2NiYjA0OGYyNjUyYmVhIiwidXNlcl9pZCI6MX0.KpLuNHhjBh7D19Ro-USvYwEMa1suPCJud2a6Isc9A54' );
 
         socket.onmessage = function (e) {
             const data = JSON.parse(e.data);

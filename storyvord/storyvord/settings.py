@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'company',
     'inbox',
     'ai_assistant',
+    'chat',
 ]
 
 SITE_ID = 1

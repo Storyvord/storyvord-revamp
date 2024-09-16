@@ -16,7 +16,7 @@ class ChatAPIView(APIView):
             return Response({'error': 'Message is required'}, status=status.HTTP_400_BAD_REQUEST)
 
         data = {
-            "model": "gpt-3.5-turbo",
+            "model": "gpt-4o",
             "messages": [{"role": "user", "content": user_message}],
             "max_tokens": 50
         }

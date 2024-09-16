@@ -45,9 +45,14 @@ class RegisterView(APIView):
             EmailThread(email).start()
             print("Email Sended Successfully")
             return Response({
-                'refresh': str(refresh),
-                'access': str(refresh.access_token),
+                "status": status.HTTP_201_CREATED,
+                "message": "User created successfully",
+                "data": serializer.data,
+                "token": token,
             }, status=status.HTTP_201_CREATED)
+            
+        except Exception as e:
+            print(e)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 class RegisterNewView(APIView):

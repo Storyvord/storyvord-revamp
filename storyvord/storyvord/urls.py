@@ -60,4 +60,6 @@ urlpatterns = [
     path('api/files/', include('files.urls')),
     
     path('api/', include('ai_assistant.urls')),
+    
+    path('api/chat/', include('chat.urls')),
 ]
