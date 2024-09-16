@@ -13,25 +13,32 @@ class DialogListView(APIView):
 
     def get(self, request):
         dialogs = DialogsModel.get_dialogs_for_user(request.user)
-        serialized_data = [{'user1_id': dialog[0], 'user2_id': dialog[1]} for dialog in dialogs]
-        return Response(serialized_data, status=status.HTTP_200_OK)
+
+        # Serialize the dialogs and pass the request context
+        serializer = DialogSerializer(dialogs, many=True, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 class DialogMessagesView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, user_id):
         other_user = get_object_or_404(User, id=user_id)
+
+        # Check if the dialog exists
         dialog = DialogsModel.dialog_exists(request.user, other_user)
         if not dialog:
             return Response({"detail": "Dialog not found"}, status=status.HTTP_404_NOT_FOUND)
 
+        # Fetch the messages for the dialog
         messages = MessageModel.objects.filter(
             Q(sender=request.user, recipient=other_user) |
             Q(sender=other_user, recipient=request.user)
         ).order_by('created')
 
-        serializer = MessageSerializer(messages, many=True)
+        # Serialize the messages and pass the request context
+        serializer = MessageSerializer(messages, many=True, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 class SendMessageView(APIView):
     permission_classes = [IsAuthenticated]

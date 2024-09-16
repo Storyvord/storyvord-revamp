@@ -33,7 +33,29 @@ class DialogsModel(TimeStampedModel):
 
     @staticmethod
     def get_dialogs_for_user(user: User):
-        return DialogsModel.objects.filter(Q(user1=user) | Q(user2=user)).values_list('user1__pk', 'user2__pk')
+        return DialogsModel.objects.filter(Q(user1=user) | Q(user2=user))
+    
+    def get_profile_info(self, user):
+        """
+        Retrieve the profile information of a user based on their user_type.
+        """
+        if user.user_type == 'client':
+            profile = getattr(user, 'clientprofile', None)
+            return {
+                'type': 'client',
+                'name': f"{profile.firstName} {profile.lastName}" if profile else None
+            }
+        elif user.user_type == 'crew':
+            profile = getattr(user, 'crewprofile', None)
+            return {
+                'type': 'crew',
+                'name': profile.name if profile else None
+            }
+        # Add other profiles as needed for vendor, internal, etc.
+        return {
+            'type': user.user_type,
+            'name': None  # Default if profile not found
+        }
 
 
 class MessageModel(TimeStampedModel, SoftDeletableModel):

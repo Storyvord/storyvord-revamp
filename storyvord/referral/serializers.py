@@ -197,22 +197,80 @@ class UserCreateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = User.objects.create_user(**validated_data)
         return user
+    
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'email', 'user_type']
 
 
 class ListProjectInvitationSerializer(serializers.ModelSerializer):
     project_name = serializers.CharField(source='project.name', read_only=True)
     
+    # Custom field to include invited user details if the user exists
+    invited_user = serializers.SerializerMethodField()
+    inviter_profile = serializers.SerializerMethodField()
+
     class Meta:
         model = ProjectInvitation
-        fields = ['id', 'project', 'project_name', 'status', 'referral_code', 'created_at', 'firstName', 'lastName', 'message']
+        fields = ['id', 'project', 'project_name', 'status', 'referral_code', 'created_at', 'firstName', 'lastName', 'message', 'crew_email', 'invited_user', 'inviter_profile']
 
+    def get_invited_user(self, obj):
+        # Look up the user based on the crew_email field
+        try:
+            user = User.objects.get(email=obj.crew_email)
+            return UserSerializer(user).data  # Return serialized user data if found
+        except User.DoesNotExist:
+            return None  # Return None if no user exists for this email
+    
+    def get_inviter_profile(self, obj):
+        client_profile = ClientProfile.objects.filter(user=obj.project.user).first()  # Get the profile of the project owner
+        if client_profile:
+            return {
+                "firstName": client_profile.firstName,
+                "lastName": client_profile.lastName,
+                "role": client_profile.role,
+                "description": client_profile.description,
+                "countryName": client_profile.countryName,
+                "locality": client_profile.locality,
+                "phone_number": client_profile.phone_number,
+                "personalWebsite": client_profile.personalWebsite,
+                "image": client_profile.image.url if client_profile.image else None,
+            }
+        return None
+
+class ProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ClientProfile
+        fields = ['firstName', 'lastName', 'role', 'description', 'countryName', 'locality', 'phone_number', 'personalWebsite', 'image']
 
 
 class ClientInvitationSerializer(serializers.ModelSerializer):
     client_profile = ProfileSerializer(read_only=True)
+
+    # Custom field to include invited user details if the user exists
+    invited_user = serializers.SerializerMethodField()
+    inviter_profile = serializers.SerializerMethodField()
+
     class Meta:
         model = ClientInvitation
         fields = '__all__'
+
+    def get_invited_user(self, obj):
+        # Look up the user based on the employee_email field
+        try:
+            user = User.objects.get(email=obj.employee_email)
+            return UserSerializer(user).data  # Return serialized user data if found
+        except User.DoesNotExist:
+            return None  # Return None if no user exists for this email
+        
+    def get_inviter_profile(self, obj):
+        # Retrieve the ClientProfile for the client who sent the invitation
+        client_profile = obj.client_profile
+        if client_profile:
+            return ProfileSerializer(client_profile).data
+        return None
+    
 
     def create(self, validated_data):
         # client_profile_id = validated_data.get('client_profile')
