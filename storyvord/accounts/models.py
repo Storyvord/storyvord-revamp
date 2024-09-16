@@ -26,7 +26,9 @@ class UserManager(BaseUserManager):
         return self.create_user(email, password, **extra_fields)
 
 
-AUTH_PROVIDERS = {'email': 'email'}
+AUTH_PROVIDERS = {'email': 'email',
+                #   'facebook': 'facebook',
+                  'google': 'google'}
 
 class User(AbstractBaseUser, PermissionsMixin):
     USER_TYPE_CHOICES = [ 
