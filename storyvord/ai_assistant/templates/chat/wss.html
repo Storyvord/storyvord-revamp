@@ -19,7 +19,8 @@
 
     <script>
         const chatBox = document.getElementById('chat-box');
-        const socket = new WebSocket('wss://' + window.location.host + '/ws/chat/' + '?token=' + 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzI3MTYwMjAyLCJpYXQiOjE3MjY1NTU0MDIsImp0aSI6IjM1NTlmMThhMTEyZDQ2ZTdiM2MyYzFiYzQ1NmI5NjNlIiwidXNlcl9pZCI6Mn0.XIrtF4zmVGeiu3djSGG18SIAgKqI_BIpDjaKLu5RvwM' );
+        {% comment %} const socket = new WebSocket('ws://' + window.location.host + '/ws/ai_assistant/' + '?token=' + 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzI3MTYwMjAyLCJpYXQiOjE3MjY1NTU0MDIsImp0aSI6IjM1NTlmMThhMTEyZDQ2ZTdiM2MyYzFiYzQ1NmI5NjNlIiwidXNlcl9pZCI6Mn0.XIrtF4zmVGeiu3djSGG18SIAgKqI_BIpDjaKLu5RvwM' ); {% endcomment %}
+        const socket = new WebSocket('wss://api-stage.storyvord.com:8001/ws/ai_assistant/' + '?token=' + 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzI3MTYwMjAyLCJpYXQiOjE3MjY1NTU0MDIsImp0aSI6IjM1NTlmMThhMTEyZDQ2ZTdiM2MyYzFiYzQ1NmI5NjNlIiwidXNlcl9pZCI6Mn0.XIrtF4zmVGeiu3djSGG18SIAgKqI_BIpDjaKLu5RvwM' );
 
         socket.onmessage = function (e) {
             const data = JSON.parse(e.data);
