@@ -5,6 +5,8 @@ from ai_assistant.models import ChatMessage
 from ai_assistant.serializers import ChatMessageSerializer
 import requests
 import os
+from openai import OpenAI
+client = OpenAI()
 
 OPENAI_API_KEY=os.environ['OPENAI_API_KEY'] 
 
@@ -22,15 +24,19 @@ class ChatAPIView(APIView):
         }
         print(data)
         try:
-            response = requests.post(
-                'https://api.openai.com/v1/chat/completions',
-                headers={'Authorization': f'Bearer {OPENAI_API_KEY}'},
-                json=data,
-                timeout=1
+            completion = client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[
+                    {"role": "system", "content": "You are an compliances expert of film production of every country to shoot films outdoors or any private/public place"},
+                    {
+                        "role": "user",
+                        "content": user_message
+                    }
+                ]
             )
-            if response.status_code != 200:
-                return Response({'error': 'Error connecting to OpenAI API'}, status=response.status_code)
-            ai_response = response.json()['choices'][0]['message']['content']
+            
+            ai_response = completion.choices[0].message
+            
         except requests.Timeout:
             return Response({'error': 'Timed out when calling the OpenAI API'}, status=status.HTTP_408_REQUEST_TIMEOUT)
         except requests.HTTPError as e:
@@ -40,7 +46,7 @@ class ChatAPIView(APIView):
                 return Response({'error': 'Something went wrong when calling the OpenAI API'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         # Save the chat message
-        chat_message = ChatMessage.objects.create(user_message=user_message, ai_response=ai_response)
+        chat_message = ChatMessage.objects.create(user_message=user_message, ai_response=ai_response.content)
         serializer = ChatMessageSerializer(chat_message)
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
