@@ -34,8 +34,16 @@ class RegisterView(APIView):
             # Save the user steps as '1'
             user.steps = '1'
             user.save()
-            # Generate the verification email link
-            absurl = f"{settings.SITE_URL}/api/accounts/email-verify/?token={token}"
+            
+            # # Generate the verification email link
+            # absurl = f"{settings.SITE_URL}/api/accounts/email-verify/?token={token}"
+            
+            absurl = ''
+            if settings.PROD:
+                absurl = f"http://api-story.storyvord.com/api/accounts/email-verify/?token={str(token)}"
+            else:
+                absurl = f"http://127.0.0.1:8000/api/accounts/email-verify/?token={str(token)}"
+            
             # Render the verification email template
             email_body = render_to_string(
                 'email/verification.html', {'user': user.email, 'absurl': absurl}
