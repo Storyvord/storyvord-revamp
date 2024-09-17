@@ -92,7 +92,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         completion = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
-                {"role": "system", "content": "You are an compliances expert of film production of every country to shoot films outdoors or any private/public place"},
+                {"role": "system", "content": "You are an expert in film production compliance for shooting outdoors or in private/public places globally."},
                 {
                     "role": "user",
                     "content": user_message
