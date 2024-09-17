@@ -50,6 +50,7 @@ urlpatterns = [
     path('api/inbox/', include('inbox.urls')),
     path('auth/', include('djoser.urls')),
     path('auth/', include('djoser.urls.jwt')),
+    path('accounts/', include('allauth.urls')),
     
     # Endpoint for the API schema
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),

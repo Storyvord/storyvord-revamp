@@ -108,14 +108,16 @@ class ClientCrewInvitationsView(APIView):
 
     def get(self, request, project_id, *args, **kwargs):
         user = request.user
-        invitations = ProjectInvitation.objects.filter(project__user=user, project__project_id=project_id)
         
+        # Fetch project invitations related to the current user and project
+        invitations = ProjectInvitation.objects.filter(project__user=user, project__project_id=project_id)
+
         # Segregate the invitations by status
         pending_invitations = invitations.filter(status='pending')
         accepted_invitations = invitations.filter(status='accepted')
         rejected_invitations = invitations.filter(status='rejected')
 
-        # Serialize the data
+        # Serialize the invitation data, including invited user details if they exist
         pending_serializer = ListProjectInvitationSerializer(pending_invitations, many=True)
         accepted_serializer = ListProjectInvitationSerializer(accepted_invitations, many=True)
         rejected_serializer = ListProjectInvitationSerializer(rejected_invitations, many=True)
@@ -227,6 +229,8 @@ class ClientEmployeeInvitationsView(APIView):
 
     def get(self, request, *args, **kwargs):
         user = request.user
+        
+        # Fetch all invitations related to the current user's client profile
         invitations = ClientInvitation.objects.filter(client_profile__user=user)
         
         # Segregate the invitations by status
@@ -234,7 +238,7 @@ class ClientEmployeeInvitationsView(APIView):
         accepted_invitations = invitations.filter(status='accepted')
         rejected_invitations = invitations.filter(status='rejected')
 
-        # Serialize the data
+        # Serialize the invitation data, including invited user details if they exist
         pending_serializer = ClientInvitationSerializer(pending_invitations, many=True)
         accepted_serializer = ClientInvitationSerializer(accepted_invitations, many=True)
         rejected_serializer = ClientInvitationSerializer(rejected_invitations, many=True)
@@ -279,3 +283,28 @@ class ReferralCodeCrewDetailView(APIView):
 
         except ProjectInvitation.DoesNotExist:
             return Response({'detail': 'Invitation not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+            
+class EmployeeInvitationsClientView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        user_email = request.query_params.get('email')
+        
+        invitations = ClientInvitation.objects.filter(employee_email=user_email)
+        
+        pending_invitations = invitations.filter(status='pending')
+        accepted_invitations = invitations.filter(status='accepted')
+        rejected_invitations = invitations.filter(status='rejected')
+
+        pending_serializer = ClientInvitationSerializer(pending_invitations, many=True)
+        accepted_serializer = ClientInvitationSerializer(accepted_invitations, many=True)
+        rejected_serializer = ClientInvitationSerializer(rejected_invitations, many=True)
+
+        response_data = {
+            'pending': pending_serializer.data,
+            'accepted': accepted_serializer.data,
+            'rejected': rejected_serializer.data,
+        }
+
+        return Response(response_data, status=status.HTTP_200_OK)

@@ -16,6 +16,8 @@ OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 
 GEOAPIFY_API_KEY = os.getenv('GEOAPIFY_API_KEY')
 WEATHERAPI_API_KEY = os.getenv('WEATHERAPI_API_KEY')
+GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
+GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
 # SECURITY WARNING: don't run with debug turned on in production!
 
 DEBUG = True
@@ -55,6 +57,10 @@ INSTALLED_APPS = [
     'inbox',
     'ai_assistant',
     'chat',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
 ]
 
 SITE_ID = 1
@@ -106,6 +112,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
 ]
 CORS_ALLOW_ALL_ORIGINS = True
 ROOT_URLCONF = 'storyvord.urls'
@@ -152,6 +159,13 @@ else:
 
 
 AUTH_USER_MODEL = "accounts.User"
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake',  # A unique name for the in-memory cache
+    }
+}
 
 CHANNEL_LAYERS = {
     'default': {
@@ -215,3 +229,42 @@ STORAGES = {
 AZURE_CONTAINER=os.getenv('AZURE_CONTAINERS')
 AZURE_ACCOUNT_NAME=os.getenv('AZURE_ACCOUNT_NAMES')
 AZURE_ACCOUNT_KEY=os.getenv('AZURE_ACCOUNT_KEYS')
+
+# Google Provider configuration
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+)
+
+SITE_ID = 1 
+
+# Allauth settings
+ACCOUNT_EMAIL_VERIFICATION = "none"  
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None 
+ACCOUNT_USERNAME_REQUIRED = False  
+ACCOUNT_EMAIL_REQUIRED = True  
+ACCOUNT_AUTHENTICATION_METHOD = 'email'  
+
+#
+LOGIN_REDIRECT_URL = "/api/accounts/google/"
+LOGOUT_REDIRECT_URL = "/"
+
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'APP': {
+            'client_id': GOOGLE_CLIENT_ID,
+            'secret': GOOGLE_CLIENT_SECRET,
+            'key': ''
+        },
+        'SCOPE': ['email', 'profile'],
+        'AUTH_PARAMS': {'access_type': 'offline'},
+        'redirect_uri': 'http://localhost:8000',
+    }
+}
+SOCIALACCOUNT_FORMS = {
+    'disconnect': 'allauth.socialaccount.forms.DisconnectForm',
+    'signup': 'allauth.socialaccount.forms.SignupForm',
+}
+
+# Disable the default behavior of logging in the user immediately after the social account is connected
+SOCIALACCOUNT_LOGIN_ON_GET = True

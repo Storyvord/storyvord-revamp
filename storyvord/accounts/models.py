@@ -26,7 +26,9 @@ class UserManager(BaseUserManager):
         return self.create_user(email, password, **extra_fields)
 
 
-AUTH_PROVIDERS = {'email': 'email'}
+AUTH_PROVIDERS = {'email': 'email',
+                #   'facebook': 'facebook',
+                  'google': 'google'}
 
 class User(AbstractBaseUser, PermissionsMixin):
     USER_TYPE_CHOICES = [ 
@@ -47,7 +49,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     objects = UserManager() 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = []
+    REQUIRED_FIELDS = ['user_type']
 
     def get_full_name(self):
         return self.email

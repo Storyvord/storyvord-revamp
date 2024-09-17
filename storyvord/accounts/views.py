@@ -1,8 +1,16 @@
+from django.shortcuts import get_object_or_404, redirect
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
-from .serializers import EmailVerificationSerializer, RegisterNewSerializer, RegisterSerializer, LoginSerializer, ResetPasswordEmailRequestSerializer, SetNewPasswordSerializer, UserChangePasswordSerializer, UserProfileSerializer
+from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
+from allauth.socialaccount.providers.oauth2.client import OAuth2Client
+from django.http import JsonResponse
+
+
+from client.models import ClientProfile
+from crew.models import CrewProfile
+from .serializers import ClientProfileSerializer, CrewProfileSerializer, EmailVerificationSerializer, RegisterNewSerializer, RegisterSerializer, LoginSerializer, ResetPasswordEmailRequestSerializer, SetNewPasswordSerializer, UserChangePasswordSerializer, UserProfileSerializer, UserSerializer
 
 def get_tokens_for_user(user):
   refresh_token = RefreshToken.for_user(user)
@@ -131,10 +139,13 @@ class LoginView(APIView):
                 )
             refresh = RefreshToken.for_user(user)
             user_profile_serializer = UserProfileSerializer(user)
+            user_serializer = UserSerializer(user)
+
             return Response({
                 'refresh': str(refresh),
                 'access': str(refresh.access_token),
-                'user': user_profile_serializer.data
+                'user': user_serializer.data,  # Serialized user data
+                'profile': user_profile_serializer.data['profile']  # Serialized profile data
             }, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -382,3 +393,48 @@ class SelectUserType(APIView):
         else:
             return Response({'message': 'User already registered'}, status=status.HTTP_400_BAD_REQUEST)
         return Response({'message': 'Success'}, status=status.HTTP_200_OK)
+
+
+class UserProfileView(APIView):
+    
+    def get(self, request, format=None):
+        user = request.user
+
+        if not user.is_authenticated:
+            return Response({'detail': 'Authentication credentials were not provided.'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        user_data = {
+            'user': user
+        }
+        user_data['profile'] = self.get_profile(user)
+
+        serializer = UserProfileSerializer(user_data)
+        return Response(serializer.data)
+
+    def get_profile(self, user):
+        if user.user_type == 'client':
+            return ClientProfile.objects.filter(user=user).first()
+        elif user.user_type == 'crew':
+            return CrewProfile.objects.filter(user=user).first()
+        return None
+
+
+
+def google_custom_login_redirect(request):
+    if request.user.is_authenticated:
+        if request.user.auth_provider != 'google':
+            user = request.user
+            user.auth_provider = 'google'
+            user.save()
+        refresh = RefreshToken.for_user(request.user)
+        access_token = str(refresh.access_token)
+        refresh_token = str(refresh)
+
+        response_data = {
+            'access_token': access_token,
+            'refresh_token': refresh_token,
+        }
+
+        return JsonResponse(response_data)
+
+    return JsonResponse({'error': 'Authentication failed'}, status=401)
