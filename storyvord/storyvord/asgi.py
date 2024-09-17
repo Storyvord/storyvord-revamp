@@ -11,25 +11,26 @@ import os
 from django.core.asgi import get_asgi_application
 from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.auth import AuthMiddlewareStack
-from inbox import routing
-import ai_assistant.routing
+from inbox.routing import websocket_urlpatterns as inbox_urlpatterns
+from ai_assistant.routing import websocket_ai_chat_urlpatterns
 from channels.security.websocket import AllowedHostsOriginValidator
 import django
 django.setup()
 
 from django.urls import path
-from ai_assistant.consumers import ChatConsumer
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'storyvord.settings')
 django_asgi_app = get_asgi_application()
 
-application = ProtocolTypeRouter({
+application = ProtocolTypeRouter(
+    {
     "http": get_asgi_application(),
-    "websocket": AuthMiddlewareStack(
+    "websocket": AllowedHostsOriginValidator(
+        AuthMiddlewareStack(
         URLRouter(
-            [
-                path("ws/chat/", ChatConsumer.as_asgi()),
-            ]
-        )
+                 inbox_urlpatterns + websocket_ai_chat_urlpatterns
+                )
     ),
-})
+    )
+    }
+)

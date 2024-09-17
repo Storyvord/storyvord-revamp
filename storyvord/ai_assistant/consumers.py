@@ -15,7 +15,7 @@ client = OpenAI()
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 User = get_user_model()
 
-class ChatConsumer(AsyncWebsocketConsumer):
+class AIChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         # Extract token from the query string
         token = self.scope['query_string'].decode().split('=')[-1]
