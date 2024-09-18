@@ -101,7 +101,7 @@
     <script>
         const chatBox = document.getElementById('chat-box');
         const costInfo = document.getElementById('cost-info');
-        const socket = new WebSocket('wss://' + window.location.host + '/ws/ai_assistant/' + '?token=' + 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzI2NzQ4MDkwLCJpYXQiOjE3MjYxNDMyOTAsImp0aSI6IjkyYWM0NmQxMWRlOTQzNzhhM2NiYjA0OGYyNjUyYmVhIiwidXNlcl9pZCI6MX0.KpLuNHhjBh7D19Ro-USvYwEMa1suPCJud2a6Isc9A54');
+        const socket = new WebSocket('wss://' + window.location.host + ':8001/ws/ai_assistant/' + '?token=' + 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzI2NzQ4MDkwLCJpYXQiOjE3MjYxNDMyOTAsImp0aSI6IjkyYWM0NmQxMWRlOTQzNzhhM2NiYjA0OGYyNjUyYmVhIiwidXNlcl9pZCI6MX0.KpLuNHhjBh7D19Ro-USvYwEMa1suPCJud2a6Isc9A54');
 
         let totalCost = 0;
 
