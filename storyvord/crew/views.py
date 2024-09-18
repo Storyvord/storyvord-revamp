@@ -24,6 +24,24 @@ class CrewProfileView(APIView):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+class OnboardingCrewProfileView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = CrewProfileSerializer
+     
+    def put(self, request, format=None):
+        user = request.user
+        if user.user_type != 'crew':
+            return Response({"detail": "You are not authorized to perform this action."}, status=status.HTTP_403_FORBIDDEN)
+        
+        if user.steps:
+            return Response({"detail": "You have already completed the onboarding steps."}, status=status.HTTP_400_BAD_REQUEST)
+        profile = get_object_or_404(CrewProfile, user=request.user)
+        serializer = CrewProfileSerializer(profile, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 class CrewCreditsListCreateView(APIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = CrewCreditsSerializer
@@ -249,6 +267,32 @@ class CrewPortfolioListCreate(APIView):
             portfolio = serializer.save(crew=crew_profile)
             return Response(CrewPortfolioSerializer(portfolio).data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class OnboardingCrewPortfolioCreate(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = CrewPortfolioCreateSerializer
+
+    def post(self, request):
+        user = request.user
+
+        if user.user_type != 'crew':
+            return Response({"detail": "You are not authorized to perform this action."}, status=status.HTTP_403_FORBIDDEN)
+        
+        if user.steps:
+            return Response({"detail": "You have already completed the onboarding steps."}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            crew_profile = CrewProfile.objects.get(user=request.user)
+        except CrewProfile.DoesNotExist:
+            return Response({"detail": "CrewProfile not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = CrewPortfolioCreateSerializer(data=request.data)
+        if serializer.is_valid():
+            portfolio = serializer.save(crew=crew_profile)
+            user.steps = True
+            user.save()
+            return Response(CrewPortfolioSerializer(portfolio).data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 class CrewPortfolioDetail(APIView):

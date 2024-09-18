@@ -72,6 +72,10 @@ class OnboardAPIView(APIView):
     def put(self, request):
         # Update profile based on logged-in user
         user = request.user
+
+        if user.user_type != 'client':
+            return Response({'error': 'User is not a client'}, status=status.HTTP_400_BAD_REQUEST)
+        
         if user.steps:
             return Response({'error': 'User has already completed the onboarding process'}, status=status.HTTP_400_BAD_REQUEST)
         profile = self.get_object()
