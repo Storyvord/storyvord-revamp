@@ -14,12 +14,14 @@ from channels.auth import AuthMiddlewareStack
 import inbox.routing
 import ai_assistant.routing
 from channels.security.websocket import AllowedHostsOriginValidator
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'storyvord.settings')
+
 import django
 django.setup()
 
 from django.urls import path
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'storyvord.settings')
 django_asgi_app = get_asgi_application()
 
 application = ProtocolTypeRouter({

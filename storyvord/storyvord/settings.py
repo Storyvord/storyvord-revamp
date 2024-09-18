@@ -148,12 +148,12 @@ if PROD:
 else:
     DATABASES = {
         'default': {
-                'ENGINE': 'django.db.backends.postgresql',  #'django.db.backends.mysql',  # or
-                "HOST": "127.0.0.1",
-                'NAME': 'story',
-                'USER': 'postgres',
-                'PASSWORD': 'root',
-                'PORT': '5432' #5432
+              'ENGINE': 'django.db.backends.postgresql',
+                "HOST": os.getenv('LOCAL_DATABASE_HOST'),
+                'NAME': os.getenv('LOCAL_DATABASE_NAME'),
+                'USER': os.getenv('LOCAL_DATABASE_USER'),
+                'PASSWORD': os.getenv('LOCAL_DATABASE_PASSWORD'),
+                'PORT': 5432
             }
     }
 
