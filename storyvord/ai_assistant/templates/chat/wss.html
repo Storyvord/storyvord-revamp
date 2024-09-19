@@ -6,25 +6,118 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Chat</title>
     <style>
-        body { font-family: Arial, sans-serif; }
-        #chat-box { border: 1px solid #ccc; padding: 10px; height: 400px; overflow-y: scroll; margin-bottom: 10px; }
-        .user { color: blue; }
-        .ai { color: green; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            width: 100%;
+            max-width: 500px;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            height: 80vh;
+            overflow: hidden;
+        }
+        #chat-box {
+            padding: 20px;
+            flex: 1;
+            overflow-y: auto;
+            background-color: #ffffff;
+        }
+        .message {
+            margin-bottom: 12px;
+            padding: 12px 16px;
+            border-radius: 20px;
+            max-width: 80%;
+            line-height: 1.5;
+            position: relative;
+            word-break: break-word;
+        }
+        .user {
+            background-color: #e1ffc7;
+            color: #1c7c54;
+            align-self: flex-start;
+            margin-right: auto;
+        }
+        .ai {
+            background-color: #f1f0f0;
+            color: #333;
+            align-self: flex-end;
+            margin-left: auto;
+        }
+        .input-container {
+            display: flex;
+            border-top: 1px solid #ddd;
+            background: #ffffff;
+        }
+        #user-input {
+            border: none;
+            padding: 15px;
+            flex: 1;
+            font-size: 16px;
+            border-bottom-left-radius: 12px;
+            outline: none;
+        }
+        button {
+            padding: 15px 20px;
+            border: none;
+            background-color: #007bff;
+            color: #ffffff;
+            font-size: 16px;
+            border-bottom-right-radius: 12px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #cost-info {
+            padding: 10px 20px;
+            background: #f8f9fa;
+            font-size: 14px;
+            color: #333;
+            border-top: 1px solid #ddd;
+        }
     </style>
 </head>
 <body>
-    <div id="chat-box"></div>
-    <input type="text" id="user-input" placeholder="Type a message..." />
-    <button onclick="sendMessage()">Send</button>
+    <div class="container">
+        <div id="chat-box"></div>
+        <div id="cost-info">Cost: $0.00</div>
+        <div class="input-container">
+            <input type="text" id="user-input" placeholder="Type a message..." />
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
 
     <script>
         const chatBox = document.getElementById('chat-box');
-        const socket = new WebSocket('ws://' + window.location.host + '/ws/chat/' + '?token=' + 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzI2NzQ4MDkwLCJpYXQiOjE3MjYxNDMyOTAsImp0aSI6IjkyYWM0NmQxMWRlOTQzNzhhM2NiYjA0OGYyNjUyYmVhIiwidXNlcl9pZCI6MX0.KpLuNHhjBh7D19Ro-USvYwEMa1suPCJud2a6Isc9A54' );
+        const costInfo = document.getElementById('cost-info');
+        const socket = new WebSocket('wss://' + window.location.host + ':8001/ws/ai_assistant/' + '?token=' + 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzI2NzQ4MDkwLCJpYXQiOjE3MjYxNDMyOTAsImp0aSI6IjkyYWM0NmQxMWRlOTQzNzhhM2NiYjA0OGYyNjUyYmVhIiwidXNlcl9pZCI6MX0.KpLuNHhjBh7D19Ro-USvYwEMa1suPCJud2a6Isc9A54');
+
+        let totalCost = 0;
 
         socket.onmessage = function (e) {
             const data = JSON.parse(e.data);
-            chatBox.innerHTML += `<div class="user">You: ${data?.user_message || ''}</div>`;
-            chatBox.innerHTML += `<div class="ai">AI: ${data?.ai_response || ''}</div>`;
+
+            // Update chat box with messages
+            chatBox.innerHTML += `<div class="message user">You: ${data?.user_message || ''}</div>`;
+            chatBox.innerHTML += `<div class="message ai">${formatAIResponse(data?.ai_response || '')}</div>`;
+            
+            // Update cost info
+            if (data?.cost) {
+                totalCost += data.cost;
+                costInfo.innerHTML = `Cost: $${totalCost.toFixed(5)}`;
+            }
+            
             chatBox.scrollTop = chatBox.scrollHeight;
         };
 
@@ -34,6 +127,16 @@
 
             socket.send(JSON.stringify({ 'message': message }));
             document.getElementById('user-input').value = '';
+        }
+
+        function formatAIResponse(response) {
+            return response
+                .replace(/###/g, '<h3>')
+                .replace(/####/g, '<h4>')
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/- (.*?)(?=\n|$)/g, '<ul><li>$1</li></ul>')
+                .replace(/<\/ul><ul>/g, '')
+                .replace(/\n/g, '<br/>');
         }
     </script>
 </body>

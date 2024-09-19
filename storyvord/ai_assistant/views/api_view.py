@@ -5,6 +5,8 @@ from ai_assistant.models import ChatMessage
 from ai_assistant.serializers import ChatMessageSerializer
 import requests
 import os
+from openai import OpenAI
+client = OpenAI()
 
 OPENAI_API_KEY=os.environ['OPENAI_API_KEY'] 
 
@@ -22,15 +24,19 @@ class ChatAPIView(APIView):
         }
         print(data)
         try:
-            response = requests.post(
-                'https://api.openai.com/v1/chat/completions',
-                headers={'Authorization': f'Bearer {OPENAI_API_KEY}'},
-                json=data,
-                timeout=1
+            completion = client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[
+                    {"role": "system", "content": "I need you to act as a line producer with expertise in local locations, compliance issues, and cultural nuances. You have a strong understanding of the risks involved in film production, especially related to location-specific factors. You are also skilled in budgeting for films, including compliance costs, and creating detailed itineraries to ensure compliance. Your knowledge covers locations worldwide, from big cities to small towns in every country. Given this expertise, provide advice using critical thinking based on further details I will provide, such as crew size, equipment (like cameras), and the type of shoot (indoor, outdoor, corporate, or blog). Offer two options when appropriate. Your response should include a comprehensive overview, and feel free to ask questions to better understand my production needs."},
+                    {
+                        "role": "user",
+                        "content": user_message
+                    }
+                ]
             )
-            if response.status_code != 200:
-                return Response({'error': 'Error connecting to OpenAI API'}, status=response.status_code)
-            ai_response = response.json()['choices'][0]['message']['content']
+            
+            ai_response = completion.choices[0].message
+            
         except requests.Timeout:
             return Response({'error': 'Timed out when calling the OpenAI API'}, status=status.HTTP_408_REQUEST_TIMEOUT)
         except requests.HTTPError as e:
@@ -40,7 +46,7 @@ class ChatAPIView(APIView):
                 return Response({'error': 'Something went wrong when calling the OpenAI API'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         # Save the chat message
-        chat_message = ChatMessage.objects.create(user_message=user_message, ai_response=ai_response)
+        chat_message = ChatMessage.objects.create(user_message=user_message, ai_response=ai_response.content)
         serializer = ChatMessageSerializer(chat_message)
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)

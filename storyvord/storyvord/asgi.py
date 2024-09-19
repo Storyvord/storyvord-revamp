@@ -8,28 +8,27 @@ https://docs.djangoproject.com/en/4.1/howto/deployment/asgi/
 """
 
 import os
-from django.core.asgi import get_asgi_application
-from channels.routing import ProtocolTypeRouter, URLRouter
-from channels.auth import AuthMiddlewareStack
-from inbox import routing
-import ai_assistant.routing
-from channels.security.websocket import AllowedHostsOriginValidator
-import django
-django.setup()
 
-from django.urls import path
-from ai_assistant.consumers import ChatConsumer
+from django.core.asgi import get_asgi_application
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'storyvord.settings')
 django_asgi_app = get_asgi_application()
 
+from channels.routing import ProtocolTypeRouter, URLRouter
+from channels.auth import AuthMiddlewareStack
+import inbox.routing
+import ai_assistant.routing
+from channels.security.websocket import AllowedHostsOriginValidator
+
+import django
+django.setup()
 application = ProtocolTypeRouter({
     "http": get_asgi_application(),
-    "websocket": AuthMiddlewareStack(
+    "websocket": AllowedHostsOriginValidator(
+        AuthMiddlewareStack(
         URLRouter(
-            [
-                path("ws/chat/", ChatConsumer.as_asgi()),
-            ]
+                inbox.routing.websocket_urlpatterns + ai_assistant.routing.websocket_urlpatterns
         )
     ),
+    )
 })
