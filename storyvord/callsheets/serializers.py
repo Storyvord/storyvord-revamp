@@ -10,17 +10,17 @@ class EventSerializer(serializers.ModelSerializer):
         fields = '__all__'
         extra_kwargs = {'call_sheet': {'required': False}}
 
-class ScenesSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Scenes
-        fields = '__all__'
-        extra_kwargs = {'call_sheet': {'required': False}}
+# class ScenesSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Scenes
+#         fields = '__all__'
+#         extra_kwargs = {'call_sheet': {'required': False}}
 
-class CharactersSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Characters
-        fields = '__all__'
-        extra_kwargs = {'call_sheet': {'required': False}}
+# class CharactersSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Characters
+#         fields = '__all__'
+#         extra_kwargs = {'call_sheet': {'required': False}}
 
 class ExtrasSerializer(serializers.ModelSerializer):
     class Meta:
@@ -42,8 +42,8 @@ class WeatherSerializer(serializers.ModelSerializer):
 
 class CallSheetSerializer(serializers.ModelSerializer):
     events = EventSerializer(many=True, required=False)
-    scenes = ScenesSerializer(many=True, required=False)
-    characters = CharactersSerializer(many=True, required=False)
+    # scenes = ScenesSerializer(many=True, required=False)
+    # characters = CharactersSerializer(many=True, required=False)
     extras = ExtrasSerializer(many=True, required=False)
     department_instructions = DepartmentInstructionsSerializer(many=True, required=False)
     weather = WeatherSerializer(many=True, required=False)
@@ -55,8 +55,8 @@ class CallSheetSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         ret = super().to_representation(instance)
         ret['events'] = EventSerializer(instance.events.all(), many=True).data
-        ret['scenes'] = ScenesSerializer(instance.scenes.all(), many=True).data
-        ret['characters'] = CharactersSerializer(instance.characters.all(), many=True).data
+        # ret['scenes'] = ScenesSerializer(instance.scenes.all(), many=True).data
+        # ret['characters'] = CharactersSerializer(instance.characters.all(), many=True).data
         ret['extras'] = ExtrasSerializer(instance.extras.all(), many=True).data
         ret['department_instructions'] = DepartmentInstructionsSerializer(instance.department_instructions.all(), many=True).data
         ret['weather'] = WeatherSerializer(instance.weather.all(), many=True).data
@@ -64,8 +64,8 @@ class CallSheetSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         events_data = validated_data.pop('events', [])
-        scenes_data = validated_data.pop('scenes', [])
-        characters_data = validated_data.pop('characters', [])
+        # scenes_data = validated_data.pop('scenes', [])
+        # characters_data = validated_data.pop('characters', [])
         extras_data = validated_data.pop('extras', [])
         department_instructions_data = validated_data.pop('department_instructions', [])
 
@@ -108,10 +108,10 @@ class CallSheetSerializer(serializers.ModelSerializer):
 
         for event_data in events_data:
             Event.objects.create(call_sheet=call_sheet, **event_data)
-        for scene_data in scenes_data:
-            Scenes.objects.create(call_sheet=call_sheet, **scene_data)
-        for character_data in characters_data:
-            Characters.objects.create(call_sheet=call_sheet, **character_data)
+        # for scene_data in scenes_data:
+        #     Scenes.objects.create(call_sheet=call_sheet, **scene_data)
+        # for character_data in characters_data:
+        #     Characters.objects.create(call_sheet=call_sheet, **character_data)
         for extra_data in extras_data:
             Extras.objects.create(call_sheet=call_sheet, **extra_data)
         for instruction_data in department_instructions_data:
@@ -127,8 +127,8 @@ class CallSheetSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         events_data = validated_data.pop('events', [])
-        scenes_data = validated_data.pop('scenes', [])
-        characters_data = validated_data.pop('characters', [])
+        # scenes_data = validated_data.pop('scenes', [])
+        # characters_data = validated_data.pop('characters', [])
         extras_data = validated_data.pop('extras', [])
         department_instructions_data = validated_data.pop('department_instructions', [])
         weather_data = validated_data.pop('weather', [])
@@ -140,8 +140,8 @@ class CallSheetSerializer(serializers.ModelSerializer):
 
         # Update or create related models
         self.update_related_models(Event, events_data, instance)
-        self.update_related_models(Scenes, scenes_data, instance)
-        self.update_related_models(Characters, characters_data, instance)
+        # self.update_related_models(Scenes, scenes_data, instance)
+        # self.update_related_models(Characters, characters_data, instance)
         self.update_related_models(Extras, extras_data, instance)
         self.update_related_models(DepartmentInstructions, department_instructions_data, instance)
         self.update_related_models(Weather, weather_data, instance)

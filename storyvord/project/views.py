@@ -16,6 +16,10 @@ class ProjectOnboardView(APIView):
 
     def post(self, request):
         user = request.user
+        
+        if user.user_type != 'client':
+            return Response({'error': 'Only clients can create projects'}, status=status.HTTP_400_BAD_REQUEST)
+        
         if user.steps:
             return Response({'error': 'User has already completed the onboarding process'}, status=status.HTTP_400_BAD_REQUEST)
         serializer = ProjectSerializer(data=request.data)

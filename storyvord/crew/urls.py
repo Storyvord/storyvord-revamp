@@ -3,6 +3,9 @@ from .views import *
 
 urlpatterns = [
     path('crew-profile/', CrewProfileView.as_view(), name='crew-profile'),
+
+    path('crew-onboarding/profile/', OnboardingCrewProfileView.as_view(), name='crew-onboarding'),
+    path('crew-onboarding/portfolio/', OnboardingCrewPortfolioCreate.as_view(), name='crew-onboarding'),
     
     # Crew Credits CRUD api
     path('crew-credits/', CrewCreditsListCreateView.as_view(), name='crew-credits-list-create'),
