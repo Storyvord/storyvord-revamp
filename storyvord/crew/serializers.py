@@ -98,7 +98,7 @@ class ProjectSerializer(serializers.ModelSerializer):
         fields = [
             'project_id', 'name', 'brief', 'additional_details',
             'budget_currency', 'budget_amount', 'content_type',
-            'selected_crew', 'equipment', 'uploaded_document',
+            'selected_crew', 'equipment', 'documents',
             'location_details', 'status', 'created_at', 'updated_at'
         ]
         
