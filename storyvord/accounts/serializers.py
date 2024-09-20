@@ -1,10 +1,15 @@
 # # # accounts/serializers.py
 from rest_framework import serializers
-
+from rest_framework import status
 from client.models import ClientProfile
 from crew.models import CrewProfile
 from .models import User
 from django.contrib.auth import authenticate
+
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -14,11 +19,11 @@ class RegisterSerializer(serializers.ModelSerializer):
         fields = ('email', 'password')
 
     def create(self, validated_data):
-        user = User.objects.create_user(
-            email=validated_data['email'],
-            password=validated_data['password']
-        )
-        return user
+        User.objects.create_user(**validated_data)
+        return({
+            "status": status.HTTP_201_CREATED,
+            "message": "User created successfully",
+        })
 
 class RegisterNewSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)

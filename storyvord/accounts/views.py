@@ -6,6 +6,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
 from django.http import JsonResponse
+import logging
 
 
 from client.models import ClientProfile
@@ -23,53 +24,39 @@ class RegisterView(APIView):
     serializer_class = RegisterSerializer
 
     def post(self, request, *args, **kwargs):
+        print(request.data)
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         try:
             user = serializer.save()
-            # Generate a JSON Web Token to verify the user
             token = get_tokens_for_user(user)['access']
             user_data = serializer.data
             user = User.objects.get(email=user_data['email'])
-            # Save the user steps as '1'
             user.steps = '1'
             user.save()
-            
-            # # Generate the verification email link
-            # absurl = f"{settings.SITE_URL}/api/accounts/email-verify/?token={token}"
-            
-            absurl = ''
-            if settings.PROD:
-                absurl = f"http://api-story.storyvord.com/api/accounts/email-verify/?token={str(token)}"
-            else:
-                absurl = f"http://127.0.0.1:8000/api/accounts/email-verify/?token={str(token)}"
-            
-            # Render the verification email template
-            email_body = render_to_string(
-                'email/verification.html', {'user': user.email, 'absurl': absurl}
-            )
-            # Create the verification email
             email = EmailMessage(
                 subject="Activate your account",
-                body=email_body,
+                body=render_to_string(
+                    'email/verification.html', {'user': user.email, 'absurl': f"{settings.SITE_URL}accounts/email-verify/?token={str(token)}"}
+                ),
                 from_email=settings.DEFAULT_FROM_EMAIL,
                 to=[user.email],
             )
-            # Specify the email content subtype as 'html'
             email.content_subtype = "html"
-            # Use the EmailThread to send the email
             EmailThread(email).start()
-            print("Email Sended Successfully")
             return Response({
                 "status": status.HTTP_201_CREATED,
                 "message": "User created successfully",
                 "data": serializer.data,
-                "token": token,
+                "access_token": token,
             }, status=status.HTTP_201_CREATED)
-            
         except Exception as e:
-            print(e)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            logging.error(e)
+            return Response({
+                "status": status.HTTP_400_BAD_REQUEST,
+                "message": "Something went wrong",
+                "data": serializer.errors
+                }, status=status.HTTP_400_BAD_REQUEST)
     
 class RegisterNewView(APIView):
     serializer_class = RegisterNewSerializer

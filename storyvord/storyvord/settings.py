@@ -4,6 +4,8 @@ import environ
 from datetime import timedelta
 import os
 from dotenv import load_dotenv
+import logging
+from utils.env_utils import get_bool_env_var
 
 load_dotenv()
 
@@ -21,7 +23,13 @@ GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
 # SECURITY WARNING: don't run with debug turned on in production!
 
 DEBUG = True
-PROD = True
+PROD = get_bool_env_var('PROD')
+if PROD:
+    logging.info("Running on PROD")
+    DEBUG = False
+else:
+    logging.info("Running on DEV")
+    DEBUG = True
 ALLOWED_HOSTS = ['*']
 CSRF_TRUSTED_ORIGINS = ['https://storyvord-back-end-d432tn3msq-uc.a.run.app']
 INSTALLED_APPS = [
