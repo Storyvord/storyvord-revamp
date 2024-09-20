@@ -44,6 +44,13 @@ class SelectEquipment(models.Model):
     def __srt__(self):
         return self.title
 
+class Document(models.Model):
+    document = models.FileField(upload_to='documents/', null=True, blank=True)
+    
+    def __str__(self):
+        return self.document.name
+    
+
 class Project(models.Model):
     
     project_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -56,7 +63,7 @@ class Project(models.Model):
     content_type = models.CharField(max_length=256)
     selected_crew = models.ManyToManyField(SelectCrew, related_name='SelectCrew')
     equipment = models.ManyToManyField(SelectEquipment, related_name='SelectEquipment')
-    uploaded_document = models.FileField(upload_to='uploaded_documents/', blank=True, null=True)
+    documents = models.ManyToManyField(Document, related_name='uploaded_documents')
     location_details = models.ManyToManyField(LocationDetail, related_name='projects')
     status = models.CharField(
         max_length=30, choices=StatusChoices.choices, default=StatusChoices.PLANNING

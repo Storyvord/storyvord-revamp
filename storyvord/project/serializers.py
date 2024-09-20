@@ -27,11 +27,21 @@ class SelectEquipmentSerializer(serializers.ModelSerializer):
         model = SelectEquipment
         fields = '__all__'
 
+class DocumentSerializer(serializers.ModelSerializer):
+    document = Base64FileField(required=False, allow_null=True)
+    
+    class Meta:
+        model = Document
+        fields = '__all__'
+
 class ProjectSerializer(serializers.ModelSerializer):
     location_details = LocationDetailSerializer(many=True)
     selected_crew = SelectCrewSerializer(many=True)
     equipment = SelectEquipmentSerializer(many=True)
-    uploaded_document = Base64FileField(required=False, allow_null=True)
+    # document = Base64FileField(required=False, allow_null=True)
+    documents = DocumentSerializer(many=True)
+
+
 
     class Meta:
         model = Project
@@ -41,6 +51,7 @@ class ProjectSerializer(serializers.ModelSerializer):
         location_details_data = validated_data.pop('location_details')
         selected_crew_data = validated_data.pop('selected_crew')
         equipment_data = validated_data.pop('equipment')
+        documents_data = validated_data.pop('documents')
         
         project = Project.objects.create(**validated_data)
         
@@ -55,7 +66,11 @@ class ProjectSerializer(serializers.ModelSerializer):
         for equipment_data in equipment_data:
             equipment, created = SelectEquipment.objects.get_or_create(**equipment_data)
             project.equipment.add(equipment)
-        
+
+        for document_data in documents_data:
+            document, created = Document.objects.get_or_create(**document_data)
+            project.documents.add(document)
+
         return project
 
     def update(self, instance, validated_data):
