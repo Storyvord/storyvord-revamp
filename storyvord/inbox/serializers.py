@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from accounts.models import User
-from .models import DialogsModel, MessageModel
+from .models import DialogsModel, InboxGroup, InboxMessage, MessageModel
 
 from rest_framework import serializers
 from .models import MessageModel
@@ -94,3 +94,71 @@ class MessageSerializer(serializers.ModelSerializer):
 
         return representation
 
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'email']
+
+# class GroupSerializer(serializers.ModelSerializer):
+#     members = UserSerializer(many=True, read_only=True)
+#     admin = UserSerializer(read_only=True)
+
+#     class Meta:
+#         model = InboxGroup
+#         fields = ['id', 'name', 'admin', 'members']
+        
+class GroupSerializer(serializers.ModelSerializer):
+    members = serializers.SerializerMethodField()  # Use SerializerMethodField to apply custom logic
+    admin = UserProfileSerializer(read_only=True, context={'request': None})
+
+    class Meta:
+        model = InboxGroup
+        fields = ['id', 'name', 'admin', 'members']
+
+    def get_members(self, obj):
+        """
+        Custom method to serialize the members field with UserProfileSerializer, passing the request context.
+        """
+        request = self.context.get('request')  # Get the request from context
+        # Serialize members using UserProfileSerializer with the request context
+        return UserProfileSerializer(
+            obj.members.all(),  # ManyToMany field, get all members
+            many=True,  # It's a list of users
+            context={'request': request}  # Pass the request context for `you` field in UserProfileSerializer
+        ).data
+
+    def to_representation(self, instance):
+        """
+        Override this method to pass request context to the admin field.
+        """
+        representation = super().to_representation(instance)
+        request = self.context.get('request')
+
+        # Update the context to pass the `request` to UserProfileSerializer for admin
+        representation['admin'] = UserProfileSerializer(
+            instance.admin, context={'request': request}
+        ).data
+
+        return representation
+
+class GroupMessageSerializer(serializers.ModelSerializer):
+    sender = UserProfileSerializer(read_only=True, context={'request': None})
+    group = GroupSerializer()
+
+    class Meta:
+        model = InboxMessage
+        fields = ['id', 'group', 'sender', 'message', 'timestamp']
+        
+    def to_representation(self, instance):
+        """
+        Override this method to pass request context to the UserProfileSerializer.
+        """
+        representation = super().to_representation(instance)
+        request = self.context.get('request')
+
+        # Update the context to pass the `request` to UserProfileSerializer
+        representation['sender'] = UserProfileSerializer(
+            instance.sender, context={'request': request}
+        ).data
+
+        return representation

@@ -89,3 +89,21 @@ class MessageModel(TimeStampedModel, SoftDeletableModel):
         ordering = ('-created',)
         verbose_name = _("Message")
         verbose_name_plural = _("Messages")
+        
+    
+class InboxGroup(models.Model):
+    name = models.CharField(max_length=255)
+    admin = models.ForeignKey(User, on_delete=models.CASCADE, related_name='inbox_admin_groups')
+    members = models.ManyToManyField(User, related_name='inbox_groups')
+
+    def __str__(self):
+        return self.name
+
+class InboxMessage(models.Model):
+    group = models.ForeignKey(InboxGroup, on_delete=models.CASCADE, related_name='inbox_messages')
+    sender = models.ForeignKey(User, on_delete=models.CASCADE)
+    message = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.sender}: {self.message[:50]}"
