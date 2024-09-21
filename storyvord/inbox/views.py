@@ -142,6 +142,6 @@ class MessageListCreateAPIView(APIView):
             return Response({'error': 'You are not a member of this group.'}, status=status.HTTP_403_FORBIDDEN)
 
         content = request.data.get('content')
-        message = InboxMessage.objects.create(group=group, sender=request.user, content=content)
+        message = InboxMessage.objects.create(group=group, sender=request.user, message=content)
         serializer = GroupMessageSerializer(message)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
