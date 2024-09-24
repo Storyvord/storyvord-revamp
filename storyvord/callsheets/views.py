@@ -8,12 +8,13 @@ from project.models import Project
 import requests
 from django.http import JsonResponse
 from django.conf import settings
+from client.models import ClientProfile
 
 class CallSheetListAPIView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, project_id):
-        callsheets = CallSheet.objects.filter(project=project_id)
+        callsheets = CallSheet.objects.filter(project=project_id, allowed_users=request.user)
         serializer = CallSheetSerializer(callsheets, many=True)
         return Response(serializer.data)
 
@@ -33,6 +34,8 @@ class CallSheetDetailAPIView(APIView):
 
     def get(self, request, pk):
         call_sheet = get_object_or_404(CallSheet, pk=pk)
+        if request.user not in call_sheet.allowed_users.all():
+            return Response({'error': 'You do not have permission to view this call sheet.'}, status=status.HTTP_403_FORBIDDEN)
         serializer = CallSheetSerializer(call_sheet)
         return Response(serializer.data)
 

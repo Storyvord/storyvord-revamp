@@ -13,6 +13,10 @@ class CallSheet(models.Model):
     nearest_fire_station = models.CharField(max_length=255, blank=True)
     additional_notes = models.TextField(blank=True, null=True)
     production_notes = models.TextField(blank=True, null=True)
+    breakfast = models.TimeField(null=True, blank=True)
+    lunch = models.TimeField(null=True, blank=True)
+    dinner = models.TimeField(null=True, blank=True)
+    allowed_users = models.ManyToManyField('accounts.User', related_name='callsheets', blank=True)
 
     def __str__(self):
         return self.title
@@ -90,6 +94,8 @@ class Weather(models.Model):
     call_sheet = models.ForeignKey(CallSheet, on_delete=models.CASCADE, related_name='weather')
     temperature = models.IntegerField()
     conditions = models.CharField(max_length=255)
+    sunrise = models.TimeField(null=True, blank=True)
+    sunset = models.TimeField(null=True, blank=True)
 
     def __str__(self):
         return f"{self.temperature}°C - {self.conditions}"
