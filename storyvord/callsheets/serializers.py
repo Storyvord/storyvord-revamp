@@ -3,6 +3,8 @@ from .models import *
 import requests
 from django.conf import settings
 from datetime import datetime, timedelta
+from client.models import ClientProfile
+from rest_framework.response import Response
 
 class EventSerializer(serializers.ModelSerializer):
     class Meta:
@@ -77,6 +79,7 @@ class CallSheetSerializer(serializers.ModelSerializer):
         # characters_data = validated_data.pop('characters', [])
         # extras_data = validated_data.pop('extras', [])
         # department_instructions_data = validated_data.pop('department_instructions', [])
+        allowed_users = validated_data.pop('allowed_users', [])
 
         location = validated_data.get('location')
 
@@ -109,9 +112,25 @@ class CallSheetSerializer(serializers.ModelSerializer):
             forecast = weather_data['forecast']['forecastday'][0]['day']
             temperature = forecast.get('avgtemp_c', 0)
             conditions = forecast['condition']['text']
+    
+            # Extract astro data for sunrise and sunset
+            astro = weather_data['forecast']['forecastday'][0]['astro']
+            sunrise_str = astro.get('sunrise', "Unknown")
+            sunset_str = astro.get('sunset', "Unknown")
+    
+            # Convert sunrise and sunset strings to time objects
+            try:
+                sunrise = datetime.strptime(sunrise_str, '%I:%M %p').time() if sunrise_str != "Unknown" else None
+                sunset = datetime.strptime(sunset_str, '%I:%M %p').time() if sunset_str != "Unknown" else None
+            except ValueError:
+                sunrise = None
+                sunset = None
         else:
             temperature = 0
             conditions = "Weather data unavailable"
+            sunrise = None
+            sunset = None
+
 
         call_sheet = CallSheet.objects.create(**validated_data)
 
@@ -132,8 +151,14 @@ class CallSheetSerializer(serializers.ModelSerializer):
         Weather.objects.create(
             call_sheet=call_sheet,
             temperature=temperature,
-            conditions=conditions
+            conditions=conditions,
+            sunrise=sunrise,
+            sunset=sunset
         )
+
+        # Make the client the default user for the call sheet
+        call_sheet.allowed_users.add(call_sheet.project.user)
+
 
         return call_sheet
 
@@ -145,6 +170,30 @@ class CallSheetSerializer(serializers.ModelSerializer):
         # extras_data = validated_data.pop('extras', [])
         # department_instructions_data = validated_data.pop('department_instructions', [])
         weather_data = validated_data.pop('weather', [])
+        allowed_users = validated_data.pop('allowed_users', [])
+
+        # View permission check
+        # for user in allowed_users:
+        #     client = instance.project.user
+        #     user_is_crew = instance.project.crew_profiles.filter(id=user.id).exists()
+    
+        #    # Fetch the ClientProfile for the client user
+        #     if client.user_type == 'client':
+        #         client_profile = ClientProfile.objects.get(user=client.id)
+
+        #         Check if the user is in the employee_profile (ManyToManyField)
+        #         user_is_employee = client_profile.employee_profile.filter(id=user.id).exists()
+    
+        #     if not user_is_crew or not user_is_employee or user != client:
+        #     if not user_is_crew or user != client:
+        #         raise serializers.ValidationError({'error': 'User is not part of the emplyee, crew or client.'})
+
+        # If all users are permitted, add them to allowed_users
+        # for user in allowed_users:
+            # instance.allowed_users.add(user)
+
+        instance.allowed_users.set(allowed_users)
+
 
         # Update CallSheet instance
         for attr, value in validated_data.items():
