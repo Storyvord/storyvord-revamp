@@ -193,6 +193,7 @@ class CallSheetSerializer(serializers.ModelSerializer):
             # instance.allowed_users.add(user)
 
         instance.allowed_users.set(allowed_users)
+        instance.allowed_users.add(instance.project.user)
 
 
         # Update CallSheet instance
