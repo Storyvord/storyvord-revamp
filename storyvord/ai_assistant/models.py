@@ -9,6 +9,7 @@ class ChatSession(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
 class ChatMessage(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='chat_messages', null=True, blank=True)
     session = models.ForeignKey(ChatSession, related_name='messages', on_delete=models.CASCADE, null=True, blank=True)
     user_message = models.TextField()
     ai_response = models.TextField()

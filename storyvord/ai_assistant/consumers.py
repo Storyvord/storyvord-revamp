@@ -23,8 +23,10 @@ User = get_user_model()
 
 class AIChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        # Extract token from the query string
-        token = self.scope['query_string'].decode().split('=')[-1]
+        # Extract query string parameters (token and session_id)
+        query_params = dict(qc.split("=") for qc in self.scope['query_string'].decode().split("&"))
+        token = query_params.get('token')
+        session_id = query_params.get('session_id')
         
         # Validate and authenticate user
         try:
@@ -39,9 +41,17 @@ class AIChatConsumer(AsyncWebsocketConsumer):
         if not self.scope['user'].is_authenticated:
             await self.close()
         else:
-            self.session_id = str(uuid.uuid4())  # Create a unique session ID
-            await self.create_chat_session(self.scope['user'], self.session_id)
-            await self.accept()  # Accept the connection if authenticated
+            # Use provided session ID if it exists, otherwise generate a new one
+            self.session_id = session_id if session_id else str(uuid.uuid4())
+
+            # Check for existing session or create a new one
+            try:
+                await self.create_chat_session(self.scope['user'], self.session_id)
+            except ValueError as e:
+                await self.close()  # Close the connection if there's a session conflict
+                return
+
+            await self.accept()  # Accept the connection if authenticated and session created successfully
      
     async def disconnect(self, close_code):
         logger.info(f"WebSocket disconnected with code: {close_code}")    
@@ -154,12 +164,20 @@ class AIChatConsumer(AsyncWebsocketConsumer):
 
     @database_sync_to_async
     def create_chat_session(self, user, session_id):
-        ChatSession.objects.create(user=user, session_id=session_id)
+         # Check if the session already exists
+        session, created = ChatSession.objects.get_or_create(
+            session_id=session_id,
+            defaults={'user': user}  # Only set user if a new session is created
+        )
+            # If the session already exists and belongs to a different user, handle this case
+        if not created and session.user != user:
+            raise ValueError("Session ID is already in use by a different user.")
 
     @database_sync_to_async
     def save_chat_message(self, session_id, user_message, ai_response, embedding):
         session = ChatSession.objects.get(session_id=session_id)
         ChatMessage.objects.create(
+            user=self.scope['user'],
             session=session, 
             user_message=user_message, 
             ai_response=ai_response,
