@@ -243,7 +243,7 @@ class UserProfileSerializer(serializers.Serializer):
     profile = serializers.SerializerMethodField()
 
     def get_profile(self, obj):
-        user = obj  # 'obj' is the User instance
+        user = obj.get('user')  # 'obj' is the User instance
         if user.user_type == 'client':
             profile = ClientProfile.objects.filter(user=user).first()
             serializer = ClientProfileSerializer(profile)
