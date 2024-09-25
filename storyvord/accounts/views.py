@@ -40,7 +40,7 @@ class RegisterView(APIView):
             
             absurl = ''
             if settings.PROD:
-                absurl = f"http://api-story.storyvord.com/api/accounts/email-verify/?token={str(token)}"
+                absurl = f"http://api-stage.storyvord.com/api/accounts/email-verify/?token={str(token)}"
             else:
                 absurl = f"http://127.0.0.1:8000/api/accounts/email-verify/?token={str(token)}"
             
@@ -88,7 +88,7 @@ class RegisterNewView(APIView):
             
             absurl = ''
             if settings.PROD:
-                absurl = f"http://api-story.storyvord.com/api/accounts/email-verify/?token={str(token)}"
+                absurl = f"http://api-stage.storyvord.com/api/accounts/email-verify/?token={str(token)}"
             else:
                 absurl = f"http://127.0.0.1:8000/api/accounts/email-verify/?token={str(token)}"
                 
@@ -123,7 +123,7 @@ class LoginView(APIView):
                 token = RefreshToken.for_user(user).access_token
                 absurl = ''
                 if settings.PROD:
-                    absurl = f"http://api-story.storyvord.com/api/accounts/email-verify/?token={str(token)}"
+                    absurl = f"http://api-stage.storyvord.com/api/accounts/email-verify/?token={str(token)}"
                 else:
                     absurl = f"http://127.0.0.1:8000/api/accounts/email-verify/?token={str(token)}"
                     
