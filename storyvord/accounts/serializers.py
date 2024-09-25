@@ -253,3 +253,8 @@ class UserProfileSerializer(serializers.Serializer):
         else:
             return None
         return serializer.data
+    
+class MeUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['user_type', 'id', 'email']

@@ -6,6 +6,7 @@ urlpatterns = [
     path('old-register/', RegisterNewView.as_view(), name='register'),
     path('login/', LoginView.as_view(), name='login'),
     path('profile/', UserProfileView.as_view(), name='user-profile'),
+    path('api/user/me/', AuthUserDetailView.as_view(), name='auth-user-detail'),
     
     # password reset
     path('request-reset-password/', RequestPasswordResetEmailAPIView.as_view(), name="request-reset-password"),

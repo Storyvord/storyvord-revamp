@@ -10,7 +10,7 @@ from django.http import JsonResponse
 
 from client.models import ClientProfile
 from crew.models import CrewProfile
-from .serializers import ClientProfileSerializer, CrewProfileSerializer, EmailVerificationSerializer, RegisterNewSerializer, RegisterSerializer, LoginSerializer, ResetPasswordEmailRequestSerializer, SetNewPasswordSerializer, UserChangePasswordSerializer, UserProfileSerializer, UserSerializer
+from .serializers import ClientProfileSerializer, CrewProfileSerializer, EmailVerificationSerializer, MeUserSerializer, RegisterNewSerializer, RegisterSerializer, LoginSerializer, ResetPasswordEmailRequestSerializer, SetNewPasswordSerializer, UserChangePasswordSerializer, UserProfileSerializer, UserSerializer
 
 def get_tokens_for_user(user):
   refresh_token = RefreshToken.for_user(user)
@@ -439,3 +439,16 @@ def google_custom_login_redirect(request):
         return JsonResponse(response_data)
 
     return JsonResponse({'error': 'Authentication failed'}, status=401)
+
+
+class AuthUserDetailView(APIView):
+    # Ensure that only authenticated users can access this API
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        # Get the authenticated user
+        user = request.user
+
+        # Serialize the authenticated user's data
+        serializer = MeUserSerializer(user)
+        return Response(serializer.data, status=200)
