@@ -57,6 +57,9 @@ INSTALLED_APPS = [
     'inbox',
     'ai_assistant',
     'chat',
+    'storyvord_admin',
+
+    # All auth
     'allauth',
     'allauth.account',
     'allauth.socialaccount',

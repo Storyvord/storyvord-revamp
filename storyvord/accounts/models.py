@@ -36,6 +36,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         ('crew', 'Crew'),
         ('vendor', 'Vendor'),
         ('internal', 'Internal Team'),
+        ('superuser', 'Super User'),
     ]
     email = models.EmailField(max_length=255,unique=True, db_index=True)
     is_active = models.BooleanField(default=True)
