@@ -1,6 +1,7 @@
 # callsheets/models.py
 from django.db import models
 from project.models import Project
+from crew.models import CrewProfile
 
 class CallSheet(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
@@ -31,12 +32,14 @@ class Event(models.Model):
 
 class CallTime(models.Model):
     call_sheet = models.ForeignKey(CallSheet, on_delete=models.CASCADE, related_name='call_time')
-    name = models.CharField(max_length=255)
-    position = models.CharField(max_length=255)
+    # name = models.CharField(max_length=255)
+    position = models.CharField(max_length=255, null=True, blank=True)
     calltime = models.TimeField()
-    email = models.EmailField()
-    phone = models.CharField(max_length=255)
+    # email = models.EmailField()
+    # phone = models.CharField(max_length=255)
     remarks = models.TextField(blank=True, null=True)
+    crew_profile = models.ForeignKey(CrewProfile, on_delete=models.CASCADE, related_name='call_times', blank=True, null=True)
+
     
     def __str__(self):
         return self.name

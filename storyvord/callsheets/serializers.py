@@ -5,6 +5,7 @@ from django.conf import settings
 from datetime import datetime, timedelta
 from client.models import ClientProfile
 from rest_framework.response import Response
+from accounts.models import User
 
 class EventSerializer(serializers.ModelSerializer):
     class Meta:
@@ -35,8 +36,21 @@ class EventSerializer(serializers.ModelSerializer):
 #         model = DepartmentInstructions
 #         fields = '__all__'
 #         extra_kwargs = {'call_sheet': {'required': False}}
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['email']
+
+class CrewProfileSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)  # Include the user details in the crew profile
+
+    class Meta:
+        model = CrewProfile
+        fields = 'id, name, phone, email'
 
 class CallTimeSerializer(serializers.ModelSerializer):
+    # crew_profile = CrewProfileSerializer(read_only=True)
+
     class Meta:
         model = CallTime
         fields = '__all__'
