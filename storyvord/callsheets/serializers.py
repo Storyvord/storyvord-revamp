@@ -46,10 +46,10 @@ class CrewProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CrewProfile
-        fields = 'id, name, phone, email'
+        fields = ['id', 'name', 'phone', 'user']
 
 class CallTimeSerializer(serializers.ModelSerializer):
-    # crew_profile = CrewProfileSerializer(read_only=True)
+    crew_profile = CrewProfileSerializer() 
 
     class Meta:
         model = CallTime

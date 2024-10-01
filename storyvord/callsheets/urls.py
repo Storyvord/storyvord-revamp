@@ -11,4 +11,6 @@ urlpatterns = [
     path('geolocation/nearest-places/', GeoapifyNearestPlaceView.as_view(), name='nearest-list'),
     path('weather/current/', WeatherCurrentInfoView.as_view(), name='weather-info'),
     path('weather/future/', WeatherFutureInfoView.as_view(), name='weather-info'),
+    
+    path('crew-details/<int:pk>/', CallSheetCrewDetails.as_view(), name='crew-details'),
 ]

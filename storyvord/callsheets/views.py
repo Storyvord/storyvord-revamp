@@ -3,12 +3,13 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
 from .models import CallSheet
-from .serializers import CallSheetSerializer
+from .serializers import *
 from project.models import Project
 import requests
 from django.http import JsonResponse
 from django.conf import settings
 from client.models import ClientProfile
+from crew.models import CrewProfile
 
 class CallSheetListAPIView(APIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -51,6 +52,15 @@ class CallSheetDetailAPIView(APIView):
         call_sheet = get_object_or_404(CallSheet, pk=pk)
         call_sheet.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+        
+class CallSheetCrewDetails(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, pk):
+        crew_profile = get_object_or_404(CrewProfile, pk=pk)
+        serializer = CrewProfileSerializer(crew_profile)
+        return Response(serializer.data)
 
         
 # https://www.geoapify.com/tutorial/geocoding-python/
