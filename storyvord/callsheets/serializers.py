@@ -49,7 +49,9 @@ class CrewProfileSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'phone', 'user']
 
 class CallTimeSerializer(serializers.ModelSerializer):
-    crew_profile = CrewProfileSerializer() 
+    crew_profile = serializers.PrimaryKeyRelatedField(queryset=CrewProfile.objects.all(), required=False)
+    crew_profile_details = CrewProfileSerializer(source='crew_profile', read_only=True)
+ 
 
     class Meta:
         model = CallTime
