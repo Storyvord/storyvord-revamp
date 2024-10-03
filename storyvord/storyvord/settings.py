@@ -4,6 +4,7 @@ import environ
 from datetime import timedelta
 import os
 from dotenv import load_dotenv
+from logging.handlers import RotatingFileHandler
 
 load_dotenv()
 
@@ -116,6 +117,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'allauth.account.middleware.AccountMiddleware',
+    'storyvord.logging_middleware.RequestResponseLoggingMiddleware',
 ]
 CORS_ALLOW_ALL_ORIGINS = True
 ROOT_URLCONF = 'storyvord.urls'
@@ -271,3 +273,99 @@ SOCIALACCOUNT_FORMS = {
 
 # Disable the default behavior of logging in the user immediately after the social account is connected
 SOCIALACCOUNT_LOGIN_ON_GET = True
+
+
+
+# Logging Configuration settings
+# Set up the log directory path
+LOG_DIR = os.path.join(BASE_DIR, 'logs')
+if not os.path.exists(LOG_DIR):
+    os.makedirs(LOG_DIR)
+
+# Logging Configuration
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'filters': {
+        'exclude_autoreload': {
+            '()': 'storyvord.logging_middleware.ExcludeAutoreloadFilter',
+        },
+    },
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'application_file': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(BASE_DIR, 'logs', 'application.log'),
+            'formatter': 'verbose',
+            'filters': ['exclude_autoreload'],
+            'maxBytes': 1024 * 1024 * 5,  # 5 MB
+            'backupCount': 5,
+        },
+        'request_file': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(BASE_DIR, 'logs', 'requests.log'),
+            'formatter': 'verbose',
+            'maxBytes': 1024 * 1024 * 5,  # 5 MB
+            'backupCount': 5,
+        },
+        'error_file': {
+            'level': 'ERROR',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(BASE_DIR, 'logs', 'errors.log'),
+            'formatter': 'verbose',
+            'maxBytes': 1024 * 1024 * 5,  # 5 MB
+            'backupCount': 5,
+        },
+        'db_info_file': {  
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(BASE_DIR, 'logs', 'db_info.log'), 
+            'formatter': 'verbose',
+            'maxBytes': 1024 * 1024 * 5,  # 5 MB
+            'backupCount': 5,
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['application_file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        'django.request': {
+            'handlers': ['request_file'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+        'django.db.backends': {
+            'handlers': ['db_info_file'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+        'rest_framework': {
+            'handlers': ['request_file'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+        'django.utils.autoreload': {
+            'handlers': ['application_file'],
+            'level': 'WARNING',
+            'propagate': False,
+        },
+        'errors': {  # Logger for errors
+            'handlers': ['error_file'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+    },
+}
