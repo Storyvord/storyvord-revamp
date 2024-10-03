@@ -150,3 +150,6 @@ dist/
 .DS_Store
 Thumbs.db
 *.swp
+
+#log file
+logs/
