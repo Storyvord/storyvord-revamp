@@ -22,7 +22,6 @@ GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
 GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
 # SECURITY WARNING: don't run with debug turned on in production!
 
-DEBUG = True
 PROD = get_bool_env_var('PROD')
 if PROD:
     logging.info("Running on PROD")
@@ -87,6 +86,16 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',  # drf-spectacular settings
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Storyvord API',
+    'DESCRIPTION': 'Storyvord API Documentation',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    'SCHEMA_PATH_PREFIX': '/api/',
+    'SERVE_URLCONF': 'storyvord.urls',
+    'COMPONENT_SPLIT_REQUEST': True,
 }
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=7),

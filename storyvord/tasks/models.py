@@ -19,7 +19,7 @@ class Task(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def clean(self):
-        if self.assigned_to.user_type != 'crew':
+        if self.assigned_to.user_type != '2':
             raise ValidationError(f"The user {self.assigned_to} is not a crew member and cannot be assigned to a task.")
 
     def save(self, *args, **kwargs):

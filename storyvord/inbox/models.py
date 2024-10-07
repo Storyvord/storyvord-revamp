@@ -39,13 +39,13 @@ class DialogsModel(TimeStampedModel):
         """
         Retrieve the profile information of a user based on their user_type.
         """
-        if user.user_type == 'client':
+        if user.user_type == '1':
             profile = getattr(user, 'clientprofile', None)
             return {
                 'type': 'client',
                 'name': f"{profile.firstName} {profile.lastName}" if profile else None
             }
-        elif user.user_type == 'crew':
+        elif user.user_type == '2':
             profile = getattr(user, 'crewprofile', None)
             return {
                 'type': 'crew',

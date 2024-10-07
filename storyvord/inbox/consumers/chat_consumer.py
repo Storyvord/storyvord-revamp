@@ -193,10 +193,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
         """
         Get the name of the user based on their profile.
         """
-        if user.user_type == 'client':
+        if user.user_type == '1':
             profile = getattr(user, 'clientprofile', None)
             return f"{profile.firstName} {profile.lastName}" if profile else None
-        elif user.user_type == 'crew':
+        elif user.user_type == '2':
             profile = getattr(user, 'crewprofile', None)
             return profile.name if profile else None
         return None

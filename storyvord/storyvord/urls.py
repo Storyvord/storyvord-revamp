@@ -36,31 +36,33 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, Sp
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/client/', include('client.urls')),
-    path('api/crew/', include('crew.urls')),
-    path('api/accounts/', include('accounts.urls')),
-    path('api/project/', include('project.urls')),
-    path('api/calendar/', include('storyvord_calendar.urls')),
-    path('api/tasks/', include('tasks.urls')),
-    path('api/callsheets/', include('callsheets.urls')),  # Add this line
-    path('api/announcement/', include('announcement.urls')),
-    path('api/notification/', include('notification.urls')),
-    path('api/referral/', include('referral.urls')),
-    path('api/company/', include('company.urls')),
-    path('api/inbox/', include('inbox.urls')),
+
+    path('api/accounts/', include('accounts.urls'),name='accounts'),
+    path('api/client/', include('client.urls'),name='client'),
+    path('api/crew/', include('crew.urls'),name='crew'),
+    path('api/project/', include('project.urls'),name='project'),
+    path('api/calendar/', include('storyvord_calendar.urls'),name='calendar'),
+    path('api/tasks/', include('tasks.urls'),name='tasks'),
+    path('api/callsheets/', include('callsheets.urls'),name='callsheets'),  # Add this line
+    path('api/announcement/', include('announcement.urls'),name='announcement'),
+    path('api/notification/', include('notification.urls'),name='notification'),
+    path('api/referral/', include('referral.urls'),name='referral'),
+    path('api/company/', include('company.urls'),name='company'),
+    path('api/inbox/', include('inbox.urls'),name='inbox'),
+    path('api/files/', include('files.urls'),name='files'),
+    
+    # Auth and user management
     path('auth/', include('djoser.urls')),
     path('auth/', include('djoser.urls.jwt')),
     path('accounts/', include('allauth.urls')),
+        
+    # Schema and documentation for v1 and v2
+    path('api/schema/', SpectacularAPIView.as_view(api_version='v1'), name='schema-v1'),
+    path('api/schema/swagger/', SpectacularSwaggerView.as_view(url_name='schema-v1'), name='swagger-ui-v1'),
+    path('api/schema/redoc/', SpectacularRedocView.as_view(url_name='schema-v1'), name='redoc-v1'),
     
-    # Endpoint for the API schema
-    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
-    # Endpoints for Swagger and Redoc UIs
-    path('api/schema/swagger/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
-    path('api/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
-
-    path('api/files/', include('files.urls')),
-    
+    #Web view for Chat bot
     path('api/', include('ai_assistant.urls')),
-    
     path('api/chat/', include('chat.urls')),
+    
 ]

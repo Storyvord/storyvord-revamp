@@ -12,7 +12,7 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ClientProfile
-        fields = ['firstName', 'lastName', 'formalName', 'role', 'description', 'address', 'countryName', 'locality', 'personalWebsite', "image", "phone_number", "employee_profile"]  # Change: Added user_type to fields
+        fields = '__all__' # Change: Added user_type to fields
     
     def __init__(self, *args, **kwargs):
         super(ProfileSerializer, self).__init__(*args, **kwargs)

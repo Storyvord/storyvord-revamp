@@ -8,10 +8,9 @@ from allauth.socialaccount.providers.oauth2.client import OAuth2Client
 from django.http import JsonResponse
 import logging
 
-
 from client.models import ClientProfile
 from crew.models import CrewProfile
-from .serializers import ClientProfileSerializer, CrewProfileSerializer, EmailVerificationSerializer, RegisterNewSerializer, RegisterSerializer, LoginSerializer, ResetPasswordEmailRequestSerializer, SetNewPasswordSerializer, UserChangePasswordSerializer, UserProfileSerializer, UserSerializer
+from accounts.serializers.v1.serializers import ClientProfileSerializer, CrewProfileSerializer,RegisterSerializer,RegisterNewSerializer, EmailVerificationSerializer, LoginSerializer, ResetPasswordEmailRequestSerializer, SetNewPasswordSerializer, UserChangePasswordSerializer, UserProfileSerializer, UserSerializer
 
 def get_tokens_for_user(user):
   refresh_token = RefreshToken.for_user(user)
@@ -24,7 +23,6 @@ class RegisterView(APIView):
     serializer_class = RegisterSerializer
 
     def post(self, request, *args, **kwargs):
-        print(request.data)
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         try:
@@ -152,7 +150,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
 from django.contrib.auth import authenticate
-from .renders import UserRenderer
+from accounts.renders import UserRenderer
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
@@ -170,7 +168,7 @@ import jwt
 from django.conf import settings
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
-from .models import User
+from accounts.models import User
 import os
 from django.http import HttpResponsePermanentRedirect
 from django.template.loader import render_to_string, get_template
@@ -373,7 +371,7 @@ class SelectUserType(APIView):
             if not user_type:
                 return Response({'message': 'User type is required'}, status=status.HTTP_400_BAD_REQUEST)
             
-            user.user_type = user_type
+            user.usertype = user_type
             user.save()
             # self.create_profile(user)
         # elif user.steps == '2':
@@ -407,9 +405,9 @@ class UserProfileView(APIView):
         return Response(serializer.data)
 
     def get_profile(self, user):
-        if user.user_type == 'client':
+        if user.user_type == '1':
             return ClientProfile.objects.filter(user=user).first()
-        elif user.user_type == 'crew':
+        elif user.user_type == '2':
             return CrewProfile.objects.filter(user=user).first()
         return None
 

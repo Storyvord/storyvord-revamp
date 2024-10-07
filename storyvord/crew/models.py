@@ -1,18 +1,14 @@
 from django.core.exceptions import ValidationError
 from django.db import models
+from accounts.models import User,PersonalInfo
 from django.conf import settings
 from storyvord_calendar.models import Event
 
+
 # Create your models here.
 class CrewProfile(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    name = models.CharField(max_length=256, null=True, blank=True)
-    phone = models.CharField(max_length=256, null=True, blank=True)
-    image = models.ImageField(upload_to='profile_images/', blank=True, null=True)
-    location = models.CharField(max_length=256, null=True, blank=True)
-    languages = models.CharField(max_length=256, null=True, blank=True)
-    job_title = models.CharField(max_length=256, null=True, blank=True)
-    bio = models.TextField(null=True, blank=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    personal_info = models.OneToOneField(PersonalInfo, on_delete=models.CASCADE , related_name='crew_profile', null=True, blank=True)
     experience = models.CharField(max_length=256, null=True, blank=True)
     skills = models.CharField(max_length=256, null=True, blank=True)
     standardRate = models.CharField(max_length=256, null=True, blank=True)

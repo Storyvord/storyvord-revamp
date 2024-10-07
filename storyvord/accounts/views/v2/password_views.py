@@ -5,7 +5,7 @@ from django.template.loader import render_to_string
 from rest_framework import generics, status
 from rest_framework.response import Response
 from django.core.mail import EmailMessage
-from accounts.serializers import ResetPasswordEmailRequestSerializer, SetNewPasswordSerializer
+from accounts.serializers.v2.serializers import ResetPasswordEmailRequestSerializer, SetNewPasswordSerializer
 from accounts.utils import send_password_reset_email, EmailThread
 from accounts.models import User
 

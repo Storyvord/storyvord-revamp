@@ -173,7 +173,7 @@ class RegisterWithReferralSerializer(serializers.Serializer):
         user_data = {
             'email': self.context['request'].data.get('email'),
             'password': self.context['request'].data.get('password'),
-            'user_type': 'crew',
+            'user_type': '2',
         }
         user_serializer = UserCreateSerializer(data=user_data)
         user_serializer.is_valid(raise_exception=True)
@@ -186,7 +186,7 @@ class RegisterWithReferralSerializer(serializers.Serializer):
         return user
 
 class UserCreateSerializer(serializers.ModelSerializer):
-    user_type = 'crew'
+    user_type = '2'
     class Meta:
         model = User
         fields = ('email', 'password', 'user_type')
@@ -400,7 +400,7 @@ class EmployeeRegisterWithReferralSerializer(serializers.Serializer):
         user_data = {
             'email': self.context['request'].data.get('email'),
             'password': self.context['request'].data.get('password'),
-            'user_type': 'client'
+            'user_type': '1'
         }
         user_serializer = EmployeeUserCreateSerializer(data=user_data)
         user_serializer.is_valid(raise_exception=True)

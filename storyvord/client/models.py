@@ -1,21 +1,15 @@
 # client/models.py
 from django.db import models
+from accounts.models import User , PersonalInfo
 from django.conf import settings
 
 class ClientProfile(models.Model):
-   
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    firstName = models.CharField(max_length=100, blank=True, null=True)
-    lastName = models.CharField(max_length=100, blank=True, null=True)
-    formalName = models.CharField(max_length=100, blank=True, null=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    personal_info = models.OneToOneField(PersonalInfo, on_delete=models.CASCADE, null=True, blank=True)
     role = models.CharField(max_length=100, blank=True, null=True)
-    description = models.TextField(blank=True, null=True)
     address = models.CharField(max_length=255, blank=True, null=True)
-    countryName = models.CharField(max_length=100, blank=True, null=True)
-    locality = models.CharField(max_length=100, blank=True, null=True)
     personalWebsite = models.CharField(max_length=100, blank=True, null=True)
-    phone_number = models.CharField(max_length=15, blank=True, null=True)
-    image = models.ImageField(upload_to='profile_images/', blank=True, null=True)
+    drive = models.BooleanField(default=False)
     active = models.BooleanField(default=False)
     employee_profile= models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='companies', blank=True)
 

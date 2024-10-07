@@ -27,7 +27,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
         if obj.user_type == 'client':
             profile = getattr(obj, 'clientprofile', None)
             return f"{profile.firstName} {profile.lastName}" if profile else None
-        elif obj.user_type == 'crew':
+        elif obj.user_type == '2':
             profile = getattr(obj, 'crewprofile', None)
             return profile.name if profile else None
         return None

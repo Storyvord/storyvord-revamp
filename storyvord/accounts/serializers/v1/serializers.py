@@ -1,15 +1,10 @@
 # # # accounts/serializers.py
 from rest_framework import serializers
-from rest_framework import status
+
 from client.models import ClientProfile
 from crew.models import CrewProfile
-from .models import User
+from accounts.models import User
 from django.contrib.auth import authenticate
-
-import logging
-
-logger = logging.getLogger(__name__)
-
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -19,11 +14,11 @@ class RegisterSerializer(serializers.ModelSerializer):
         fields = ('email', 'password')
 
     def create(self, validated_data):
-        User.objects.create_user(**validated_data)
-        return({
-            "status": status.HTTP_201_CREATED,
-            "message": "User created successfully",
-        })
+        user = User.objects.create_user(
+            email=validated_data['email'],
+            password=validated_data['password']
+        )
+        return user
 
 class RegisterNewSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -64,7 +59,7 @@ from django.core.mail import EmailMessage
 from django.conf import settings
 from rest_framework import serializers
 
-from .models import *
+from accounts.models import *
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.contrib import auth
 from rest_framework.exceptions import AuthenticationFailed
@@ -258,3 +253,8 @@ class UserProfileSerializer(serializers.Serializer):
         else:
             return None
         return serializer.data
+    
+class MeUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['user_type', 'id', 'email']

@@ -88,7 +88,7 @@ class TaskCompletionRequestView(APIView):
         if request.user != task.assigned_to:
             return Response({"error": "You are not assigned to this task."}, status=status.HTTP_403_FORBIDDEN)
 
-        if request.user.user_type != 'crew':
+        if request.user.user_type != '2':
             return Response({"error": "Only crew members can request task completion."}, status=status.HTTP_403_FORBIDDEN)
 
         task.completion_requested = True
@@ -137,7 +137,7 @@ class CrewTaskListView(APIView):
 
     def get(self, request, format=None):
         # Ensure the user is a crew member
-        if request.user.user_type != 'crew':
+        if request.user.user_type != '2':
             return Response({"error": "Only crew members can view their tasks."}, status=status.HTTP_403_FORBIDDEN)
         
         tasks = Task.objects.filter(assigned_to=request.user)
