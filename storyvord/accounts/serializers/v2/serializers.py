@@ -1,8 +1,11 @@
 from rest_framework import serializers, status
+from rest_framework.validators import UniqueValidator
+from django.contrib.auth.hashers import check_password
 from client.models import ClientProfile
 from crew.models import CrewProfile
 from accounts.models import User,PersonalInfo,UserType
 from django.contrib.auth import authenticate
+from django.db import IntegrityError
 import logging
 import datetime
 
@@ -11,6 +14,9 @@ logger = logging.getLogger(__name__)
 ### Version 2 START ####
     
 class V2RegisterSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(
+        validators=[UniqueValidator(queryset=User.objects.all(), message="Email already exists")]
+    )
     password = serializers.CharField(write_only=True)
     confirm_password = serializers.CharField(write_only=True)
     terms_accepted = serializers.BooleanField(write_only=True)
@@ -20,30 +26,34 @@ class V2RegisterSerializer(serializers.ModelSerializer):
         fields = ['id','email', 'password', 'confirm_password', 'terms_accepted']
 
     def validate(self, data):
-        if not data.get('terms_accepted'):
-            raise serializers.ValidationError("You must agree to the Terms and Conditions.")
         if 'email' not in data:
             raise serializers.ValidationError("Email field is required")
         if 'password' not in data:
             raise serializers.ValidationError("Password field is required")
         if 'confirm_password' not in data:
             raise serializers.ValidationError("Confirm Password field is required")
+        if not data.get('terms_accepted'):
+            raise serializers.ValidationError("You must agree to the Terms and Conditions.")
         if data['password'] != data['confirm_password']:
             raise serializers.ValidationError("Passwords don't match")
         return data
 
     def create(self, validated_data):
         # Create the user with the validated data
+
         validated_data.pop('terms_accepted')
-        
-        user = User.objects.create_user(
-            email=validated_data['email'],
-            password=validated_data['password'],
-            created_at=datetime.datetime.now(),
-            last_login=datetime.datetime.now(),
-            user_stage=1,
-        )
-        return user
+        validated_data.pop('confirm_password')
+        try: 
+            user = User.objects.create_user(
+                email=validated_data['email'],
+                password=validated_data['password'],
+                created_at=datetime.datetime.now(),
+                last_login=datetime.datetime.now(),
+                user_stage=1,
+            )
+            return user
+        except IntegrityError:
+            raise serializers.ValidationError("Email already exists")  # Handle unique constraint violation
     
 class V2LoginSerializer(serializers.Serializer):
     email = serializers.CharField()
@@ -51,17 +61,22 @@ class V2LoginSerializer(serializers.Serializer):
 
     def validate(self, data):
         # Authenticate the user using email and password
-        user = authenticate(email=data['email'], password=data['password'])
+        try:
+            user = User.objects.get(email=data['email'])
+        except User.DoesNotExist:
+            raise serializers.ValidationError('Invalid email or password')
         
-        if user and user.is_active:
-            # Store the authenticated user in the serializer context
+        # Check the password using check_password
+        if not check_password(data['password'], user.password):
+            raise serializers.ValidationError('Invalid email or password')
+             
+        if user.is_active:
             self.context['user'] = user
             return data
-        raise serializers.ValidationError("Invalid email or password")
+        
+        raise serializers.ValidationError('User account is disabled')
     
-    def to_representation(self, instance):
-        user = self.context.get('user')
-        return V2UserDataSerializer(user).data
+    
     
 class V2UserDataSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
