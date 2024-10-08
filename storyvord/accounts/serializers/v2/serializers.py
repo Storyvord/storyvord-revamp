@@ -17,7 +17,7 @@ class V2RegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id','email', 'password', 'confirm_password', 'terms_accepted','user_stage']
+        fields = ['id','email', 'password', 'confirm_password', 'terms_accepted']
 
     def validate(self, data):
         if not data.get('terms_accepted'):
