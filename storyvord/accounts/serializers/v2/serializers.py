@@ -49,7 +49,7 @@ class V2RegisterSerializer(serializers.ModelSerializer):
                 password=validated_data['password'],
                 created_at=datetime.datetime.now(),
                 last_login=datetime.datetime.now(),
-                user_stage=1,
+                user_stage=0,
             )
             return user
         except IntegrityError:
@@ -100,9 +100,10 @@ class SelectUserTypeSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         instance.user_type = validated_data.get('user_type', instance.user_type)
+        instance.user_stage = 1
         instance.save()
         return instance
-    
+
 class PersonalInfoSerializer(serializers.ModelSerializer):
     image = serializers.ImageField(required=False)
     class Meta:
@@ -161,5 +162,14 @@ class V2EmailVerificationSerializer(serializers.ModelSerializer):
         model = User
         fields = ['token']   
 
+class ProfileSerializer(serializers.ModelSerializer):
+    user = serializers.DictField()
+    personal_info = PersonalInfoSerializer()
+    client_profile = ClientProfileSerializer(required=False)
+    crew_profile = CrewProfileSerializer(required=False)
+    
+    class Meta:
+        model= User
+        fields = ['user', 'personal_info', 'client_profile', 'crew_profile']
     
 ### END #### 

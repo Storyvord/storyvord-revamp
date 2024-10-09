@@ -31,4 +31,5 @@ urlpatterns += [
     path('v2/login/', LoginViewV2.as_view(), name='login-v2'),
     path('v2/usertype/', UpdateUserTypeView.as_view(), name='user-usertype-v2'),
     path('v2/saveprofile/', SavePersonalInfoView.as_view(), name='user-profile-v2'),
+    path('v2/getprofile/', GetPersonalInfoView.as_view(), name='user-profile-v2'),
 ]

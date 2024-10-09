@@ -2,8 +2,8 @@ from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from accounts.serializers.v2.serializers import SelectUserTypeSerializer , PersonalInfoSerializer , UnifiedProfileSerializer, ClientProfileSerializer, CrewProfileSerializer
-from accounts.models import UserType
+from accounts.serializers.v2.serializers import SelectUserTypeSerializer , PersonalInfoSerializer , UnifiedProfileSerializer, ClientProfileSerializer, CrewProfileSerializer, ProfileSerializer
+from accounts.models import UserType ,PersonalInfo
 from client.models import ClientProfile 
 from crew.models import CrewProfile
 from drf_spectacular.utils import extend_schema
@@ -17,15 +17,24 @@ class UpdateUserTypeView(APIView):
     def post(self, request):
         user = request.user
         
-        if user.user_stage != '1':
-            return Response({'message': 'User type cannot be updated'}, status=status.HTTP_400_BAD_REQUEST)
+        if user.user_stage == '2':
+            return Response(
+                {   'status': status.HTTP_400_BAD_REQUEST,
+                    'message': 'User type cannot be updated',
+                    'data': 'User type cannot be updated'
+                }, status=status.HTTP_400_BAD_REQUEST)
         
         # Use the serializer to handle validation and updating the user_type
         serializer = SelectUserTypeSerializer(user, data=request.data, partial=True)
         
         if serializer.is_valid():
             serializer.save()
-            return Response({'message': 'User type updated successfully'}, status=status.HTTP_200_OK)
+            return Response(
+                {
+                    'status': status.HTTP_200_OK,
+                    'message': 'User type updated successfully',
+                    'data': 'User type updated successfully'
+                 }, status=status.HTTP_200_OK)
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
@@ -125,3 +134,80 @@ class SavePersonalInfoView(APIView):
         except Exception as e:
             logger.error(f"Error in SavePersonalInfoView: {e}")
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class GetPersonalInfoView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        user_type = user.user_type_id
+        
+        if user.user_stage != '2':
+            return Response({
+                "status": status.HTTP_200_OK,
+                "message": "Profile information retrieved successfully.",
+                "data": {"user": {
+                    "email": user.email,
+                    "user_type": user.user_type_id,
+                    "user_stage": user.user_stage,
+                    },
+                         }
+            }, status=status.HTTP_200_OK)
+        
+        try:
+            personal_info = PersonalInfo.objects.get(user=user)
+        except PersonalInfo.DoesNotExist:
+            personal_info = None
+        
+        
+        if user_type == 1:
+            try:
+                client_profile = ClientProfile.objects.get(user=user)
+            except ClientProfile.DoesNotExist:
+                return Response({"error": "Client profile not found."}, status=status.HTTP_404_NOT_FOUND)
+            
+            data = {
+                "user": {
+                    "email": user.email,
+                    "user_type": user.user_type_id,
+                    "user_stage": user.user_stage,
+                },
+                "personal_info": personal_info,
+                "client_profile": client_profile
+            }
+            serializer = ProfileSerializer(data)
+            # Return a successful response
+            return Response({
+                "status": status.HTTP_200_OK,
+                "message": "Profile information retrieved successfully.",
+                "data": {
+                    **serializer.data,
+                    },
+            }, status=status.HTTP_200_OK)
+        
+        elif user_type == 2:
+            try:
+                crew_profile = CrewProfile.objects.get(user=user)
+            except CrewProfile.DoesNotExist:
+                return Response({"error": "Crew profile not found."}, status=status.HTTP_404_NOT_FOUND)
+
+            data = {
+                "user": {
+                    "email": user.email,
+                    "user_type": user.user_type_id,
+                    "user_stage": user.user_stage,
+                },
+                "personal_info": personal_info,
+                "crew_profile": crew_profile
+            }
+            serializer = ProfileSerializer(data)
+            return Response({
+                "status": status.HTTP_200_OK,
+                "message": "Profile information retrieved successfully.",
+                "data": {
+                    **serializer.data,
+                    },
+            }, status=status.HTTP_200_OK)
+        
+        return Response({"error": "User type not found."}, status=status.HTTP_404_NOT_FOUND)
