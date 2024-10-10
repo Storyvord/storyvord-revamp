@@ -7,8 +7,8 @@ from .views.v2.profile_views import *
 
 
 urlpatterns = [
-    # path('register/', RegisterView.as_view(), name='register'),
-    # path('old-register/', RegisterNewView.as_view(), name='register'),
+    path('register/', RegisterView.as_view(), name='register'),
+    path('old-register/', RegisterNewView.as_view(), name='register'),
     path('login/', LoginView.as_view(), name='login'),
     path('profile/', UserProfileView.as_view(), name='user-profile'),
     
@@ -32,4 +32,5 @@ urlpatterns += [
     path('v2/usertype/', UpdateUserTypeView.as_view(), name='user-usertype-v2'),
     path('v2/saveprofile/', SavePersonalInfoView.as_view(), name='user-profile-v2'),
     path('v2/getprofile/', GetPersonalInfoView.as_view(), name='user-profile-v2'),
+    path('v2/getdropdowns/', getDropdownsView.as_view(), name='get-dropdowns-v2'),
 ]

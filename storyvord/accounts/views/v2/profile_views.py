@@ -2,8 +2,8 @@ from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from accounts.serializers.v2.serializers import SelectUserTypeSerializer , PersonalInfoSerializer , UnifiedProfileSerializer, ClientProfileSerializer, CrewProfileSerializer, ProfileSerializer
-from accounts.models import UserType ,PersonalInfo
+from accounts.serializers.v2.serializers import SelectUserTypeSerializer , PersonalInfoSerializer , UnifiedProfileSerializer, ClientProfileSerializer, CrewProfileSerializer, ProfileSerializer, CountrySerializer
+from accounts.models import UserType ,PersonalInfo , Country
 from client.models import ClientProfile 
 from crew.models import CrewProfile
 from drf_spectacular.utils import extend_schema
@@ -38,45 +38,6 @@ class UpdateUserTypeView(APIView):
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-# class SavePersonalInfoView(APIView):
-#     permission_classes = [IsAuthenticated]
-    
-#     def post(self, request):
-#         # Get the current user from the token
-#         """
-#         Save personal info and profile data for client or crew.
-
-#         The endpoint returns a 200 response with the message "Profile information saved successfully." if the request is valid.
-#         Otherwise, it returns a 400 response with the corresponding error message.
-#         """
-#         user = request.user
-#         user_type = user.user_type
-
-#         # Common personal info saving
-#         personal_info_data = request.data.get('personal_info')
-#         if not personal_info_data:
-#             return Response({"error": "Personal info is required."}, status=status.HTTP_400_BAD_REQUEST)
-
-#         personal_info_serializer = PersonalInfoSerializer(data=personal_info_data)
-#         if personal_info_serializer.is_valid():
-#             personal_info_serializer.save(user=user)
-#         else:
-#             return Response(personal_info_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-#         # Handle client or crew specific profile using the unified serializer
-#         profile_data = request.data.get('profile_data')  # Use a unified key like 'profile_data'
-#         if not profile_data:
-#             return Response({"error": f"{user_type.capitalize()} profile info is required."}, status=status.HTTP_400_BAD_REQUEST)
-
-#         profile_serializer = UnifiedProfileSerializer(data=profile_data, user_type=user_type)
-#         if profile_serializer.is_valid():
-#             profile_serializer.save(user=user, personal_info=personal_info_serializer.instance)
-#         else:
-#             return Response(profile_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-#         return Response({"message": "Profile information saved successfully."}, status=status.HTTP_200_OK)
-
-
 class SavePersonalInfoView(APIView):
     permission_classes = [IsAuthenticated]
     serializer_class = UnifiedProfileSerializer
@@ -211,3 +172,18 @@ class GetPersonalInfoView(APIView):
             }, status=status.HTTP_200_OK)
         
         return Response({"error": "User type not found."}, status=status.HTTP_404_NOT_FOUND)
+    
+    
+class getDropdownsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        param = request.GET.get('param')
+        if param == 'country':
+            countries = Country.objects.all()
+            print(countries)
+            serializer = CountrySerializer(countries, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        
+    #TODO: add more dropdowns and error handling
+    

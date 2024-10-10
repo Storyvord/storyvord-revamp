@@ -78,3 +78,13 @@ class PersonalInfo(models.Model):
 
     def __str__(self):
         return self.name
+    
+    
+class Country(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    alpha_2_code = models.CharField(max_length=2, unique=True)
+    alpha_3_code = models.CharField(max_length=3, unique=True)
+    numeric_code = models.CharField(max_length=4, unique=True)
+
+    def __str__(self):
+        return self.name

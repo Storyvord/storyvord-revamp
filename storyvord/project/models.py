@@ -35,6 +35,7 @@ class SelectCrew(models.Model):
     quantity = models.PositiveIntegerField(null=True, blank=True)
     
     def __srt__(self):
+        
         return self.title
 
 class SelectEquipment(models.Model):
@@ -97,3 +98,99 @@ class OnboardRequest(models.Model):
     status = models.CharField(max_length=20, choices=[('pending', 'Pending'), ('accepted', 'Accepted'), ('declined', 'Declined')], default='pending')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    
+#V2 Models
+
+class CrewRequirements(models.Model):
+    title = models.CharField(max_length=256, null=True, blank=True)
+    quantity = models.PositiveIntegerField(null=True, blank=True)
+    
+    def __str__(self):
+        return self.title
+
+class EquipmentRequirements(models.Model):
+    title = models.CharField(max_length=256, null=True, blank=True)
+    quantity = models.PositiveIntegerField(null=True, blank=True)
+    
+    def __str__(self):
+        return self.title
+    
+class Permission(models.Model):
+    name = models.CharField(max_length=255, unique=True)
+    description = models.TextField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+class Role(models.Model):
+    name = models.CharField(max_length=255, unique=True)
+    permission = models.ManyToManyField(Permission, related_name='permission', blank=True)
+    description = models.TextField(null=True, blank=True)
+    project = models.ForeignKey('ProjectDetails', on_delete=models.CASCADE, null=True, blank=True, related_name='roles')
+    is_global = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+class Membership(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    role = models.ForeignKey(Role, on_delete=models.CASCADE, related_name='membership_role')
+    project = models.ForeignKey('ProjectDetails', on_delete=models.CASCADE, null=True, blank=True, related_name='memberships')  # Null for global roles not tied to a project
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+class ProjectDetails(models.Model):
+    project_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    members = models.ManyToManyField(Membership, related_name='project_members', blank=True)
+    name = models.CharField(max_length=255)
+    content_type = models.CharField(max_length=256)
+    brief = models.TextField()
+    additional_details = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name
+    
+    class Meta:
+        ordering = ['project_id']
+    
+class ProjectRequirements(models.Model):
+    project = models.ForeignKey(ProjectDetails, on_delete=models.CASCADE)
+    budget_currency = models.CharField(max_length=256, default='$')
+    budget = models.DecimalField(max_digits=14, decimal_places=2, null=True)
+    crew_requirements = models.ManyToManyField(CrewRequirements, related_name='projects_with_crew')
+    equipment_requirements = models.ManyToManyField(EquipmentRequirements, related_name='projects_with_equipment')
+    status = models.BooleanField(default=True)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_by = models.ForeignKey(User, on_delete=models.CASCADE , related_name='project_requirements')
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return f"{self.project.name} - Requirements"
+    
+class ShootingDetails(models.Model):
+    project = models.ForeignKey(ProjectDetails, on_delete=models.CASCADE)
+    location = models.CharField(max_length=255)
+    start_date = models.DateField()
+    end_date = models.DateField()
+    mode_of_shooting = models.CharField(max_length=255, choices=[('indoor', 'Indoor'), ('outdoor', 'Outdoor'), ('both', 'Both')])
+    permits = models.BooleanField(default=False)
+    ai_suggestion = models.BooleanField(default=False)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_by = models.ForeignKey(User, on_delete=models.CASCADE , related_name='shooting_details')
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return f"{self.project.name} - Shooting at {self.location}"
+    
+class ProjectCrewRequirement(models.Model):
+    project = models.ForeignKey(ProjectDetails, on_delete=models.CASCADE)
+    crew = models.ForeignKey(CrewRequirements, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField()
+
+class ProjectEquipmentRequirement(models.Model):
+    project = models.ForeignKey(ProjectDetails, on_delete=models.CASCADE)
+    equipment = models.ForeignKey(EquipmentRequirements, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField()

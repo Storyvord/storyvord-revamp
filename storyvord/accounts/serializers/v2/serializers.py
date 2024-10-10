@@ -3,7 +3,7 @@ from rest_framework.validators import UniqueValidator
 from django.contrib.auth.hashers import check_password
 from client.models import ClientProfile
 from crew.models import CrewProfile
-from accounts.models import User,PersonalInfo,UserType
+from accounts.models import User,PersonalInfo,UserType,Country
 from django.contrib.auth import authenticate
 from django.db import IntegrityError
 import logging
@@ -171,5 +171,10 @@ class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model= User
         fields = ['user', 'personal_info', 'client_profile', 'crew_profile']
+        
+class CountrySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Country
+        fields = '__all__'
     
 ### END #### 

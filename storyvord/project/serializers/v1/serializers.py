@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import *
+from ...models import *
 from crew.serializers import CrewProfileSerializer
 import base64
 from django.core.files.base import ContentFile
