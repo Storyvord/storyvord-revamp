@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.conf import settings
 from accounts.utils import verify_email_token, send_welcome_email
-from accounts.serializers.v2.serializers import V2EmailVerificationSerializer
+from ..serializers.serializers_v2 import V2EmailVerificationSerializer
 from utils.env_utils import get_bool_env_var
 from django.http import HttpResponseRedirect
 

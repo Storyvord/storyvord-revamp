@@ -10,7 +10,7 @@ import logging
 
 from client.models import ClientProfile
 from crew.models import CrewProfile
-from accounts.serializers.v1.serializers import ClientProfileSerializer, CrewProfileSerializer,RegisterSerializer,RegisterNewSerializer, EmailVerificationSerializer, LoginSerializer, ResetPasswordEmailRequestSerializer, SetNewPasswordSerializer, UserChangePasswordSerializer, UserProfileSerializer, UserSerializer
+from ..serializers.serializers_v1 import ClientProfileSerializer, CrewProfileSerializer,RegisterSerializer,RegisterNewSerializer, EmailVerificationSerializer, LoginSerializer, ResetPasswordEmailRequestSerializer, SetNewPasswordSerializer, UserChangePasswordSerializer, UserProfileSerializer, UserSerializer
 
 def get_tokens_for_user(user):
   refresh_token = RefreshToken.for_user(user)

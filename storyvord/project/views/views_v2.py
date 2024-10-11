@@ -6,11 +6,11 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import PermissionDenied
 from django.db.models import Q
-from ...models import (
+from ..models import (
     ProjectDetails, ProjectRequirements, ShootingDetails, 
     Role, Membership, User, Permission
 )
-from project.serializers.v2.serializers import (
+from ..serializers.serializers_v2 import (
     ProjectDetailsSerializer, ProjectRequirementsSerializer, ShootingDetailsSerializer, 
     RoleSerializer, MembershipSerializer
 )

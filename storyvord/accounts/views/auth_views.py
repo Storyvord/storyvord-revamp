@@ -9,7 +9,7 @@ from django.conf import settings
 from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
 from accounts.utils import send_verification_email, get_tokens_for_user
-from accounts.serializers.v2.serializers import V2RegisterSerializer, V2LoginSerializer, V2UserDataSerializer
+from ..serializers.serializers_v2 import V2RegisterSerializer, V2LoginSerializer, V2UserDataSerializer
 from accounts.models import User
 import datetime
 

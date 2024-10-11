@@ -2,7 +2,7 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 from accounts.models import User
-from accounts.serializers.v2.serializers import V2RegisterSerializer, V2LoginSerializer
+from ..serializers.serializers_v2 import V2RegisterSerializer, V2LoginSerializer
 from django.core import mail
 
 class AuthViewsTests(APITestCase):

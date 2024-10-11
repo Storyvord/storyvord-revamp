@@ -1,7 +1,7 @@
 from django.urls import path,include
 from rest_framework.routers import DefaultRouter
-from .views.v1.views import *
-from .views.v2.views import *
+from .views.views_v1 import *
+from .views.views_v2 import *
 
 urlpatterns = [
     # Projects

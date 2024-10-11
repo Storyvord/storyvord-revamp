@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from accounts.serializers.v2.serializers import SelectUserTypeSerializer , PersonalInfoSerializer , UnifiedProfileSerializer, ClientProfileSerializer, CrewProfileSerializer, ProfileSerializer, CountrySerializer
+from ..serializers.serializers_v2 import SelectUserTypeSerializer , PersonalInfoSerializer , UnifiedProfileSerializer, ClientProfileSerializer, CrewProfileSerializer, ProfileSerializer, CountrySerializer
 from accounts.models import UserType ,PersonalInfo , Country
 from client.models import ClientProfile 
 from crew.models import CrewProfile

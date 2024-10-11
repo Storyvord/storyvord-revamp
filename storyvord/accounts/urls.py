@@ -1,10 +1,8 @@
-from django.urls import path
-from .views.v1.views import *
-from .views.v2.auth_views import RegisterViewV2
-from .views.v2.auth_views import LoginViewV2
-from .views.v2.email_verification import VerifyEmail as VerifyEmailV2
-from .views.v2.profile_views import *
-
+from django.urls import path , include
+from .views.views import *
+from .views.auth_views import RegisterViewV2 , LoginViewV2
+from .views.email_verification import VerifyEmail as VerifyEmailV2
+from .views.profile_views import *
 
 urlpatterns = [
     path('register/', RegisterView.as_view(), name='register'),

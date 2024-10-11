@@ -5,11 +5,11 @@ from datetime import timedelta
 import os
 from dotenv import load_dotenv
 import logging
-from utils.env_utils import get_bool_env_var
+from utils.env_utils import get_bool_env_var, get_site_url
 
 load_dotenv()
 
-SITE_URL = os.getenv('SITE_URL')
+SITE_URL = get_site_url()
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 

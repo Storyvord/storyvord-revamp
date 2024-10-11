@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from ...models import (
+from ..models import (
     ProjectDetails, ProjectRequirements, ShootingDetails, 
     Role, Permission, Membership, CrewRequirements, EquipmentRequirements,
     ProjectCrewRequirement, ProjectEquipmentRequirement

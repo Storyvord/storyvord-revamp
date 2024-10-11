@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework import status, permissions
 from rest_framework.parsers import MultiPartParser, FormParser
 from .serializers import *
-from project.serializers.v1.serializers import UserSerializer
+from project.serializers.serializers_v1 import UserSerializer
 from .models import File, Folder
 from accounts.models import User
 from project.models import Project
