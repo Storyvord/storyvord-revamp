@@ -86,6 +86,7 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',  # drf-spectacular settings
+    'EXCEPTION_HANDLER': 'storyvord.exception_handlers.custom_exception_handler',
 }
 
 SPECTACULAR_SETTINGS = {

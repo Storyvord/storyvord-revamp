@@ -4,6 +4,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import permissions
+from storyvord.exception_handlers import custom_exception_handler
 
 
 from crew.models import CrewProfile
@@ -63,6 +64,7 @@ from accounts.models import User  # Adjust the import path as per your User mode
 
 class OnboardAPIView(APIView):
     permissions_classes = [IsAuthenticated]
+    serializer_class = ProfileSerializer
 
     def get_object(self):
         # Fetch profile based on logged-in user
@@ -70,32 +72,53 @@ class OnboardAPIView(APIView):
         return profile
 
     def put(self, request):
-        # Update profile based on logged-in user
-        user = request.user
-        if user.steps:
-            return Response({'error': 'User has already completed the onboarding process'}, status=status.HTTP_400_BAD_REQUEST)
-        profile = self.get_object()
-        serializer = ProfileSerializer(profile, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            # Update profile based on logged-in user
+            user = request.user
+
+            if user.user_type != 'client':
+                return Response({'error': 'User is not a client'}, status=status.HTTP_400_BAD_REQUEST)
+        
+            if user.steps:
+                return Response({'error': 'User has already completed the onboarding process'}, status=status.HTTP_400_BAD_REQUEST)
+            profile = self.get_object()
+            serializer = ProfileSerializer(profile, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                data = {
+                    'message': 'Success',
+                    'data': serializer.data
+                }
+                return Response(data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as exc:
+            response = custom_exception_handler(exc, self.get_renderer_context())
+            return response
 
 class ProfileDetailAPIView(APIView):
     permission_classes = [IsAuthenticated]  # Apply IsAuthenticated permission globally
 
     # parser_classes = [MultiPartParser]  # Enable MultiPartParser to handle file uploads
     serializer_class = ProfileSerializer
+
     def get_object(self):
         # Fetch profile based on logged-in user
         profile = get_object_or_404(ClientProfile, user=self.request.user)  # Modified to fetch profile by user
         return profile
 
     def get(self, request):
-        # Retrieve profile based on logged-in user
-        profile = self.get_object()
-        serializer = ProfileSerializer(profile)
-        return Response(serializer.data)
+        try:
+            # Retrieve profile based on logged-in user
+            profile = self.get_object()
+            serializer = ProfileSerializer(profile)
+            data = {
+                'message': 'Success',
+                'data': serializer.data
+            }
+            return Response(data)
+        except Exception as exc:
+            response = custom_exception_handler(exc, self.get_renderer_context())
+            return response
 
     # def put(self, request):
     #     # Update profile based on logged-in user
@@ -107,13 +130,21 @@ class ProfileDetailAPIView(APIView):
     #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     def put(self, request):
-        # Update profile based on logged-in user
-        profile = self.get_object()
-        serializer = ProfileSerializer(profile, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            # Update profile based on logged-in user
+            profile = self.get_object()
+            serializer = ProfileSerializer(profile, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                data = {
+                    'message': 'Success',
+                    'data': serializer.data
+                }
+                return Response(data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as exc:
+            response = custom_exception_handler(exc, self.get_renderer_context())
+            return response
     
 
     
@@ -144,116 +175,173 @@ class ProfileDetailAPIView(APIView):
     #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request):
-        # Delete profile based on logged-in user
-        profile = self.get_object()
-        profile.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        try:
+            # Delete profile based on logged-in user
+            profile = self.get_object()
+            profile.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except Exception as exc:
+            response = custom_exception_handler(exc, self.get_renderer_context())
+            return response
 
         
 class ClientCompanyProfileAPIView(APIView):
     permissions_classes = [IsAuthenticated]
+    serializer_class = ClientCompanyProfileSerializer
 
     def get(self, request):
         try:
             profile = ClientCompanyProfile.objects.get(user=request.user)
             serializer = ClientCompanyProfileSerializer(profile)
-            return Response(serializer.data)
-        except ClientCompanyProfile.DoesNotExist:
-            return Response({"error": "Company profile not found"}, status=status.HTTP_404_NOT_FOUND)
+            data = {
+                'message': 'Success',
+                'data': serializer.data
+            }
+            return Response(data)
+        except Exception as exc:
+            response = custom_exception_handler(exc, self.get_renderer_context())
+            return response
 
     def put(self, request):
         try:
             profile = ClientCompanyProfile.objects.get(user=request.user)
-        except ClientCompanyProfile.DoesNotExist:
-            return Response({"error": "Company profile not found"}, status=status.HTTP_404_NOT_FOUND)
 
-        serializer = ClientCompanyProfileSerializer(profile, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            serializer = ClientCompanyProfileSerializer(profile, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                data = {
+                    'message': 'Success',
+                    'data': serializer.data
+                }
+                return Response(data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as exc:
+            response = custom_exception_handler(exc, self.get_renderer_context())
+            return response
 
 
 class SwitchProfileView(APIView):
     permission_classes = [IsAuthenticated]
     
     def post(self, request):
-        user = request.user
-        data = request.data
-        switch_to_client = data.get('switch_to_client', False)
-        switch_to_crew = data.get('switch_to_crew', False)
+        try:
+            user = request.user
+            data = request.data
+            switch_to_client = data.get('switch_to_client', False)
+            switch_to_crew = data.get('switch_to_crew', False)
 
-        if not (switch_to_client or switch_to_crew):
-            return Response({'detail': 'Specify a role to switch to.'}, status=status.HTTP_400_BAD_REQUEST)
+            if not (switch_to_client or switch_to_crew):
+                return Response({'status': False,
+                                 'code': status.HTTP_400_BAD_REQUEST,
+                                 'message': 'Specify a role to switch to.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        if switch_to_client:
-            # Activate Client profile and deactivate Crew profile
-            client_profile, created = ClientProfile.objects.get_or_create(user=user)
-            client_profile.active = True
-            client_profile.save()
+            if switch_to_client:
+                # Activate Client profile and deactivate Crew profile
+                client_profile, created = ClientProfile.objects.get_or_create(user=user)
+                client_profile.active = True
+                client_profile.save()
 
-            CrewProfile.objects.filter(user=user).update(active=False)
+                CrewProfile.objects.filter(user=user).update(active=False)
 
-            user.is_client = True
-            user.is_crew = False
-            user.save()
+                user.is_client = True
+                user.is_crew = False
+                user.save()
 
-        if switch_to_crew:
-            # Activate Crew profile and deactivate Client profile
-            crew_profile, created = CrewProfile.objects.get_or_create(user=user)
-            crew_profile.active = True
-            crew_profile.save()
+            if switch_to_crew:
+                # Activate Crew profile and deactivate Client profile
+                crew_profile, created = CrewProfile.objects.get_or_create(user=user)
+                crew_profile.active = True
+                crew_profile.save()
 
-            ClientProfile.objects.filter(user=user).update(active=False)
+                ClientProfile.objects.filter(user=user).update(active=False)
 
-            user.is_client = False
-            user.is_crew = True
-            user.save()
+                user.is_client = False
+                user.is_crew = True
+                user.save()
 
-        return Response({'detail': 'Profile updated successfully.'}, status=status.HTTP_200_OK)
+            return Response({'status': True,
+                             'detail': 'Profile updated successfully.'}, status=status.HTTP_200_OK)
+        except Exception as exc:
+            response = custom_exception_handler(exc, self.get_renderer_context())
+            return response
 
 
 
 class ClientCompanyFolderView(APIView):
     permission_classes = [permissions.IsAuthenticated]
+    serializer_class = ClientCompanyFolderSerializer
 
     def get(self, request, format=None):
-        user = request.user
-        folders = ClientCompanyFolder.objects.filter(allowed_users=user).distinct()
-        serializer = ClientCompanyFolderSerializer(folders, many=True)
-        return Response(serializer.data)
+        try:
+            user = request.user
+            folders = ClientCompanyFolder.objects.filter(allowed_users=user).distinct()
+            serializer = ClientCompanyFolderSerializer(folders, many=True)
+            data = {
+                'message': 'Success',
+                'data': serializer.data
+            }
+            return Response(data)
+        except Exception as exc:
+            response = custom_exception_handler(exc, self.get_renderer_context())
+            return response
 
     def post(self, request, format=None):
-        serializer = ClientCompanyFolderSerializer(data=request.data, context={'request': request})
-        if serializer.is_valid():
-            serializer.save(created_by=request.user)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            serializer = ClientCompanyFolderSerializer(data=request.data, context={'request': request})
+            if serializer.is_valid():
+                serializer.save(created_by=request.user)
+                data = {
+                    'message': 'Success',
+                    'data': serializer.data
+                }
+                return Response(data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as exc:
+            response = custom_exception_handler(exc, self.get_renderer_context())
+            return response
 
     # Delete folders?
 
 class ClientCompanyFileView(APIView):
     permission_classes = [permissions.IsAuthenticated]
+    serializer_class = ClientCompanyFileSerializer
 
     def get(self, request, folder_id, format=None):
-        folder = get_object_or_404(ClientCompanyFolder, pk=folder_id, allowed_users=request.user)
-        files = folder.files.all()
-        serializer = ClientCompanyFileSerializer(files, many=True)
-        return Response(serializer.data)
+        try:
+            folder = get_object_or_404(ClientCompanyFolder, pk=folder_id, allowed_users=request.user)
+            files = folder.files.all()
+            serializer = ClientCompanyFileSerializer(files, many=True)
+            data = {
+                'message': 'Success',
+                'data': serializer.data
+            }
+            return Response(data, status=status.HTTP_200_OK)
+        except Exception as exc:
+            response = custom_exception_handler(exc, self.get_renderer_context())
+            return response
 
     def post(self, request, folder_id, format=None):
-        folder = get_object_or_404(ClientCompanyFolder, pk=folder_id, allowed_users=request.user)
-        data = request.data.copy()
-        data['folder'] = folder.id
-        serializer = ClientCompanyFileSerializer(data=data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            folder = get_object_or_404(ClientCompanyFolder, pk=folder_id, allowed_users=request.user)
+            req_data = request.data.copy()
+            req_data['folder'] = folder.id
+            serializer = ClientCompanyFileSerializer(data=req_data)
+            if serializer.is_valid():
+                serializer.save()
+                data = {
+                    'message': 'Success',
+                    'data': serializer.data
+                }
+                return Response(data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as exc:
+            response = custom_exception_handler(exc, self.get_renderer_context())
+            return response
     # Delete files?
 
 class ClientCompanyFileUpdateView(APIView):
     permission_classes = [permissions.IsAuthenticated]
+    serializer_class = ClientCompanyFileUpdateSerializer
 
     def get_object(self, pk):
         try:
@@ -262,12 +350,20 @@ class ClientCompanyFileUpdateView(APIView):
             return None
 
     def get(self, request, pk, format=None):
-        file = self.get_object(pk)
-        if file is None:
-            return Response({'detail': 'File not found.'}, status=status.HTTP_404_NOT_FOUND)
+        try:
+            file = self.get_object(pk)
+            if file is None:
+                return Response({'detail': 'File not found.'}, status=status.HTTP_404_NOT_FOUND)
 
-        serializer = ClientCompanyFileUpdateSerializer(file, context={'request': request})
-        return Response(serializer.data)
+            serializer = ClientCompanyFileUpdateSerializer(file, context={'request': request})
+            data = {
+                'message': 'Success',
+                'data': serializer.data
+            }
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Exception as exc:
+            response = custom_exception_handler(exc, self.get_renderer_context())
+            return response
 
     def put(self, request, pk, format=None):
         file = self.get_object(pk)
