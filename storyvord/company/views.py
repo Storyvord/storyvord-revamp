@@ -5,70 +5,116 @@ from rest_framework.permissions import IsAuthenticated
 from django.http import Http404
 from .models import * 
 from .serializers import *
+from storyvord.exception_handlers import custom_exception_handler
 
 class AddressBookAPIView(APIView):
     permission_classes = [IsAuthenticated]
     serializer_class = AddressBookSerializer
     def get(self, request, pk=None):
-        if pk:
-            try:
+        try:
+            if pk:
                 address = AddressBook.objects.get(pk=pk, company__user=request.user)
                 serializer = AddressBookSerializer(address)
-                return Response(serializer.data)
-            except AddressBook.DoesNotExist:
-                return Response({"error": "Address not found"}, status=status.HTTP_404_NOT_FOUND)
+                data = {
+                    "message": "Success",
+                    "data": serializer.data
+                }
+                return Response(data)
+            # except AddressBook.DoesNotExist:
+                # return Response({"error": "Address not found"}, status=status.HTTP_404_NOT_FOUND)
 
-        # Get all addresses for the user's company
-        addresses = AddressBook.objects.filter(company__user=request.user)
-        serializer = AddressBookSerializer(addresses, many=True)
-        return Response(serializer.data)
+            # Get all addresses for the user's company
+            addresses = AddressBook.objects.filter(company__user=request.user)
+            serializer = AddressBookSerializer(addresses, many=True)
+            data = {
+                "message": "Success",
+                "data": serializer.data
+            }
+            return Response(data)
+        except Exception as exc:
+            response = custom_exception_handler(exc, self.get_renderer_context())
+            return response
 
     def post(self, request):
-        serializer = AddressBookSerializer(data=request.data, context={'request': request})
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            serializer = AddressBookSerializer(data=request.data, context={'request': request})
+            if serializer.is_valid():
+                serializer.save()
+                data = {
+                    "message": "Success",
+                    "data": serializer.data
+                }
+                return Response(data, status=status.HTTP_201_CREATED)
+            data = {
+                "message": "Error",
+                "data": serializer.errors
+            }
+            return Response(data, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as exc:
+            response = custom_exception_handler(exc, self.get_renderer_context())
+            return response
 
     def put(self, request, pk):
         try:
             address = AddressBook.objects.get(pk=pk, company__user=request.user)
-        except AddressBook.DoesNotExist:
-            return Response({"error": "Address not found"}, status=status.HTTP_404_NOT_FOUND)
 
-        serializer = AddressBookSerializer(address, data=request.data, partial=True, context={'request': request})
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            serializer = AddressBookSerializer(address, data=request.data, partial=True, context={'request': request})
+            if serializer.is_valid():
+                serializer.save()
+                data = {
+                    "message": "Success",
+                    "data": serializer.data
+                }
+                return Response(data)
+            data = {
+                "message": "Error",
+                "data": serializer.errors
+            }
+            return Response(data, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as exc:
+            response = custom_exception_handler(exc, self.get_renderer_context())
+            return response
 
     def delete(self, request, pk):
         try:
             address = AddressBook.objects.get(pk=pk, company__user=request.user)
             address.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
-        except AddressBook.DoesNotExist:
-            return Response({"error": "Address not found"}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as exc:
+            response = custom_exception_handler(exc, self.get_renderer_context())
+            return response
 
 class CompanyTaskListCreateAPIView(APIView):
     permission_classes = [IsAuthenticated]
     serializer_class = CompanyTaskSerializer
 
     def get(self, request):
-        tasks = ClientCompanyTask.objects.filter(created_by=request.user)
-        serializer = CompanyTaskSerializer(tasks, many=True)
-        return Response(serializer.data)
+        try:
+            tasks = ClientCompanyTask.objects.filter(created_by=request.user)
+            serializer = CompanyTaskSerializer(tasks, many=True)
+            return Response(serializer.data)
+        except Exception as exc:
+            response = custom_exception_handler(exc, self.get_renderer_context())
+            return response
 
     def post(self, request):
-        serializer = CompanyTaskSerializer(data=request.data, context={'request': request})
-        if serializer.is_valid():
-            try:
+        try:
+            serializer = CompanyTaskSerializer(data=request.data, context={'request': request})
+            if serializer.is_valid():
                 task = serializer.save()
-                return Response(CompanyTaskSerializer(task).data, status=status.HTTP_201_CREATED)
-            except serializers.ValidationError as e:
-                custom_errors = self.format_validation_errors(e.detail)
-                return Response({'errors': custom_errors}, status=status.HTTP_400_BAD_REQUEST)
-        return Response({'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+                data = {
+                    "message": "Success",
+                    "data": serializer.data
+                }
+                return Response(data, status=status.HTTP_201_CREATED)
+            data = {
+                "message": "Error",
+                "data": serializer.errors
+            }
+            return Response(data, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as exc:
+            response = custom_exception_handler(exc, self.get_renderer_context())
+            return response
 
     def format_validation_errors(self, errors):
         formatted_errors = {}
@@ -90,22 +136,42 @@ class CompanyTaskDetailAPIView(APIView):
             raise Http404
 
     def get(self, request, pk):
-        task = self.get_object(pk)
-        serializer = CompanyTaskSerializer(task)
-        return Response(serializer.data)
+        try:
+            task = self.get_object(pk)
+            serializer = CompanyTaskSerializer(task)
+            return Response(serializer.data)
+        except Exception as exc:
+            response = custom_exception_handler(exc, self.get_renderer_context())
+            return response
 
     def put(self, request, pk):
-        task = self.get_object(pk)
-        serializer = CompanyTaskSerializer(task, data=request.data, context={'request': request})
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            task = self.get_object(pk)
+            serializer = CompanyTaskSerializer(task, data=request.data, context={'request': request})
+            if serializer.is_valid():
+                serializer.save()
+                data = {
+                    "message": "Success",
+                    "data": serializer.data
+                }
+                return Response(data)
+            data = {
+                "message": "Error",
+                "data": serializer.errors
+            }
+            return Response(data, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as exc:
+            response = custom_exception_handler(exc, self.get_renderer_context())
+            return response
 
     def delete(self, request, pk):
-        task = self.get_object(pk)
-        task.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        try:
+            task = self.get_object(pk)
+            task.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except Exception as exc:
+            response = custom_exception_handler(exc, self.get_renderer_context())
+            return response
 
 
 class TaskCompletionRequestView(APIView):
@@ -115,15 +181,20 @@ class TaskCompletionRequestView(APIView):
     def post(self, request, pk, format=None):
         try:
             task = ClientCompanyTask.objects.get(pk=pk, assigned_to=request.user)
-        except ClientCompanyTask.DoesNotExist:
-            return Response({"error": "Task not found."}, status=status.HTTP_404_NOT_FOUND)
 
-        task.completion_requested = True
-        task.requester = request.user
-        task.save()
+            task.completion_requested = True
+            task.requester = request.user
+            task.save()
 
-        serializer = TaskCompletionRequestSerializer(task)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+            serializer = TaskCompletionRequestSerializer(task)
+            data = {
+                "message": "Success",
+                "data": serializer.data
+            }
+            return Response(data, status=status.HTTP_200_OK)
+        except Exception as exc:
+            response = custom_exception_handler(exc, self.get_renderer_context())
+            return response
 
 
 class TaskCompletionApprovalView(APIView):
@@ -133,28 +204,37 @@ class TaskCompletionApprovalView(APIView):
     def post(self, request, pk, format=None):
         try:
             task = ClientCompanyTask.objects.get(pk=pk, created_by=request.user)
-        except ClientCompanyTask.DoesNotExist:
-            return Response({"error": "Task not found."}, status=status.HTTP_404_NOT_FOUND)
+            task.completed = True
+            task.completion_requested = False
+            task.requester = None
+            task.save()
 
-        if not task.completion_requested:
-            return Response({"error": "No completion request found for this task."}, status=status.HTTP_400_BAD_REQUEST)
-
-        task.completed = True
-        task.completion_requested = False
-        task.requester = None
-        task.save()
-
-        serializer = CompanyTaskSerializer(task)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+            serializer = CompanyTaskSerializer(task)
+            data = {
+                "message": "Success",
+                "data": serializer.data
+            }
+            return Response(data, status=status.HTTP_200_OK)
+        except Exception as exc:
+            response = custom_exception_handler(exc, self.get_renderer_context())
+            return response
 
 
 class TaskPendingToApprovalView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        tasks = ClientCompanyTask.objects.filter(created_by=request.user, completion_requested=True)
-        serializer = CompanyTaskSerializer(tasks, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        try:
+            tasks = ClientCompanyTask.objects.filter(created_by=request.user, completion_requested=True)
+            serializer = CompanyTaskSerializer(tasks, many=True)
+            data = {
+                "message": "Success",
+                "data": serializer.data
+            }
+            return Response(data, status=status.HTTP_200_OK)
+        except Exception as exc:
+            response = custom_exception_handler(exc, self.get_renderer_context())
+            return response 
 
 
 class EmployeeTaskListView(APIView):
@@ -162,9 +242,17 @@ class EmployeeTaskListView(APIView):
     serializer_class = CompanyTaskSerializer
 
     def get(self, request, format=None):
-        tasks = ClientCompanyTask.objects.filter(assigned_to=request.user)
-        serializer = CompanyTaskSerializer(tasks, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        try:
+            tasks = ClientCompanyTask.objects.filter(assigned_to=request.user)
+            serializer = CompanyTaskSerializer(tasks, many=True)
+            data = {
+                "message": "Success",
+                "data": serializer.data
+            }
+            return Response(data, status=status.HTTP_200_OK)
+        except Exception as exc:
+            response = custom_exception_handler(exc, self.get_renderer_context())
+            return response
 
 
 class EmployeeTaskDetailView(APIView):
@@ -174,11 +262,16 @@ class EmployeeTaskDetailView(APIView):
     def get(self, request, pk, format=None):
         try:
             task = ClientCompanyTask.objects.get(pk=pk, assigned_to=request.user)
-        except ClientCompanyTask.DoesNotExist:
-            return Response({"error": "Task not found."}, status=status.HTTP_404_NOT_FOUND)
 
-        serializer = CompanyTaskSerializer(task)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+            serializer = CompanyTaskSerializer(task)
+            data = {
+                "message": "Success",
+                "data": serializer.data
+            }
+            return Response(data, status=status.HTTP_200_OK)
+        except Exception as exc:
+            response = custom_exception_handler(exc, self.get_renderer_context())
+            return response
 
 class EmployeeListView(APIView):
     def get(self, request, *args, **kwargs):
@@ -186,16 +279,33 @@ class EmployeeListView(APIView):
             client_profile = ClientProfile.objects.get(user=request.user)
             employees = client_profile.employee_profile.all()
             serializer = UserSerializer(employees, many=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        except ClientProfile.DoesNotExist:
-            return Response({"detail": "Client profile does not exist for the current user."}, status=status.HTTP_404_NOT_FOUND)
+            data = {
+                "message": "Success",
+                "data": serializer.data
+            }
+            return Response(data, status=status.HTTP_200_OK)
+        except Exception as exc:
+            response = custom_exception_handler(exc, self.get_renderer_context())
+            return response
         
 
 class FileUploadView(APIView):
     def post(self, request, *args, **kwargs):
-        file_serializer = UploadedFileSerializer(data=request.data)
-        print(file_serializer)
-        if file_serializer.is_valid():
-            file_serializer.save()
-            return Response(file_serializer.data, status=status.HTTP_201_CREATED)
-        return Response(file_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            file_serializer = UploadedFileSerializer(data=request.data)
+            print(file_serializer)
+            if file_serializer.is_valid():
+                file_serializer.save()
+                data = {
+                    "message": "Success",
+                    "data": file_serializer.data
+                }
+                return Response(data, status=status.HTTP_201_CREATED)
+            data = {
+                "message": "Error",
+                "data": file_serializer.errors
+            }
+            return Response(data, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as exc:
+            response = custom_exception_handler(exc, self.get_renderer_context())
+            return response
