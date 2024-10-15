@@ -4,8 +4,8 @@ from django.http import Http404
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .models import Project, Task
-from .serializers import *
+from ..models import Project, Task
+from ..serializers.serializers_v1 import *
 from rest_framework.permissions import IsAuthenticated
 from django.core.exceptions import ValidationError
 

@@ -63,8 +63,17 @@ class ProjectDetailsSerializer(serializers.ModelSerializer):
         if user_type is None or not user_type.permissions.filter(id=create_project_permission.id).exists():
             raise PermissionDenied("You don't have permission to create a project.")
         
-        validated_data['owner'] = self.context['request'].user
-        return ProjectDetails.objects.create(**validated_data)
+        validated_data['owner'] = user
+        
+        # Create the project
+        project = ProjectDetails.objects.create(**validated_data)
+        
+        admin_role = Role.objects.filter(name='admin').first()  # Adjust the role name as necessary
+        
+        if admin_role:
+            Membership.objects.create(user=user, role=admin_role, project=project)
+        
+        return project
 
 # Project Requirements Serializer
 class ProjectRequirementsSerializer(serializers.ModelSerializer):
