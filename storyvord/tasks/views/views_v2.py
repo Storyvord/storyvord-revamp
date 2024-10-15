@@ -2,6 +2,7 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework import status
 from ..models import ProjectTask
+from project.models import Membership
 from django.db.models import Q
 from ..serializers.serializers_v2 import ProjectTaskSerializer
 from rest_framework.permissions import IsAuthenticated
@@ -15,7 +16,7 @@ class ProjectTaskViewSet(viewsets.ModelViewSet):
     queryset = ProjectTask.objects.all()
     serializer_class = ProjectTaskSerializer
     permission_classes = [IsAuthenticated]  # Adjust permissions as needed
-    
+        
     # Override the initial method to add token validation
     def initial(self, request, *args, **kwargs):
         super().initial(request, *args, **kwargs)
@@ -65,23 +66,102 @@ class ProjectTaskViewSet(viewsets.ModelViewSet):
 
     # List Tasks
     def list(self, request, *args, **kwargs):
-        project_id = request.query_params.get('project', None)
-        logger.debug(f'Project ID: {project_id}')
-        if project_id:
-            tasks = self.queryset.filter(project=project_id)
-        else:
-            tasks = self.queryset.all()  
-        serializer = self.get_serializer(tasks, many=True)
-        return Response(serializer.data)
-    
+        try:
+            user = request.user
+            tasks = self.queryset.filter(Q(assigned_to__user=user))
+            data = {
+                'status': status.HTTP_201_CREATED,
+                'message': 'Task Fetched successfully',
+                'data': {
+                    'tasks': [
+                        {
+                            'id': task.id,
+                            'title': task.title,
+                            'description': task.description,
+                            'assigned_to': [
+                                {
+                                    'id': membership.user.id,
+                                    'email': membership.user.email,
+                                } for membership in task.assigned_to.all()
+                            ],
+                            'due_date': task.due_date,
+                            'status': task.status,
+                            'is_completed': task.is_completed
+                        } for task in tasks
+                    ]
+                }
+            }
+            return Response(data)
+        except Exception as exc:
+            logger.error(f"Error getting tasks: {exc}")
+            response = custom_exception_handler(exc, self.get_renderer_context())
+            return response  
+        
     # Retrieve a single task
     def retrieve(self, request, *args, **kwargs):
-        task = self.get_object()
-        serializer = self.get_serializer(task)
-        return Response(serializer.data)
+        try:
+            user = request.user
+            task = self.queryset.filter(assigned_to__user=user).get(pk=kwargs['pk'])
+            data = {
+                'status': status.HTTP_200_OK,
+                'message': 'Task Fetched successfully',
+                'data': {
+                    'id': task.id,
+                    'title': task.title,
+                    'description': task.description,
+                    'assigned_to': [
+                        {
+                            'id': membership.user.id,
+                            'email': membership.user.email,
+                        } for membership in task.assigned_to.all()
+                    ],
+                    'due_date': task.due_date,
+                    'status': task.status,
+                    'is_completed': task.is_completed
+                }
+            }
+            return Response(data)
+        except Exception as exc:
+            logger.error(f"Error retierving task: {exc}")
+            response = custom_exception_handler(exc, self.get_renderer_context())
+            return response
     
     # Delete a task
     def destroy(self, request, *args, **kwargs):
-        task = self.get_object()
-        task.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        try:
+            user = request.user
+            tasks = self.queryset.filter(assigned_to__user=user)
+            if tasks.count() == 0:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+            
+            task = tasks.get(pk=kwargs['pk'])
+            if task.assigned_by != user:
+                raise Exception("You are not authorized to delete this task.")
+            task.delete()
+            data = {
+                'status': status.HTTP_200_OK,
+                'message': 'Tasks Fetched successfully',
+                'data': {
+                    'tasks': [
+                        {
+                            'id': task.id,
+                            'title': task.title,
+                            'description': task.description,
+                            'assigned_to': [
+                                {
+                                    'id': membership.user.id,
+                                    'email': membership.user.email,
+                                } for membership in task.assigned_to.all()
+                            ],
+                            'due_date': task.due_date,
+                            'status': task.status,
+                            'is_completed': task.is_completed
+                        } for task in tasks
+                    ]
+                }
+            }
+            return Response(data)
+        except Exception as exc:
+            logger.error(f"Error getting all tasks: {exc}")
+            response = custom_exception_handler(exc, self.get_renderer_context())
+            return response

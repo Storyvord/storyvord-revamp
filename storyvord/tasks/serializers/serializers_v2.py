@@ -62,13 +62,4 @@ class ProjectTaskSerializer(serializers.ModelSerializer):
         
         instance.save()
         return instance
-    
-    def to_representation(self, instance):
-        """Customizes the representation of the `assigned_to` field."""
-        rep = super().to_representation(instance)
-        
-        # Retrieve and serialize the assigned_to users
-        rep['assigned_to'] = User.objects.filter(id__in=instance.assigned_to.values_list('id', flat=True)).values('id', 'email')
-        
-        return rep
         
