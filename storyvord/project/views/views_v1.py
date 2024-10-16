@@ -30,16 +30,15 @@ class ProjectOnboardView(APIView):
                                  'code': status.HTTP_400_BAD_REQUEST,
                                  'message': 'User has already completed the onboarding process'}, status=status.HTTP_400_BAD_REQUEST)
             serializer = ProjectSerializer(data=request.data)
-            if serializer.is_valid():
-                serializer.save(user=user)
-                user.steps = True
-                user.save()
-                data = {
-                    'message': 'Success',
-                    'data': serializer.data
-                }
-                return Response(data, status=status.HTTP_201_CREATED)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            serializer.is_valid(exception=True)
+            serializer.save(user=user)
+            user.steps = True
+            user.save()
+            data = {
+                'message': 'Success',
+                'data': serializer.data
+            }
+            return Response(data, status=status.HTTP_201_CREATED)
         except Exception as exc:
             response = custom_exception_handler(exc, self.get_renderer_context())
             return response
@@ -67,14 +66,13 @@ class ProjectListCreateView(GenericAPIView):
     def post(self, request):
         try:
             serializer = ProjectSerializer(data=request.data)
-            if serializer.is_valid():
-                serializer.save(user=request.user)
-                data = {
-                    'message': 'Success',
-                    'data': serializer.data
-                }
-                return Response(data, status=status.HTTP_201_CREATED)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            serializer.is_valid(exception=True)
+            serializer.save(user=request.user)
+            data = {
+                'message': 'Success',
+                'data': serializer.data
+            }
+            return Response(data, status=status.HTTP_201_CREATED)
         except Exception as exc:
             response = custom_exception_handler(exc, self.get_renderer_context())
             return response
@@ -109,14 +107,13 @@ class ProjectDetailView(GenericAPIView):
         try:
             project = self.get_object(pk, request.user)
             serializer = ProjectSerializer(project, data=request.data, partial=True)
-            if serializer.is_valid():
-                serializer.save()
-                data = {
-                    'message': 'Success',
-                    'data': serializer.data
-                }
-                return Response(data, status=status.HTTP_200_OK)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            serializer.is_valid(exception=True)
+            serializer.save()
+            data = {
+                'message': 'Success',
+                'data': serializer.data
+            }
+            return Response(data, status=status.HTTP_200_OK)
         except Exception as exc:
             response = custom_exception_handler(exc, self.get_renderer_context())
             return response
@@ -168,7 +165,9 @@ class UpdateOnboardRequestView(APIView):
 
             status2 = request.data.get('status')
             if status2 not in ['accepted', 'declined']:
-                return Response({'error': 'Invalid status'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'status': False,
+                                 'code': status.HTTP_400_BAD_REQUEST,
+                                 'message': 'Invalid status'}, status=status.HTTP_400_BAD_REQUEST)
         
             print(onboard_request.status)
 
